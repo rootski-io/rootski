@@ -1,0 +1,13 @@
+rootski_model/data/test_clean.tsv filter=lfs diff=lfs merge=lfs -text
+_rootski_model/data/train_clean.csv filter=lfs diff=lfs merge=lfs -text
+_rootski_model/data/train_Tikhonov_reformat.txt filter=lfs diff=lfs merge=lfs -text
+_rootski_model/data/train_clean.tsv filter=lfs diff=lfs merge=lfs -text
+_rootski_model/data/train_merged.tsv filter=lfs diff=lfs merge=lfs -text
+_rootski_model/data/test_Tikhonov_reformat.txt filter=lfs diff=lfs merge=lfs -text
+_rootski_model/data/test_clean.csv filter=lfs diff=lfs merge=lfs -text
+_rootski_model/data/test_merged.tsv filter=lfs diff=lfs merge=lfs -text
+_rootski_model/data/text filter=lfs diff=lfs merge=lfs -text
+_rootski_model/links.csv filter=lfs diff=lfs merge=lfs -text
+_rootski_model/literature_word_counts.csv filter=lfs diff=lfs merge=lfs -text
+_rootski_model/news_word_counts.csv filter=lfs diff=lfs merge=lfs -text
+_rootski_model/sample.rtf filter=lfs diff=lfs merge=lfs -text

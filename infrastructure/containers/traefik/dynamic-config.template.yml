@@ -1,0 +1,116 @@
+# This file is a template with the following variables:
+#
+# certresolver: should be one of ["letsencrypt-prod-dns", "letsencrypt-staging-dns"]
+# roostki_domain: something like "www.rootski.io" or "www.rootski.localhost"
+# rootski_api_domain: something like "api.rootski.io" or "api.rootski.localhost"
+# traefik_ui_domain: something like "traefik.rootski.io" or "traefik.rootski.localhost"
+#
+# These variables tell Traefik which domains to get LetsEncrypt TLS certs for
+#
+# For more information about how this file works with the docker-compose.yml
+# file, see the traefik-notes.md file in the root of this repo.
+
+http:
+
+  # middlewares are referenced in the routers further down
+  middlewares:
+
+    redirect-http-to-https:
+      redirectScheme:
+        scheme: https
+
+    traefik-ui-password-protection:
+      basicAuth:
+        usersFile: /etc/traefik/traefik-ui-users.htpasswd
+
+    rootski-docs-password-protection:
+      basicAuth:
+        usersFile: /etc/traefik/rootski-docs-users.htpasswd
+
+    reroute-default-docker-swarm-rootski-api:
+      redirectRegex:
+        regex: ".*rootski-rootski-api.*"
+        replacement: "https://${rootski_domain}"
+
+    ratelimit-by-ip:
+      # rate = average / period
+      rateLimit:
+        average: 100
+        period: 10s
+
+
+  routers:
+
+    traefik-ui-http:
+      rule: HostRegexp(`{the-traefik-subdomain:traefik.+}`)
+      entryPoints:
+        - http
+      service: api@internal
+      middlewares:
+        - redirect-http-to-https@file
+        # - ratelimit-by-ip
+
+    traefik-ui-https:
+      # run requests through this router whenever the hostname starts with "traefik"
+      rule: HostRegexp(`{the-traefik-subdomain:traefik.+}`)
+      entryPoints:
+        - https
+      service: api@internal
+      tls:
+        certresolver: ${certresolver}
+        domains:
+          - main: ${traefik_ui_domain}
+      middlewares:
+        - traefik-ui-password-protection
+        # - ratelimit-by-ip
+
+    # http router for the rootski api
+    rootski-api-http:
+      rule: HostRegexp(`{the-api-subdomain:api.+}`)
+      entryPoints:
+        - http
+      service: rootski-api-service@docker
+      middlewares:
+        - redirect-http-to-https@file
+        # - ratelimit-by-ip
+
+    # https router for "/docs" and "/redoc" on the rootski api
+    rootski-api-https-with-auth:
+      rule: HostRegexp(`{the-api-subdomain:api.+}`) && (PathPrefix(`/docs`) || PathPrefix(`/redoc`)) # || PathPrefix(`/openapi.json`))
+      entryPoints:
+        - https
+      service: rootski-api-service@docker
+      tls:
+        certresolver: ${certresolver}
+        domains:
+          - main: ${rootski_api_domain}
+      middlewares:
+        - rootski-docs-password-protection
+        # - ratelimit-by-ip
+
+    # general https router for the rootski api
+    rootski-api-https:
+      rule: HostRegexp(`{the-api-subdomain:api.+}`)
+      entryPoints:
+        - https
+      service: rootski-api-service@docker
+      tls:
+        certresolver: ${certresolver}
+        domains:
+          - main: ${rootski_api_domain}
+      middlewares:
+        - ratelimit-by-ip
+
+    # docker swarm seems to create a default router for each service (in this case rootski_api)
+    # with the name <stackname>-<service_name with hyphens>, e.g. rootski_api -> Host(`rootski-rootski-api`).
+    # This is bad because it makes it easy to bypass the other routers. Someone could access the docs like this:
+    # curl http://<rootski ip>/docs -H "Host: rootski-rootski-api"; this is bad, so we fix it here
+    default-rootski-api-router:
+      rule: HostRegexp(`{default-router-host:.*rootski-rootski-api.*}`)
+      entryPoints:
+        - https
+        - http
+      service: rootski-api-service@docker
+      middlewares:
+        - reroute-default-docker-swarm-rootski-api
+        - ratelimit-by-ip

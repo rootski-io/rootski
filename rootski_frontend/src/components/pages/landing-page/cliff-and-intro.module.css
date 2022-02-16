@@ -1,0 +1,120 @@
+/*
+ * Cliff image and rootski intro
+ */
+.rootskiIntro {
+  height: 10;
+  border-left: 8px solid black;
+  padding-left: 14px;
+  margin-left: 3%;
+}
+
+.rootskiIntro p {
+  font-size: 18px;
+  margin-top: 15px;
+  line-height: 120%;
+}
+
+.rootskiIntro svg {
+  max-width: 150px;
+}
+
+@media screen and (max-width: 500px) {
+  /* zoom in on the cliff */
+  .cliffSVG {
+    width: 800px;
+    transform: translateX(-255px);
+  }
+
+  .rootskiIntro {
+    margin-top: -36px;
+  }
+}
+
+@media screen and (min-width: 500px) {
+  .rootskiIntro {
+    position: absolute;
+    left: 0;
+    bottom: 0px;
+  }
+
+  .cliffSVG {
+    transform: translateX(-150px);
+    min-width: 800px;
+  }
+}
+
+@media screen and (min-width: 580px) {
+  .cliffSVG {
+    transform: translateX(-240px);
+    min-width: 1000px;
+  }
+}
+
+@media screen and (min-width: 650px) {
+  .cliffSVG {
+    transform: translateX(-350px);
+    min-width: 1250px;
+  }
+
+  .rootskiIntro p {
+    font-size: 21px;
+  }
+
+  .rootskiIntro svg {
+    max-width: 200px;
+  }
+}
+
+@media screen and (min-width: 800px) {
+  .cliffSVG {
+    transform: translateX(-250px);
+    min-width: 1250px;
+  }
+
+  .rootskiIntro {
+    bottom: 40px;
+    left: 3%;
+    padding-left: 20px;
+  }
+
+  .rootskiIntro p {
+    font-size: 25px;
+  }
+
+  .rootskiIntro svg {
+    max-width: 300px;
+  }
+}
+
+@media screen and (min-width: 850px) {
+  .cliffSVG {
+    transform: translateX(-200px);
+    min-width: 1250px;
+  }
+}
+
+@media screen and (min-width: 1050px) {
+  .cliffSVG {
+    transform: translateX(0px);
+    min-width: 1250px;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .cliffSVG {
+    transform: translateX(100px);
+    min-width: 1250px;
+  }
+
+  .rootskiIntro {
+    /* bottom: 50%; */
+    left: 10%;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .rootskiIntro {
+    bottom: 25%;
+    left: 10%;
+  }
+}

@@ -1,0 +1,4 @@
+volume/log/traefik.log
+volume/*.htpasswd
+volume/dynamic-config.yml
+volume/acme.json

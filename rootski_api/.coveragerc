@@ -1,0 +1,31 @@
+[run]
+branch = True
+
+[paths]
+source =
+    src/
+
+[report]
+include =
+    src/rootski/*
+show_missing = true
+exclude_lines =
+    pragma: no cover
+    if False
+    def __repr__
+    if self\.debug
+    raise AssertionError
+    raise NotImplementedError
+    raise MemoryError
+    except DistributionNotFound
+    except ImportError
+    @abc.abstractmethod
+    if 0:
+    if __name__ == .__main__.:
+    if typing.TYPE_CHECKING:
+
+[html]
+directory=test-reports/htmlcov
+
+[xml]
+output=test-reports/coverage.xml

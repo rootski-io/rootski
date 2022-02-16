@@ -1,0 +1,9 @@
+{
+  "auth": {
+    "authapp3375bbd9": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": []
+    }
+  }
+}

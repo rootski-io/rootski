@@ -1,0 +1,77 @@
+log:
+  # if the log level is DEBUG, you can filter only the logs you want with
+  # 'tail -f /etc/traefik/traefik.log | grep info'
+  level: DEBUG
+  filePath: /etc/traefik/traefik.log
+
+accesslog:
+  filePath: /etc/traefik/access.log
+
+api:
+  dashboard: true
+
+entryPoints:
+  http:
+    address: :80
+  https:
+    address: :443
+
+# providers are sources of dynamic config; in this case, we'll use
+# docker swarm labels (docker provider), and also a file called
+# dynamic-config.yml (file provider)
+providers:
+  docker:
+    exposedByDefault: true
+    network: traefik # created in docker-compose.yml
+    endpoint: unix:///var/run/docker.sock
+    swarmMode: true
+    # stop from logging this a million times per second: "Skipping same configuration" providerName=file
+    swarmModeRefreshSeconds: 30
+  # file:
+    # filename: /etc/traefik/dynamic-config.yml
+    # directory: /etc/traefik/
+    # watch: true # only seems to work for "directory" not "filename"
+
+# (1) A router can be assigned a certificate resolver; it will use that
+#     resolver to get TLS certs for each domain in the router.tls.domains list.
+#     If no router.tls.domains list is specified, it will look for Host(``)
+#     matchers in the router.rule section for domains to get certs for.
+# (2) The docs on ACME/LetsEncrypt are here: https://doc.traefik.io/traefik/https/acme/
+certificatesResolvers:
+
+  # prod letsencrypt API grants 5 valid certs per hour, then locked out for hour
+  letsencrypt-prod-dns:
+    acme:
+      email: eric.russia97@gmail.com
+      storage: /etc/traefik/acme.json
+      caServer: "https://acme-v02.api.letsencrypt.org/directory"
+      dnsChallenge:
+        provider: route53
+        delayBeforeCheck: 0
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+
+  # dev letsencrypt API has no rate limit, but all of the certificates it issues are invalid
+  letsencrypt-staging-dns:
+    acme:
+      email: eric.russia97@gmail.com
+      storage: /etc/traefik/acme.json
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory" # staging (infinite invalid certs)
+      dnsChallenge:
+        provider: route53
+        delayBeforeCheck: 0
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+
+  # This resolver can be used for local development when we don't actually want
+  # HTTPS certs. LE won't be able to reach our local network so this will always fail,
+  # but it also doesn't require AWS credentials.
+  letsencrypt-staging-http:
+    acme:
+      email: eric.russia97@gmail.com
+      storage: /etc/traefik/acme.json
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory" # staging (infinite invalid certs)
+      httpChallenge:
+        entryPoint: http

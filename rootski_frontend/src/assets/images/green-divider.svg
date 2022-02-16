@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 8009 2987" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-278.907,-10836.1)">
+        <g id="green-divider" transform="matrix(1,0,0,0.763109,279.264,4615.34)">
+            <rect x="-0.357" y="8151.91" width="8008.58" height="3913.97" style="fill:rgb(38,81,78);"/>
+            <!-- <clipPath id="_clip1">
+                <rect x="-0.357" y="8151.91" width="8008.58" height="3913.97"/>
+            </clipPath> -->
+            <!-- <g clip-path="url(#_clip1)"> -->
+                <g transform="matrix(1,0,0,1.31043,0,-2534.52)">
+                    <path d="M-241.539,9315.77C-241.539,9315.77 218.365,9610.37 1191.56,9665.01C2164.75,9719.65 5129.21,7841.72 6215.94,7864.16C7302.67,7886.6 -535.165,7803.2 -535.165,7803.2L-241.539,9315.77Z" style="fill:rgb(42,90,87);"/>
+                </g>
+                <g transform="matrix(4.29286,0,0,5.62549,-1766.47,-50357.3)">
+                    <circle cx="786.176" cy="11096.5" r="86.824" style="fill:rgb(42,90,87);"/>
+                </g>
+                <g transform="matrix(21.7094,0,0,10.0496,-10247.9,-103496)">
+                    <circle cx="786.176" cy="11096.5" r="86.824" style="fill:rgb(42,90,87);"/>
+                </g>
+                <g transform="matrix(7.66896,0,0,10.0496,2238,-100322)">
+                    <circle cx="786.176" cy="11096.5" r="86.824" style="fill:rgb(42,90,87);"/>
+                </g>
+                <g transform="matrix(1,0,0,1.31043,-584.149,-3234.06)">
+                    <circle cx="786.176" cy="11096.5" r="86.824" style="fill:rgb(42,90,87);"/>
+                </g>
+            <!-- </g> -->
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,15 @@
+{
+  "projectName": "auth_app",
+  "version": "3.0",
+  "frontend": "javascript",
+  "javascript": {
+    "framework": "react",
+    "config": {
+      "SourceDir": "src",
+      "DistributionDir": "dist",
+      "BuildCommand": "react-scripts build",
+      "StartCommand": "react-scripts start --watch"
+    }
+  },
+  "providers": ["awscloudformation"]
+}

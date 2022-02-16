@@ -1,0 +1,62 @@
+# AWS XRay config docs: https://aws-otel.github.io/docs/getting-started/x-ray#configuring-the-aws-x-ray-exporter
+# General OpenTelemetry config docs: https://opentelemetry.io/docs/collector/configuration/
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:55681
+
+  # this config is *actual* valid prometheus config:
+  # https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: "dockerd-collector"
+          scrape_interval: 5s
+          metrics_path: /metrics
+          static_configs:
+            - targets: ["dockerd-exporter:9323"]
+        # - job_name: "dockerd-collector"
+        #   scrape_interval: 5s
+        #   static_configs:
+        #     - targets: ["dockerd-exporter:8888"]
+
+processors:
+  batch:
+
+exporters:
+  logging:
+    loglevel: debug
+  awsxray:
+  # emf -> cloudwatch: https://aws-otel.github.io/docs/getting-started/cloudwatch-metrics
+  # emf formatted logs (metrics in logs): https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/publishingMetrics.html
+  awsemf:
+    log_group_name: /rootski-otel-emf-group
+    log_stream_name: /otel-emf-stream
+    namespace: Rootski-OTel-Metrics
+    dimension_rollup_option: 1
+
+# processors:
+#   memorylimiter:
+#     limit_mib: 100
+#     check_interval: 5s
+
+service:
+  pipelines:
+    traces:
+      # processors:
+      #   - memorylimiter
+      receivers:
+        - otlp
+      exporters:
+        - awsxray
+
+    metrics:
+      receivers:
+        - otlp
+        - prometheus
+      exporters:
+        - awsemf

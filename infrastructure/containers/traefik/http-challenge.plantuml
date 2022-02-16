@@ -1,0 +1,25 @@
+@startuml
+title HTTP-01 ACME Challenge
+actor "Rootski Engineer" as Dev
+footer
+Note that LetsEncrypt has to be able to reach the server where Traefik
+is running. That means that this challenge won't work if you are running
+Traefik on a home server and don't have your port forwarded. If you need
+to be able to run Traefik on a local network that is inaccessible from outside
+the network, you'll need to use the DNS-01 challenge.
+endfooter
+participant Traefik as T
+participant Route53 as R
+participant LetsEncrypt as LE
+Dev -> R: Points **<color green>api.rootski.io</color>** at IP address \nof server where Traefik is running
+Dev -> T: Starts up Traefik
+T -> LE: initiates HTTP-01 challenge on \nbehalf of **<color green>api.rootski.io</color>**
+LE -> T: responds with TXT file to place at \n**<color green>api.rootski.io/.well-known/...</color>**
+T -> T: Prepares the **<color green>/.well-known/...</color>** route \nto return the TXT file
+T -> LE: Sends a request to signal that \nit's ready to be checked!
+LE -> R: Sends a GET request to \n**<color green>api.rootski.io/.well-known/...</color>**
+R -> T: The request makes it to the traefik server \nbecause **<color green>api.rootski.io/.well-known/...</color>** \npoints to the IP of that server
+T -> LE: Traefik responds with the TXT file 🚀
+T -> LE: Traefik requests the TLS cert (???) \nIs that how it gets the cert?
+LE -> T: Responds with the cert! 🎉 🎉 🎉
+@enduml

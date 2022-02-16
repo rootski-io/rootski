@@ -1,0 +1,35 @@
+# run with: mlflow run . -e train --no-conda --experiment-name test
+
+name: PyTorch Transformer
+
+# docker_env:
+#   image: eriddoch/pytorch-transformer:latest
+#   # local development only
+#   # volumes:
+#   #   - ".:/usr/src/app"
+#   environment:
+#     # copy from the local environment
+#     - AWS_ACCESS_KEY_ID
+#     - AWS_SECRET_ACCESS_KEY
+#     # set explicitly
+#     # - ["MLFLOW_TRACKING_URI", "http://host.docker.internal:5000"]
+#     # - "MLFLOW_TRACKING_URI"
+
+entry_points:
+  train:
+    parameters:
+      implementation: {type: string, default: test.py} # can also be colab_implementation.py
+      train_data:     {type: string, default: ./data/train_clean_double.tsv} # could also be an S3 URI
+      val_data:       {type: string, default: ./data/test_clean_double.tsv}
+      heads:          {type: float, default: 6} # number of attention heads
+      encoder_layers: {type: float, default: 3}
+      decoder_layers: {type: float, default: 3}
+      embedding_dim:  {type: float, default: 16} # d_model
+    command: >
+      python3 {implementation} \
+        --train_data {train_data} \
+        --val_data {val_data} \
+        --heads {heads} \
+        --encoder_layers {encoder_layers} \
+        --decoder_layers {decoder_layers} \
+        --embedding_dim {embedding_dim}

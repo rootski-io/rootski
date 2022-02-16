@@ -1,0 +1,11 @@
+{
+  "Rootski-Database-Backups-Bucket-cdk": {
+    "rootskidbbackupss3bucketname": "rootski-database-backups",
+    "ExportsOutputFnGetAttrootskidatabasebackups2151B1BCArn6EBA0B2D": "arn:aws:s3:::rootski-database-backups",
+    "rootskidbbackupss3bucketarn": "arn:aws:s3:::rootski-database-backups"
+  },
+  "Rootski-Lightsail-IAM-User-cdk": {
+    "rootskiiamusersecretkeyidoutput": "arn:aws:secretsmanager:us-west-2:091910621680:secret:Rootskiiamusersecretkeyid60-GaAaUOV1kHzA-pv0OkA",
+    "rootskiiamusersecretkeyoutput": "arn:aws:secretsmanager:us-west-2:091910621680:secret:RootskiiamusersecretkeyD77A-2WwEdrqYAhi2-2BZJ97"
+  }
+}

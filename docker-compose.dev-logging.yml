@@ -1,0 +1,108 @@
+# The awslogs docker log driver doesn't work on Mac or Windows.
+# Hence, this file is used instead of docker-compose.logging.yml
+# when running rootski in development mode.
+
+version: "3.9"
+
+x-env-var-check:
+  - ${LOGSPOUT_CLOUDWATCH__AWS_REGION?Variable not set}
+  - ${LOGSPOUT_CLOUDWATCH__GROUP_PREFIX?Variable not set}
+  # These are optional; if not present, the awslogs driver will try to use
+  # IAM role based permissions to create the log groups and streams
+  - ${LOGSPOUT_CLOUDWATCH__AWS_ACCESS_KEY_ID?Variable not set}
+  - ${LOGSPOUT_CLOUDWATCH__AWS_SECRET_ACCESS_KEY?Variable not set}
+
+
+services:
+
+  # logspout-cloudwatch docs: https://github.com/mdsol/logspout-cloudwatch
+  # logspout base image docs: https://github.com/gliderlabs/logspout
+  logspout-cloudwatch:
+    image: mdsol/logspout
+    command: "cloudwatch://${LOGSPOUT_CLOUDWATCH__AWS_REGION}?DEBUG=1&NOEC2"
+    environment:
+      AWS_ACCESS_KEY_ID: ${XRAY__AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${XRAY__AWS_SECRET_ACCESS_KEY}
+      EXCLUDE_LABELS: "logspout=disable"
+      # LOGSPOUT_STREAM: {{.Lbl "logstream.name"}}
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    networks:
+      - backend
+      - traefik
+    deploy:
+      mode: global
+      labels:
+        traefik.enable: "false"
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: 256M
+        reservations:
+          cpus: "0.10"
+          memory: 128M
+
+
+  #######################
+  # --- Rootski API --- #
+  #######################
+
+  rootski_api:
+    # labels:
+      # logspout: disable
+    environment:
+      LOGSPOUT_GROUP: ${LOGSPOUT_CLOUDWATCH__GROUP_PREFIX}/rootski_api
+
+
+  ###################
+  # --- Traefik --- #
+  ###################
+
+  traefik:
+    labels:
+      logspout: disable
+    environment:
+      LOGSPOUT_GROUP: ${LOGSPOUT_CLOUDWATCH__GROUP_PREFIX}/traefik
+
+
+  ####################
+  # --- Database --- #
+  ####################
+
+  postgres:
+    # labels:
+      # logspout: disable
+    environment:
+      LOGSPOUT_GROUP: ${LOGSPOUT_CLOUDWATCH__GROUP_PREFIX}/postgres
+
+
+  pgadmin:
+    labels:
+      logspout: disable
+    environment:
+      LOGSPOUT_GROUP: ${LOGSPOUT_CLOUDWATCH__GROUP_PREFIX}/pgadmin
+
+
+  database-backup:
+    labels:
+      logspout: disable
+    environment:
+      LOGSPOUT_GROUP: ${LOGSPOUT_CLOUDWATCH__GROUP_PREFIX}/database
+
+
+  #####################
+  # --- Portainer --- #
+  #####################
+
+  portainer-ui:
+    labels:
+      logspout: disable
+    environment:
+      LOGSPOUT_GROUP: ${LOGSPOUT_CLOUDWATCH__GROUP_PREFIX}/portainer
+
+
+  portainer-agent:
+    labels:
+      logspout: disable
+    environment:
+      LOGSPOUT_GROUP: ${LOGSPOUT_CLOUDWATCH__GROUP_PREFIX}/portainer

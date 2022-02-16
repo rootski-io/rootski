@@ -1,0 +1,41 @@
+apiVersion: 1
+
+datasources:
+  # docs on the xray datasource: https://grafana.com/grafana/plugins/grafana-x-ray-datasource/
+  - name: X-Ray
+    type: grafana-x-ray-datasource
+    jsonData:
+      authType: keys
+      defaultRegion: ${DEFAULT_AWS_REGION}
+    secureJsonData:
+      accessKey: ${AWS_ACCESS_KEY_ID}
+      secretKey: ${AWS_SECRET_ACCESS_KEY}
+  # docs on cloudwatch datasource: https://grafana.com/docs/grafana/next/datasources/aws-cloudwatch/
+  - name: CloudWatch
+    type: cloudwatch
+    jsonData:
+      authType: keys
+      defaultRegion: ${DEFAULT_AWS_REGION}
+    secureJsonData:
+      accessKey: ${AWS_ACCESS_KEY_ID}
+      secretKey: ${AWS_SECRET_ACCESS_KEY}
+  # - name: Tempo
+  #   type: tempo
+  #   access: proxy
+  #   url: http://tempo:8000
+  #   version: 1
+  #   editable: false
+  #   uid: tempo
+  # - name: Loki
+  #   type: loki
+  #   access: proxy
+  #   url: http://loki:3100
+  #   version: 1
+  #   editable: false
+  #   isDefault: true
+  #   jsonData:
+  #     derivedFields:
+  #       - datasourceUid: tempo
+  #         matcherRegex: trace_id=(\w+)
+  #         name: TraceID
+  #         url: "$${__value.raw}"

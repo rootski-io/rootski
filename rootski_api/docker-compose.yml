@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  rootski_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+#    command:
+#      - gunicorn
+#      - "rootski.main.main:create_default_app()"
+#      - --worker-class uvicorn.workers.UvicornWorker
+#      - --workers 4
+#      - --bind 0.0.0.0:80
+#      - --reload
+    environment:
+      # gunicorn
+      - ROOTSKI__NUM_WORKERS=4
+      - ROOTSKI__HOST=0.0.0.0
+      - ROOTSKI__PORT=80
+      # cognito
+      # - ROOTSKI__COGNITO_AWS_REGION=us-west-2
+      # - ROOTSKI__COGNITO_USER_POOL_ID=us-west-2_NMATFlcVJ
+      # - ROOTSKI__COGNITO_WEB_CLIENT_ID=35ufe1nk2tasug2gmbl5l9mra3
+      # - ROOTSKI__EXTRA_ALLOWED_CORS_ORIGINS=["http://localhost:3333", "http://localhost:3000"]
+      - ROOTSKI__CONFIG_FILE_PATH=/usr/src/rootski/config/rootski-config.yml
+      # postgres
+      - ROOTSKI__POSTGRES_HOST=postgres
+      - ROOTSKI__POSTGRES_PORT=5432
+      - ROOTSKI__POSTGRES_USER=rootski
+      - ROOTSKI__POSTGRES_PASSWORD=pass
+      - ROOTSKI__POSTGRES_DB=rootski_db
+    # development run command: reload on code changes
+    ports:
+      # host:container
+      - "3333:80"
+    volumes:
+      - .:/usr/src/rootski
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: rootski
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: rootski_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    volumes:
+      - ../infrastructure/containers/postgres/data:/var/lib/postgresql/data

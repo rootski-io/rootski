@@ -1,0 +1,8 @@
+boto3
+colorama
+
+mlflow
+pandas
+tensorboard
+torch
+torchtext<=0.7.0 # beyond this, the Field property is deprecated

@@ -1,0 +1,22 @@
+@startuml
+title DNS ACME Challenge
+footer
+Note that LetsEncrypt does not need to hit the Traefik server directly, it only ever hits the
+DNS name in Route53. That means you can use this challenge type to get TLS certs for webservers running
+on local networks that are totally inaccessible to the outside world.
+
+THAT means you can modify your **/ect/hosts** file by adding a line like
+**127.0.0.1 api.rootski.io traefik.rootski.io** so that you hit the LOCAL
+instances of those services in your browser, but fetch the REAL CSR certs.
+endfooter
+participant Traefik as T
+participant LetsEntrypt as LE
+participant Route53 as R53
+T -> LE: Ask for TLS cert for **api.rootski.io** (with DNS Challenge)
+T <- LE: Responds with string value for TXT record\nto create on **_acme_challenge.rootksi.io**
+T -> R53: Ask to create TXT record mapping \n**_acme_challenge.rootski.io** to the string value
+T -> LE: Send request saying we're ready to be checked!
+LE -> R53: Hits **_acme_challenge.rootski.io** to see if it \nmaps to the TXT file
+T -> LE: Poll to see if the challenge passed
+T -> LE: When the challenge is registered as "passed" \nrecieves the CRS cert!!! 🎉 🎉 🎉
+@enduml

@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  build-rootski-frontend:
+    command: npm run build
+    image: rootski/rootski-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ".:/app"
+    env_file:
+      # for "process.env.REACT_" variables in react code that need to be substituted
+      - "../prod.env"

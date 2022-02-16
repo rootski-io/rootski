@@ -1,0 +1,81 @@
+version: "3.9"
+
+networks:
+  backend:
+    driver: overlay
+    name: backend
+  # traefik:
+  #   driver: overlay
+  #   name: traefik
+  # portainer-agent:
+  #   driver: overlay
+  #   name: portainer-agent
+
+services:
+
+  ####################
+  # --- Database --- #
+  ####################
+
+  postgres:
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER?Variable not set}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
+      POSTGRES_DB: ${POSTGRES_DB?Variable not set}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - ${POSTGRES_PORT?Variable not set}:${POSTGRES_PORT?Variable not set}
+    volumes:
+      - ./infrastructure/containers/postgres/data:/var/lib/postgresql/data/
+    networks:
+      - backend
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready --username ${POSTGRES_USER} --dbname ${POSTGRES_DB} --port ${POSTGRES_PORT}" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    deploy:
+      labels:
+        traefik.enable: "false"
+      replicas: 1
+
+  # # dpage/pgadmin is the official image; the docs were a bit hard to find:
+  # # https://www.pgadmin.org/docs/pgadmin4/6.1/container_deployment.html
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL?Variable not set}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD?Variable not set}
+  #   networks:
+  #     - traefik
+  #     - backend
+  #   volumes:
+  #     - ./infrastructure/containers/pgadmin-volume/:/pgadmin/
+  #   deploy:
+  #     replicas: 1
+  #     placement:
+  #       constraints: [node.role == manager]
+
+  database-backup:
+    image: rootski/database-backup
+    build:
+      context: ./infrastructure/containers/postgres/automatic-backup/
+      dockerfile: Dockerfile
+    environment:
+      BACKUP_DIR: /backups
+      BACKUP_INTERVAL: 1h
+      # database connection variables
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: ${POSTGRES_PORT?Variable not set}
+      POSTGRES_DB: ${POSTGRES_DB?Variable not set}
+      POSTGRES_USER: ${POSTGRES_USER?Variable not set}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
+    volumes:
+      - ./infrastructure/containers/postgres/backups:/backups
+      - ./infrastructure/containers/postgres/automatic-backup/backup_or_restore.py:/app/backup_or_restore.py
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      # labels:

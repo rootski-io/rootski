@@ -1,0 +1,55 @@
+image: python:3.9
+# see official bitbucket-pipelines.yml documentation
+# https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
+
+pipelines:
+  # triggered by the creation or update of pull requests
+  # executes on the source branch of a pull request
+  pull-requests:
+    # triggered by default for all pull requests
+    "**":
+      - step:
+          caches:
+            - pip
+          services:
+            # make docker-compose available
+            - docker
+          script:
+            # install dependencies for project-wide CI tasks
+            - make install && cd rootski_api && make install && cd ..
+            # run the pre-commit checks against the entire rootski codebase
+            - make check-code-quality-ci
+            - cd rootski_api
+            # install dependencies
+            - make install
+            # execute all tests
+            - make install-docker-compose
+            - make full-test-ci
+
+  # triggered by commits into a branch
+  branches:
+    # triggered by commits into the main branch
+    trunk:
+      - step:
+          caches:
+            - pip
+          services:
+            # make docker-compose available
+            - docker
+          script:
+            # install dependencies for project-wide CI tasks
+            - make install && cd rootski_api && make install && cd ..
+            # run the pre-commit checks against the entire rootski codebase
+            - make check-code-quality-ci
+
+            - cd rootski_api
+            # install dependencies
+            - make install
+            - make install-docker-compose
+            - make full-test-ci
+            # set git remote as current repo
+#            - git remote set-url origin ${BITBUCKET_GIT_SSH_ORIGIN}
+#            # tag using the version found in version.txt; fail if version has not been bumped
+#            - git tag $(cat version.txt) ${BITBUCKET_COMMIT}
+# push tag to origin
+#            - make push-tags-to-remote

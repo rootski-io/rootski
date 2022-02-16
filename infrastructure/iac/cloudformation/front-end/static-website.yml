@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description:
+  Creates an S3 bucket configured for hosting a static website, and a Route
+  53 DNS record pointing to the bucket
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: The DNS name of an existing Amazon Route 53 hosted zone e.g. rootski.io
+    AllowedPattern: (?!-)[a-zA-Z0-9-.]{1,63}(?<!-)
+    ConstraintDescription: must be a valid DNS zone name.
+  FullDomainName:
+    Type: String
+    Description: The full domain name e.g. www.rootski.io
+    AllowedPattern: (?!-)[a-zA-Z0-9-.]{1,63}(?<!-)
+    ConstraintDescription: must be a valid DNS zone name.
+  AcmCertificateArn:
+    Type: String
+    Description: the Amazon Resource Name (ARN) of an AWS Certificate Manager (ACM) certificate.
+    AllowedPattern: "arn:aws:acm:.*"
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      S3HostedZoneId: Z3AQBSTGFYJSTF
+    us-west-1:
+      S3HostedZoneId: Z2F56UZL2M1ACD
+    us-west-2:
+      S3HostedZoneId: Z3BJ6K6RIION7M
+    eu-west-1:
+      S3HostedZoneId: Z1BKCTXD74EZPE
+    ap-southeast-1:
+      S3HostedZoneId: Z3O0J2DXBE1FTB
+    ap-southeast-2:
+      S3HostedZoneId: Z1WCIGYICN2BYD
+    ap-northeast-1:
+      S3HostedZoneId: Z2M4EHUR26P7ZW
+    sa-east-1:
+      S3HostedZoneId: Z31GFT0UA1I2HV
+
+Resources:
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref "FullDomainName"
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: 404.html
+    DeletionPolicy: Delete # Retain # We can easily re-populate the bucket contents by running "npm run deploy"
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref "WebsiteBucket"
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Join ["", ["arn:aws:s3:::", !Ref "WebsiteBucket", /*]]
+
+  WebsiteCloudfront:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - WebsiteBucket
+    Properties:
+      DistributionConfig:
+        Comment: Cloudfront Distribution pointing to S3 bucket
+        Origins:
+          - DomainName:
+              !Select [2, !Split ["/", !GetAtt WebsiteBucket.WebsiteURL]]
+            Id: S3Origin
+            CustomOriginConfig:
+              HTTPPort: "80"
+              HTTPSPort: "443"
+              OriginProtocolPolicy: http-only
+        Enabled: true
+        HttpVersion: "http2"
+        DefaultRootObject: index.html
+        Aliases:
+          - !Ref "FullDomainName"
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          TargetOriginId: S3Origin
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        PriceClass: PriceClass_All
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateArn
+          SslSupportMethod: sni-only
+
+  WebsiteDNSName:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Join ["", [!Ref "DomainName", .]]
+      RecordSets:
+        - Name: !Ref "FullDomainName"
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt [WebsiteCloudfront, DomainName]
+
+Outputs:
+  BucketName:
+    Value: !Ref "WebsiteBucket"
+    Description: Name of S3 bucket to hold website content
+  CloudfrontEndpoint:
+    Value: !GetAtt [WebsiteCloudfront, DomainName]
+    Description: Endpoint for Cloudfront distribution
+  CloudfrontID:
+    Value: !Ref WebsiteCloudfront
+    Description: ID of the cloudfront distribution; can be used to invalidate the distribution and refresh the S3 files
+  FullDomain:
+    Value: !Ref "FullDomainName"
+    Description: Full DomainName
+  HostedZoneName:
+    Value: !Join ["", [!Ref "DomainName", .]]
+    Description: Name of the hosted zone
+    Export:
+      Name: !Sub "${AWS::StackName}-HostedZoneName"

@@ -1,0 +1,15 @@
+venv/lib/python3.9/site-packages/numpy/random/tests/data/sfc64-testset-2.csv filter=lfs diff=lfs merge=lfs -text
+model/g2p_model.pt filter=lfs diff=lfs merge=lfs -text
+model/model_checkpoint.pt filter=lfs diff=lfs merge=lfs -text
+data/train_clean_double.tsv filter=lfs diff=lfs merge=lfs -text
+data/train_clean.csv filter=lfs diff=lfs merge=lfs -text
+venv/lib/python3.9/site-packages/numpy/random/tests/data/mt19937-testset-1.csv filter=lfs diff=lfs merge=lfs -text
+venv/lib/python3.9/site-packages/numpy/random/tests/data/philox-testset-2.csv filter=lfs diff=lfs merge=lfs -text
+venv/lib/python3.9/site-packages/numpy/random/tests/data/sfc64-testset-1.csv filter=lfs diff=lfs merge=lfs -text
+data/g2p_model.pt filter=lfs diff=lfs merge=lfs -text
+data/test_clean.csv filter=lfs diff=lfs merge=lfs -text
+venv/lib/python3.9/site-packages/numpy/random/tests/data/pcg64-testset-1.csv filter=lfs diff=lfs merge=lfs -text
+venv/lib/python3.9/site-packages/numpy/random/tests/data/pcg64-testset-2.csv filter=lfs diff=lfs merge=lfs -text
+venv/lib/python3.9/site-packages/numpy/random/tests/data/philox-testset-1.csv filter=lfs diff=lfs merge=lfs -text
+venv/lib/python3.9/site-packages/numpy/random/tests/data/mt19937-testset-2.csv filter=lfs diff=lfs merge=lfs -text
+data/test_clean_double.tsv filter=lfs diff=lfs merge=lfs -text

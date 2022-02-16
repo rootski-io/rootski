@@ -1,0 +1,28 @@
+@startuml
+VPN -> VPN: install wireguard and docker
+VPN -> VPN: start wg, docker swarm init
+VPN -> VPN: generate wg "peer" configs for SuperComputer and Spot
+VPN -> ParameterStore: Upload "peer" configs
+SuperComputer -> ParameterStore: download "peer" config
+SuperComputer -> VPN: connect to VPN via wireguard
+SuperComputer -> SuperComputer: set hostname to on-prem
+SuperComputer -> VPN: docker swarm join
+SuperComputer -> ParameterStore: download "peer" config
+Spot -> Spot: Set hostname to spot
+Spot -> VPN: docker swarm join
+Spot -> VPN: connect to VPN via wireguard
+@enduml
+
+@startuml
+SuperComputer -> SuperComputer: set hostname to on-prem
+SuperComputer -> SuperComputer: docker swarm init
+Spot -> Spot: Set hostname to spot-instance
+Spot -> SuperComputer: docker swarm join
+@enduml
+
+@startuml
+SuperComputer -> SuperComputer: starts the rootski backend
+SuperComputer -> SuperComputer: start dynamic dns updater
+Spot -> Spot: start dynamic dns updater
+Spot -> SuperComputer: docker swarm join
+@enduml

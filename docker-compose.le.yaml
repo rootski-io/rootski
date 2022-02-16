@@ -1,0 +1,106 @@
+version: "3.9"
+
+networks:
+  backend:
+    driver: overlay
+    name: backend
+  traefik:
+    driver: overlay
+    name: traefik
+
+services:
+
+  postgres:
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: rootski
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: rootski_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    volumes:
+      - ./infrastructure/containers/postgres/data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready --username rootski --dbname rootski_db --port 5432" ]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+    deploy:
+      labels:
+        - traefik.enable=false
+      replicas: 1
+
+  # if the name rootski_api changes, also change the router in dynamic-config.template.yml
+  rootski_api:
+    build:
+      context: ./rootski_api
+      dockerfile: Dockerfile
+    image: rootski/rootski-api
+    # see Dockerfile for startup command
+    environment:
+      # - AWS_HOST_URL=http://io.rootski.www.s3-website-us-west-2.amazonaws.com
+      ROOTSKI__CONFIG_FILE_PATH: /usr/src/rootski/config/rootski-config.yml
+      ROOTSKI__POSTGRES_HOST: postgres
+      ROOTSKI__POSTGRES_PORT: 5432
+      ROOTSKI__POSTGRES_USER: rootski
+      ROOTSKI__POSTGRES_PASSWORD: pass
+      ROOTSKI__POSTGRES_DB: rootski_db
+      ROOTSKI__PORT: 3333
+      ROOTSKI__NUM_WORKERS: 1
+    volumes:
+      - ./rootski_api:/usr/src/rootski
+    deploy:
+      labels:
+        # - traefik.enable=true
+        # - traefik.docker.network=traefik
+
+        # # create rootski-api-service; redirect rootski traefik requests to port 80 in the rootski container
+        # - traefik.http.services.rootski-api-service.loadbalancer.server.port=80
+
+        - "traefik.enable=true"
+        - "traefik.http.routers.whoami.rule=Host(`test.rootski.io`)"
+        - "traefik.http.routers.whoami.entrypoints=websecure"
+        - "traefik.http.routers.whoami.tls.certresolver=myresolver"
+      replicas: 1
+    networks:
+      - traefik
+      - backend
+
+  traefik:
+    image: traefik:v2.2
+    command:
+      - "--log.level=INFO"
+      - "--log.filePath=/etc/traefik/traefik.log"
+      - "--accessLog.filePath=/etc/traefik/access.log"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=postmaster@example.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/etc/traefik/acme.json"
+    restart: always
+    ports:
+      - 80:80 # load balancer
+      - 8080:8080 # dashboard
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # allow traefik to be "docker aware" to see deploy.labels
+      - ./test/:/etc/traefik/
+    networks:
+      - traefik
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik
+        # The traefik UI has a default service: api@internal, so we don't need to create one here.
+        - "traefik.http.routers.traefik-ui.rule=Host(`traefik.rootski.io`)"
+        - "traefik.http.routers.traefik-ui.entrypoints=websecure"
+        - "traefik.http.routers.traefik-ui.tls.certresolver=myresolver"
+      replicas: 1

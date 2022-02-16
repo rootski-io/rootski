@@ -1,0 +1,179 @@
+version: "3.9"
+
+networks:
+  backend:
+    driver: overlay
+    name: backend
+  traefik:
+    driver: overlay
+    name: traefik
+  portainer-agent:
+    driver: overlay
+    name: portainer-agent
+
+services:
+
+  #######################
+  # --- Rootski API --- #
+  #######################
+
+  # if the name rootski_api changes, also change the router in dynamic-config.template.yml
+  rootski_api:
+    build:
+      context: ./rootski_api
+      dockerfile: Dockerfile
+    image: rootski/rootski-api
+    # see Dockerfile for startup command
+    environment:
+      # - AWS_HOST_URL=http://io.rootski.www.s3-website-us-west-2.amazonaws.com
+      ROOTSKI__CONFIG_FILE_PATH: /usr/src/rootski/config/rootski-config.yml
+      ROOTSKI__POSTGRES_HOST: postgres
+      ROOTSKI__POSTGRES_PORT: ${ROOTSKI__POSTGRES_PORT?Variable not set}
+      ROOTSKI__POSTGRES_USER: ${ROOTSKI__POSTGRES_USER?Variable not set}
+      ROOTSKI__POSTGRES_PASSWORD: ${ROOTSKI__POSTGRES_PASSWORD?Variable not set}
+      ROOTSKI__POSTGRES_DB: ${ROOTSKI__POSTGRES_DB?Variable not set}
+      ROOTSKI__PORT: ${ROOTSKI__PORT?Variable not set}
+      ROOTSKI__NUM_WORKERS: ${ROOTSKI__NUM_WORKERS?Variable not set}
+    volumes:
+      - ./rootski_api:/usr/src/rootski
+    ports:
+      "${ROOTSKI__PORT}:${ROOTSKI__PORT}"
+    deploy:
+      replicas: 1
+    networks:
+      - traefik
+      - backend
+
+
+  ###################
+  # --- Traefik --- #
+  ###################
+
+  traefik:
+    image: traefik:v2.5
+    command: --configFile=/etc/traefik/static-config.yml
+    restart: always
+    ports:
+      - 80:80 # load balancer
+      - 8080:8080 # dashboard
+      - 443:443
+    environment:
+      # for route53 DNS Challenge provider; you normally have to specify the AWS credentials
+      # here as well, but we're using an IAM role for that. Note! We're using IAM Role-based
+      # Authentication instead of AWS Credentials (on the production server), the ${THING:-}
+      # syntax causes environment variables to be set to an empty string. This is necessary
+      # on the production server to have traefik use the IAM role rather than access keys
+      # in these environment variables.
+      AWS_ACCESS_KEY_ID: ${TRAEFIK__AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${TRAEFIK__AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: us-west-2
+      AWS_HOSTED_ZONE_ID: ${TRAEFIK__ROUTE53_HOSTED_ZONE_ID:-dummy default set by compose}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # allow traefik to be "docker aware" to see deploy.labels
+      - ./infrastructure/containers/traefik/volume/:/etc/traefik/
+    networks:
+      - traefik
+    deploy:
+      replicas: 1
+
+
+  ####################
+  # --- Database --- #
+  ####################
+
+  postgres:
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER?Variable not set}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
+      POSTGRES_DB: ${POSTGRES_DB?Variable not set}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - ${POSTGRES_PORT?Variable not set}:${POSTGRES_PORT?Variable not set}
+    volumes:
+      - ./infrastructure/containers/postgres/data:/var/lib/postgresql/data/
+    networks:
+      - backend
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready --username ${POSTGRES_USER} --dbname ${POSTGRES_DB} --port ${POSTGRES_PORT}" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    deploy:
+      labels:
+        traefik.enable: "false"
+      replicas: 1
+
+  # dpage/pgadmin is the official image; the docs were a bit hard to find:
+  # https://www.pgadmin.org/docs/pgadmin4/6.1/container_deployment.html
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL?Variable not set}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD?Variable not set}
+    networks:
+      - traefik
+      - backend
+    volumes:
+      - ./infrastructure/containers/pgadmin-volume/:/pgadmin/
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+  database-backup:
+    image: rootski/database-backup
+    build:
+      context: ./infrastructure/containers/postgres/automatic-backup/
+      dockerfile: Dockerfile
+    environment:
+      BACKUP_DIR: /backups
+      BACKUP_INTERVAL: 1h
+      # database connection variables
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: ${POSTGRES_PORT?Variable not set}
+      POSTGRES_DB: ${POSTGRES_DB?Variable not set}
+      POSTGRES_USER: ${POSTGRES_USER?Variable not set}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
+    volumes:
+      - ./infrastructure/containers/postgres/backups:/backups
+      - ./infrastructure/containers/postgres/automatic-backup/backup_or_restore.py:/app/backup_or_restore.py
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      labels:
+        traefik.enable: "false"
+
+
+  #####################
+  # --- Portainer --- #
+  #####################
+
+  # Is this file complex or what? Portainer is a UI to view our docker swarm deployment run by this file!
+  portainer-ui:
+    image: portainer/portainer-ce:latest
+    volumes:
+      - ./infrastructure/containers/portainer-volume:/data
+    networks:
+      - traefik
+      - portainer-agent
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+  portainer-agent:
+    image: portainer/agent:2.9.2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - portainer-agent
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+      labels:
+        traefik.enable: "false"

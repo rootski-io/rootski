@@ -1,0 +1,6 @@
+migrations
+venv
+docker-compose.yml
+.vscode
+.pytest_cache
+.idea

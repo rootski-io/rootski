@@ -1,0 +1,174 @@
+import React from "react";
+import {
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  FormText,
+  Container,
+  Col,
+} from "reactstrap";
+import classes from "./css/LoginForm.module.css";
+
+import { Auth } from "aws-amplify";
+
+class LoginForm extends React.Component<object, object> {
+  signIn = () => {
+    Auth.federatedSignIn();
+  };
+
+  signInWithFacebook = () => {
+    // @ts-ignore
+    Auth.federatedSignIn({
+      provider: "Facebook",
+    });
+  };
+
+  // TODO: make this work by configuring OAuth in the google backend
+  signInWithGoogle = () => {
+    // @ts-ignore
+    Auth.federatedSignIn({
+      provider: "Google",
+    });
+  };
+
+  logAuthData = async () => {
+    const user = await Auth.currentAuthenticatedUser();
+    console.log("current user", user);
+    const credentials = await Auth.currentCredentials();
+    console.log("current credentials", credentials);
+    const userCredentials = await Auth.currentUserCredentials();
+    console.log("current user credentials", userCredentials);
+    const userInfo = await Auth.currentUserInfo();
+    console.log("current user info", userInfo);
+    const poolUser = await Auth.currentUserPoolUser();
+    console.log("current pool user", poolUser);
+  };
+
+  render() {
+    return (
+      <div className='card bg-light'>
+        <article className='card-body mx-auto' style={{ maxWidth: 400 }}>
+          <h4 className='card-title mt-3 text-center'>Create Account</h4>
+          <p className='text-center'>Get started with your free account</p>
+          <p>
+            {/* START Cognito/OAuth Generic Sign-in */}
+            <button
+              onClick={this.signIn}
+              className={`btn btn-block btn-warning ${classes.btnFacebook}`}>
+              <i className='fa fa-play'></i> Generic Sign-in
+            </button>
+            {/* END */}
+
+            {/* START Cognito/OAuth Facebook Sign-in */}
+            <button
+              onClick={this.signInWithFacebook}
+              className={`btn btn-block btn-primary ${classes.btnFacebook}`}>
+              <i className='fa fa-facebook-f'></i> Login with facebook
+            </button>
+            {/* END */}
+
+            {/* START Cognito/OAuth Google Sign-in */}
+            <button
+              onClick={this.signInWithGoogle}
+              className={`btn btn-block btn-danger ${classes.btnFacebook}`}>
+              <i className='fa fa-google-plus'></i> Login with Google
+            </button>
+            {/* END */}
+          </p>
+          <p className='divider-text'>
+            <span className='bg-light'>OR</span>
+          </p>
+          {/* <form> */}
+          {/* <div className='form-group input-group'>
+            <div className='input-group-prepend'>
+            <span className='input-group-text'>
+                {" "}
+                <i className='fa fa-user'></i>{" "}
+            </span>
+            </div>
+            <input
+            name=''
+            className='form-control'
+            placeholder='Full name'
+            type='text'
+            />
+        </div> */}
+          {/* <!-- form-group// --> */}
+          <div className='form-group input-group'>
+            <div className='input-group-prepend'>
+              <span className='input-group-text'>
+                <i className='fa fa-envelope'></i>
+              </span>
+            </div>
+            <input
+              name=''
+              className='form-control'
+              placeholder='Email address'
+              type='email'
+            />
+          </div>
+          {/* <!-- form-group// --> */}
+          {/* <div className='form-group input-group'>
+              <div className='input-group-prepend'>
+                <span className='input-group-text'>
+                  <i className='fa fa-building'></i>
+                </span>
+              </div>
+              <select className='form-control'>
+                <option selected> Select job type</option>
+                <option>Designer</option>
+                <option>Manager</option>
+                <option>Accaunting</option>
+              </select>
+            </div> */}
+          {/* <!-- form-group end.// --> */}
+          <div className='form-group input-group'>
+            <div className='input-group-prepend'>
+              <span className='input-group-text'>
+                {" "}
+                <i className='fa fa-lock'></i>{" "}
+              </span>
+            </div>
+            <input
+              className='form-control'
+              placeholder='Password'
+              type='password'
+            />
+          </div>
+          {/* <!-- form-group// --> */}
+          {/* <div className='form-group input-group'>
+              <div className='input-group-prepend'>
+                <span className='input-group-text'>
+                  {" "}
+                  <i className='fa fa-lock'></i>{" "}
+                </span>
+              </div>
+              <input
+                className='form-control'
+                placeholder='Repeat password'
+                type='password'
+              />
+            </div> */}
+          {/* <!-- form-group// --> */}
+          <div className='form-group'>
+            <button
+              onClick={this.logAuthData}
+              //   type="submit"
+              className='btn btn-info btn-block'>
+              Console Log Auth Status
+            </button>
+          </div>
+          {/* <!-- form-group// --> */}
+          {/* <p className='text-center'>
+              Have an account? <a href=''>Log In</a>
+            </p> */}
+          {/* </form> */}
+        </article>
+      </div>
+    );
+  }
+}
+
+export default LoginForm;

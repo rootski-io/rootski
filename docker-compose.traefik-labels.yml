@@ -1,0 +1,178 @@
+version: "3.9"
+
+# reusable yaml anchors for traefik labels that are common
+# to multiple services; when you use labels for a source of dynamic
+# configuration, you have to redefine the same config in EACH docker service;
+# docker-compose ignores any top-level sections beginning with "x-"
+x-reusable-traefik-config:
+  middlewares:
+    redirect-http-to-https: &redirect-http-to-https--middleware
+      traefik.http.middlewares.redirect-http-to-https.redirectscheme.scheme: https
+    ratelimit-by-ip: &ratelimit-by-ip--middleware
+      # rate = average / period
+      traefik.http.middlewares.ratelimit-by-ip.average: 100
+      traefik.http.middlewares.ratelimit-by-ip.period: 10s
+
+# check all environment variables here so we don't have to write "Variable not set" everywhere;
+# if the env var before "?" is not present, the error message to the right of "?" is displayed;
+# NOTE if you include hypens (-) anywhere in the error messages, these will fail silently... so don't :D
+x-env-var-check:
+  - ${TRAEFIK__CERT_RESOLVER?one of the letsencrypt resolvers in the static config yaml}
+  - ${TRAEFIK__ROOTSKI_DOMAIN? probably "rootski.io" unless we've rebranded lol}
+  - ${TRAEFIK__ROOTSKI_API_SUBDOMAIN? something like "api"}
+  - ${TRAEFIK__TRAEFIK_UI_SUBDOMAIN? something like "traefik"}
+  - ${TRAEFIK__PGADMIN_UI_SUBDOMAIN?something like "dbadmin"}
+  - ${TRAEFIK__PORTAINER_UI_SUBDOMAIN?something like "portainer"}
+  - ${TRAEFIK__ROOTSKI_BCRYPT_USER_PASSWORD? generated from T...ROOTSKI_DOCS_USER and T...ROOTSKI_DOCS_PASSWORD}
+  - ${TRAEFIK__TRAEFIK_UI_BCRYPT_USER_PASSWORD? generated from T...TRAEFIK_UI_USER and T...TRAEFIK_UI_PASSWORD}
+  - ${ROOTSKI__PORT? Port the rootski api is listening on inside the container}
+
+
+services:
+
+  #######################
+  # --- Rootski API --- #
+  #######################
+
+  rootski_api:
+    deploy:
+
+      labels:
+        traefik.enable: "true"
+        traefik.docker.network: traefik
+        <<: *redirect-http-to-https--middleware
+
+        # create rootski-api-service that is auto-associated with the rootski_api service;
+        # traefik will route traffic to this port on rootski_api
+        traefik.http.services.rootski-api-service.loadbalancer.server.port: ${ROOTSKI__PORT}
+
+        # http router
+        traefik.http.routers.rootski-api-http.entrypoints: http
+        traefik.http.routers.rootski-api-http.rule: Host(`${TRAEFIK__ROOTSKI_API_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}`)
+        traefik.http.routers.rootski-api-http.middlewares: redirect-http-to-https
+
+        # https router
+        traefik.http.routers.rootski-api-https.entrypoints: https
+        traefik.http.routers.rootski-api-https.rule: Host(`${TRAEFIK__ROOTSKI_API_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}`)
+        traefik.http.routers.rootski-api-https.tls: "true"
+        traefik.http.routers.rootski-api-https.tls.certresolver: ${TRAEFIK__CERT_RESOLVER}
+        traefik.http.routers.rootski-api-https.tls.domains[0].main: "*.${TRAEFIK__ROOTSKI_DOMAIN}"
+        # traefik.http.routers.rootski-api-https.tls.domains[0].main: ${TRAEFIK__ROOTSKI_API_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}
+        # traefik.http.routers.rootski-api-https.tls.domains[0].sans: ${TRAEFIK__ROOTSKI_API_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}
+
+        # https router to place password protection on /docs, /redoc, /openapi.json, and GET /graphql
+        traefik.http.routers.rootski-api-https-with-auth.rule: "
+          HostRegexp(`{the-api-subdomain:${TRAEFIK__ROOTSKI_API_SUBDOMAIN}.+}`)
+          && (
+            PathPrefix(`/docs`)
+            || PathPrefix(`/openapi.json`)
+            || PathPrefix(`/redoc`)
+            || (Method(`GET`) && PathPrefix(`/graphql`))
+          )"
+        traefik.http.routers.rootski-api-https-with-auth.entryPoints: https
+        traefik.http.routers.rootski-api-https-with-auth.tls.certresolver: ${TRAEFIK__CERT_RESOLVER}
+        traefik.http.routers.rootski-api-https-with-auth.tls.domains[0].main: "*.${TRAEFIK__ROOTSKI_DOMAIN}"
+        # traefik.http.routers.rootski-api-https-with-auth.tls.domains[0].main: ${TRAEFIK__ROOTSKI_API_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}
+        # traefik.http.routers.rootski-api-https-with-auth.tls.domains[0].sans: "*.${TRAEFIK__ROOTSKI_DOMAIN}"
+        traefik.http.routers.rootski-api-https-with-auth.middlewares: rootski-docs-auth # see next line
+        traefik.http.middlewares.rootski-docs-auth.basicAuth.users: ${TRAEFIK__ROOTSKI_BCRYPT_USER_PASSWORD}
+
+
+  ###################
+  # --- Traefik --- #
+  ###################
+
+  traefik:
+    deploy:
+      labels:
+        traefik.enable: "true"
+        traefik.docker.network: traefik
+        <<: *redirect-http-to-https--middleware
+
+        # traefik-ui service
+        traefik.http.services.traefik-ui.loadbalancer.server.port: 80
+
+        # http
+        traefik.http.routers.traefik-ui-http.entrypoints: http
+        traefik.http.routers.traefik-ui-http.rule: Host(`${TRAEFIK__TRAEFIK_UI_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}`)
+        traefik.http.routers.traefik-ui-http.middlewares: redirect-http-to-https
+
+        # basic auth middleware (to protect the traefik UI)
+        traefik.http.middlewares.traefik-ui-auth.basicAuth.users: "${TRAEFIK__TRAEFIK_UI_BCRYPT_USER_PASSWORD}"
+
+        # https
+        traefik.http.routers.traefik-ui-https.entrypoints: https
+        traefik.http.routers.traefik-ui-https.rule: Host(`${TRAEFIK__TRAEFIK_UI_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}`)
+        traefik.http.routers.traefik-ui-https.middlewares: traefik-ui-auth
+        traefik.http.routers.traefik-ui-https.tls: "true"
+        traefik.http.routers.traefik-ui-https.tls.certresolver: ${TRAEFIK__CERT_RESOLVER}
+        traefik.http.routers.traefik-ui-https.tls.domains[0].main: "*.${TRAEFIK__ROOTSKI_DOMAIN}"
+        # traefik.http.routers.traefik-ui-https.tls.domains[0].main: ${TRAEFIK__TRAEFIK_UI_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}
+        # traefik.http.routers.traefik-ui-https.tls.domains[0].sans: "*.${TRAEFIK__ROOTSKI_DOMAIN}"
+        traefik.http.routers.traefik-ui-https.service: api@internal
+
+
+  ####################
+  # --- Database --- #
+  ####################
+
+  pgadmin:
+    deploy:
+      labels:
+        traefik.enable: "true"
+        traefik.docker.network: traefik
+        <<: *redirect-http-to-https--middleware
+
+        # traefik-ui service
+        traefik.http.services.pgadmin.loadbalancer.server.port: 80
+
+        # http
+        traefik.http.routers.pgadmin-http.entrypoints: http
+        traefik.http.routers.pgadmin-http.rule: Host(`${TRAEFIK__PGADMIN_UI_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}`)
+        traefik.http.routers.pgadmin-http.middlewares: redirect-http-to-https
+
+        # basic auth middleware (to protect the traefik UI)
+        # traefik.http.middlewares.pgadmin-auth.basicAuth.users: "${TRAEFIK__TRAEFIK_UI_BCRYPT_USER_PASSWORD}"
+
+        # https
+        traefik.http.routers.pgadmin-https.entrypoints: https
+        traefik.http.routers.pgadmin-https.rule: Host(`${TRAEFIK__PGADMIN_UI_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}`)
+        # traefik.http.routers.pgadmin-https.middlewares: pgadmin-auth
+        traefik.http.routers.pgadmin-https.tls: "true"
+        traefik.http.routers.pgadmin-https.tls.certresolver: ${TRAEFIK__CERT_RESOLVER}
+        traefik.http.routers.pgadmin-https.tls.domains[0].main: "*.${TRAEFIK__ROOTSKI_DOMAIN}"
+        # traefik.http.routers.pgadmin-https.tls.domains[0].main: ${TRAEFIK__PGADMIN_UI_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}
+        # traefik.http.routers.pgadmin-https.tls.domains[0].sans: "*.${TRAEFIK__ROOTSKI_DOMAIN}"
+
+
+  #####################
+  # --- Portainer --- #
+  #####################
+
+  portainer-ui:
+    deploy:
+      labels:
+        traefik.enable: "true"
+        traefik.docker.network: traefik
+        <<: *redirect-http-to-https--middleware
+
+        # traefik-ui service
+        traefik.http.services.portainer-ui.loadbalancer.server.port: 9000
+
+        # http
+        traefik.http.routers.portainer-ui-http.entrypoints: http
+        traefik.http.routers.portainer-ui-http.rule: Host(`${TRAEFIK__PORTAINER_UI_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}`)
+        traefik.http.routers.portainer-ui-http.middlewares: redirect-http-to-https
+
+        # basic auth middleware (to protect the traefik UI)
+        # traefik.http.middlewares.portainer-ui-auth.basicAuth.users: "${TRAEFIK__TRAEFIK_UI_BCRYPT_USER_PASSWORD}"
+
+        # https
+        traefik.http.routers.portainer-ui-https.entrypoints: https
+        traefik.http.routers.portainer-ui-https.rule: Host(`${TRAEFIK__PORTAINER_UI_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}`)
+        # traefik.http.routers.portainer-ui-https.middlewares: portainer-ui-auth
+        traefik.http.routers.portainer-ui-https.tls: "true"
+        traefik.http.routers.portainer-ui-https.tls.certresolver: ${TRAEFIK__CERT_RESOLVER}
+        traefik.http.routers.portainer-ui-https.tls.domains[0].main: "*.${TRAEFIK__ROOTSKI_DOMAIN}"
+        # traefik.http.routers.portainer-ui-https.tls.domains[0].main: ${TRAEFIK__portainer-ui_UI_SUBDOMAIN}.${TRAEFIK__ROOTSKI_DOMAIN}
+        # traefik.http.routers.portainer-ui-https.tls.domains[0].sans: "*.${TRAEFIK__ROOTSKI_DOMAIN}"

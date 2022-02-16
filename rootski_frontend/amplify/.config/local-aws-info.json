@@ -1,0 +1,7 @@
+{
+  "authappenv": {
+    "configLevel": "project",
+    "useProfile": true,
+    "profileName": "rootski"
+  }
+}

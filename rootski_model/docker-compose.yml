@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  terminal:
+      image: eriddoch/pytorch-transformer
+      build:
+        dockerfile: ./Dockerfile
+        context: .
+
+      # development
+      container_name: terminal
+      working_dir: /usr/src/app
+      entrypoint: /bin/bash
+      stdin_open: true
+      tty: true
+      volumes:
+        - .:/usr/src/app
+      environment:
+        MLFLOW_TRACKING_URI: "http://host.docker.internal:5000"
+        # needs credentials to upload artifacts to s3
+        AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID?AWS Access Key not set}
+        AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY?AWS Secret Access Key not set}

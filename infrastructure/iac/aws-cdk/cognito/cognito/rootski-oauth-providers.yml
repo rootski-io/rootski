@@ -1,0 +1,9 @@
+# Config file for oauth client ids and secrets for any
+# oauth providers used by rootski. See this part of the AWS Amplify
+# docs to learn how to set up providers:
+# https://docs.amplify.aws/lib/auth/social/q/platform/js#setup-your-auth-provider
+
+google:
+  # console.cloud.google.com -> "rootski" app -> "rootski-oauth-client"
+  client_id: 945161367868-fn9v58t70cantudgb3ukeigcrq5l9q5v.apps.googleusercontent.com
+  client_secret: eT6WAO_A5diNvtyion0kr-hg

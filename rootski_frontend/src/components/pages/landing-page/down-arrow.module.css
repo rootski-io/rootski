@@ -1,0 +1,55 @@
+.downArrowContainer {
+  position: absolute;
+  top: 100vh;
+  transform: translateY(-100%);
+  width: 100%;
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.downArrowContainer p {
+  font-family: "Comic Sans MS";
+  transform: translateY(-20px);
+  font-size: 24px;
+}
+
+.downArrow {
+  width: 50px;
+  animation: bounce 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Safari ONLY */
+@media screen and (min-color-index: 0) and(-webkit-min-device-pixel-ratio:0) {
+  @media {
+    /*
+             The spacing for the down arrow container is
+             wrong in Safari-based browsers (including all browsers
+             on iPhones and iPads). We are hiding it on those
+             browsers for now.
+          */
+    .downArrowContainer {
+      display: none;
+    }
+  }
+}
+
+/* Safari 10.1+ */
+_::-webkit-full-page-media,
+_:future,
+:root .downArrowContainer {
+  display: none;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}

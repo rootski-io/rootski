@@ -1,0 +1,282 @@
+#
+# To run a GET request for the SSM Parameter use
+#  GET - {root-url-output}/Production/rootski-backend-url
+#
+
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: API Gateway REST API with Lambda that fetches the rootski backend host URL from SSM Parameter Store
+
+Resources:
+  # BEGIN: Should only need this in an empty API Gateway situation
+  ApiGatewayCloudWatchLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: ApiGatewayLogsPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                Resource: "*"
+
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiGatewayCloudWatchLogsRole.Arn
+  # END: Should only need this in an empty API Gateway situation
+
+  RootskiLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+
+          def handler(event, context):
+              """Fetch the rootski backend URL from parameter store"""
+
+              ssm = boto3.client("ssm")
+              parameter_obj = ssm.get_parameter(Name="/ROOTSKI/BACKEND/public-ip")
+              rootski_host = parameter_obj["Parameter"]["Value"]
+
+              return rootski_host
+      Description: Fetches the rootski backend host url from SSM Parameter Store
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.7
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AccessRootskiSSMParameters
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Resource: "*"
+                Action:
+                  - ssm:GetParameter*
+
+  RootskiApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: API used for Rootski requests
+      FailOnWarnings: true
+      Name: !Ref AWS::StackName
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName: !GetAtt RootskiLambda.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RootskiApi}/*"
+
+  RootskiApiStage:
+    DependsOn:
+      - ApiGatewayAccount
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref Deployment
+      MethodSettings:
+        - DataTraceEnabled: true
+          HttpMethod: "*"
+          LoggingLevel: INFO
+          ResourcePath: "/*"
+      RestApiId: !Ref RootskiApi
+      StageName: LATEST
+
+  Deployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - RootskiRequestGET
+      - RootskiRequestPOST
+    Properties:
+      RestApiId: !Ref RootskiApi
+      StageName: Production
+
+  RootskiResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RootskiApi
+      ParentId: !GetAtt RootskiApi.RootResourceId
+      PathPart: rootski-backend-url
+
+  RootskiRequestGET:
+    DependsOn: LambdaPermission
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,authorizationtoken'"
+            method.response.header.Access-Control-Allow-Methods: "'GET'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+      AuthorizationType: NONE
+      RequestParameters:
+        method.request.querystring.name: false
+      ResourceId: !Ref RootskiResource
+      RestApiId: !Ref RootskiApi
+
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RootskiLambda.Arn}/invocations"
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,authorizationtoken'"
+              method.response.header.Access-Control-Allow-Methods: "'GET'"
+              # API Gateway got mad when I entered multiple values for this field, so I enabled all origins
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: |
+            ##  See http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html
+            ##  This template will pass through all parameters including path, querystring, header, stage variables, and context through to the integration endpoint via the body/payload
+            #set($allParams = $input.params())
+            {
+            "body" : $input.json('$'),
+            "params" : {
+            #foreach($type in $allParams.keySet())
+                #set($params = $allParams.get($type))
+            "$type" : {
+                #foreach($paramName in $params.keySet())
+                "$paramName" : "$util.escapeJavaScript($params.get($paramName))"
+                    #if($foreach.hasNext),#end
+                #end
+            }
+                #if($foreach.hasNext),#end
+            #end
+            },
+            "stageVariables" : {
+            #foreach($key in $stageVariables.keySet())
+            "$key" : "$util.escapeJavaScript($stageVariables.get($key))"
+                #if($foreach.hasNext),#end
+            #end
+            },
+            "context" : {
+                "accountId" : "$context.identity.accountId",
+                "apiId" : "$context.apiId",
+                "apiKey" : "$context.identity.apiKey",
+                "authorizerPrincipalId" : "$context.authorizer.principalId",
+                "caller" : "$context.identity.caller",
+                "cognitoAuthenticationProvider" : "$context.identity.cognitoAuthenticationProvider",
+                "cognitoAuthenticationType" : "$context.identity.cognitoAuthenticationType",
+                "cognitoIdentityId" : "$context.identity.cognitoIdentityId",
+                "cognitoIdentityPoolId" : "$context.identity.cognitoIdentityPoolId",
+                "httpMethod" : "$context.httpMethod",
+                "stage" : "$context.stage",
+                "sourceIp" : "$context.identity.sourceIp",
+                "user" : "$context.identity.user",
+                "userAgent" : "$context.identity.userAgent",
+                "userArn" : "$context.identity.userArn",
+                "requestId" : "$context.requestId",
+                "resourceId" : "$context.resourceId",
+                "resourcePath" : "$context.resourcePath"
+                }
+            }
+
+  RootskiRequestPOST:
+    DependsOn: LambdaPermission
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RootskiLambda.Arn}/invocations"
+        IntegrationResponses:
+          - StatusCode: 200
+        RequestTemplates:
+          application/json: |
+            ##  See http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html
+            ##  This template will pass through all parameters including path, querystring, header, stage variables, and context through to the integration endpoint via the body/payload
+            #set($allParams = $input.params())
+            {
+            "body" : $input.json('$'),
+            "params" : {
+            #foreach($type in $allParams.keySet())
+                #set($params = $allParams.get($type))
+            "$type" : {
+                #foreach($paramName in $params.keySet())
+                "$paramName" : "$util.escapeJavaScript($params.get($paramName))"
+                    #if($foreach.hasNext),#end
+                #end
+            }
+                #if($foreach.hasNext),#end
+            #end
+            },
+            "stageVariables" : {
+            #foreach($key in $stageVariables.keySet())
+            "$key" : "$util.escapeJavaScript($stageVariables.get($key))"
+                #if($foreach.hasNext),#end
+            #end
+            },
+            "context" : {
+                "accountId" : "$context.identity.accountId",
+                "apiId" : "$context.apiId",
+                "apiKey" : "$context.identity.apiKey",
+                "authorizerPrincipalId" : "$context.authorizer.principalId",
+                "caller" : "$context.identity.caller",
+                "cognitoAuthenticationProvider" : "$context.identity.cognitoAuthenticationProvider",
+                "cognitoAuthenticationType" : "$context.identity.cognitoAuthenticationType",
+                "cognitoIdentityId" : "$context.identity.cognitoIdentityId",
+                "cognitoIdentityPoolId" : "$context.identity.cognitoIdentityPoolId",
+                "httpMethod" : "$context.httpMethod",
+                "stage" : "$context.stage",
+                "sourceIp" : "$context.identity.sourceIp",
+                "user" : "$context.identity.user",
+                "userAgent" : "$context.identity.userAgent",
+                "userArn" : "$context.identity.userArn",
+                "requestId" : "$context.requestId",
+                "resourceId" : "$context.resourceId",
+                "resourcePath" : "$context.resourcePath"
+                }
+            }
+      RequestParameters:
+        method.request.querystring.name: false
+      ResourceId: !Ref RootskiResource
+      RestApiId: !Ref RootskiApi
+      MethodResponses:
+        - StatusCode: 200
+
+Outputs:
+  BaseURL:
+    Description: Base URL of the API gateway
+    Value: !Sub "https://${RootskiApi}.execute-api.${AWS::Region}.amazonaws.com"

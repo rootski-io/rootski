@@ -1,0 +1,8 @@
+# install the rootski package with all dependencies (with a symbolic link so you don't have
+# to re-run 'pip install ...' whenever you make a code change to the rootski package
+-e ..[dev]
+pygments
+rich
+
+sqlparse
+strawberry-graphql

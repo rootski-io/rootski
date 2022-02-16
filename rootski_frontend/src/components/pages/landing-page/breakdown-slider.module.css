@@ -1,0 +1,224 @@
+.wrapper {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* background-color: rgb(34, 84, 158); */
+}
+
+.sliderCover {
+  position: absolute;
+  /* width: 100%; */
+  width: 000px;
+  z-index: 2;
+}
+
+.slidersContainer {
+  display: "flex";
+  flex-direction: "row";
+  justify-content: "space-between";
+  /* width: "800px" !important; */
+}
+
+.slider {
+  position: relative;
+  height: 256px;
+  width: fit-content;
+  margin-right: 12px;
+  z-index: 1;
+}
+
+/* global CSS variables (constants) to be referenced elsewhere  */
+:root {
+  --slide-offset: 120px;
+  --step-size: 45px;
+  --suffix-step-size: 46px;
+}
+
+/* prefix slider */
+.wrapper svg:nth-of-type(2) {
+  animation: prefix-slide 13s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* root slider */
+.wrapper svg:nth-of-type(3) {
+  animation: root-slide 13s cubic-bezier(0, 0, 0.2, 1) infinite;
+  transition-duration: 0.5s;
+}
+
+/* suffix slider */
+.wrapper svg:nth-of-type(4) {
+  animation: suffix-slide 13s cubic-bezier(0, 0, 0.2, 1) infinite;
+  transition-duration: 0.1s;
+}
+
+/*
+ * WORD                          OFFSETS
+ *                    prefixes   roots   suffixes
+ *     каз     ать             0
+ * до  каз     ать
+ * до  каз     ательство
+ * при каз     ать
+ * при влек    ать
+ * при влек    ательный
+ * раз влек    ательный
+ *
+ *                    NOTE: -1 means "off screen entirely"
+*/
+
+@keyframes prefix-slide {
+  /* no prefix */
+  0%,
+  100% {
+    transform: translateY(var(--slide-offset));
+  }
+
+  /* до */
+  12.5% {
+    transform: translateY(calc(var(--slide-offset) - var(--step-size) * 5));
+  }
+
+  /* до */
+  25% {
+    transform: translateY(calc(var(--slide-offset) - var(--step-size) * 5));
+  }
+
+  /* при */
+  /* 37.5% {
+        transform: translateY(calc(
+            var(--slide-offset) - var(--step-size) * 4
+        ))
+    } */
+
+  /* при */
+  50% {
+    transform: translateY(calc(var(--slide-offset) - var(--step-size) * 4));
+  }
+
+  /* при */
+  62.5% {
+    transform: translateY(calc(var(--slide-offset) - var(--step-size) * 4));
+  }
+
+  /* раз */
+  75% {
+    transform: translateY(calc(var(--slide-offset) - var(--step-size) * 2));
+  }
+
+  /* раз */
+  87.5% {
+    transform: translateY(calc(var(--slide-offset) - var(--step-size) * 2));
+  }
+}
+
+.root-slide-class {
+  animation: suffix-slide 13s cubic-bezier(0, 0, 0.2, 1) infinite;
+  transition-duration: 0.1s;
+}
+
+@keyframes root-slide {
+  /* каз */
+  0%,
+  100% {
+    transform: translateY(var(--slide-offset));
+  }
+
+  /* каз */
+  12.5% {
+    transform: translateY(calc(var(--slide-offset)));
+  }
+
+  /* каз */
+  25% {
+    transform: translateY(calc(var(--slide-offset)));
+  }
+
+  /* каз */
+  /* 37.5% {
+        transform: translateY(calc(
+            var(--slide-offset)
+        ))
+    } */
+
+  /* влек */
+  50% {
+    transform: translateY(
+      calc(var(--slide-offset) - var(--step-size) * 5 * 1.025)
+    );
+  }
+
+  /* влек */
+  62.5% {
+    transform: translateY(
+      calc(var(--slide-offset) - var(--step-size) * 5 * 1.025)
+    );
+  }
+
+  /* влек */
+  75% {
+    transform: translateY(
+      calc(var(--slide-offset) - var(--step-size) * 5 * 1.025)
+    );
+  }
+
+  /* влек */
+  87.5% {
+    transform: translateY(
+      calc(var(--slide-offset) - var(--step-size) * 5 * 1.025)
+    );
+  }
+}
+
+@keyframes suffix-slide {
+  /* ать */
+  0%,
+  100% {
+    transform: translateY(var(--slide-offset));
+  }
+
+  /* ать */
+  12.5% {
+    transform: translateY(calc(var(--slide-offset)));
+  }
+
+  /* ательство */
+  25% {
+    transform: translateY(
+      calc(var(--slide-offset) - var(--suffix-step-size) * 5)
+    );
+  }
+
+  /* ать */
+  /* 37.5% {
+        transform: translateY(calc(
+            var(--slide-offset)
+        ))
+    } */
+
+  /* ать */
+  50% {
+    transform: translateY(
+      calc(var(--slide-offset) - var(--suffix-step-size) * 5)
+    );
+  }
+
+  /* ательный */
+  62.5% {
+    transform: translateY(
+      calc(var(--slide-offset) - var(--suffix-step-size) * 3)
+    );
+  }
+
+  /* ательный */
+  75% {
+    transform: translateY(
+      calc(var(--slide-offset) - var(--suffix-step-size) * 3)
+    );
+  }
+
+  /* ать */
+  87.5% {
+    transform: translateY(calc(var(--slide-offset)));
+  }
+}

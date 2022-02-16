@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Maps a subdomain of the form xxx.rootski.io -> EC2 instance with the backend (the HostedZoneName comes from the front-end stack)
+
+Parameters:
+  RootskiFrontEndStackName:
+    Type: String
+    Description: The name of an existing CloudFormation stack *in the same region* containing the HostedZoneName output
+  Subdomain:
+    Type: String
+    Description: <subdomain>.rootski.io
+  PublicIP:
+    Type: String
+    Description: Some Public IP address
+
+Resources:
+
+  SubdomainDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Description: Make the traefik dashboard accessible at the site domain name
+    Properties:
+      HostedZoneName:
+        Fn::ImportValue: !Sub "${RootskiFrontEndStackName}-HostedZoneName"
+      Type: A # CNAME
+      # example: traefik.rootski.io
+      Name: !Join
+        - "."
+        - - !Ref Subdomain
+          - Fn::ImportValue: !Sub "${RootskiFrontEndStackName}-HostedZoneName"
+      # "time to live" (seconds); DNS servers will only cache the result of this
+      # subdomain for this long--setting it longer can reduce queries to route53,
+      # and therefore save costs. 900 is the default. Shorter times are good for
+      # development when we change them rapidly. Probably good for DynamicDNS, too :)
+      TTL: "60"
+      ResourceRecords:
+        - !Ref PublicIP
+
+Outputs:
+  RootskiApiHostedZoneName:
+    Value: !Join
+      - "."
+      - - !Ref Subdomain
+        - Fn::ImportValue: !Sub "${RootskiFrontEndStackName}-HostedZoneName"
+    Description: FQDN of the created DNS record set, e.g. <subdomain>.rootski.io
+  PublicIP:
+    Value: !Ref PublicIP
+    Description: IP address currently pointed to by the subdomain

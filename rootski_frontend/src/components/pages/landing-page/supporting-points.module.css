@@ -1,0 +1,9 @@
+.similarWordsTable > tr > td {
+  padding-right: 50px;
+}
+
+.similarWordsTable > tr > td > p {
+  font-size: 24px;
+  line-height: 24px;
+  font-family: "Comic Sans MS";
+}

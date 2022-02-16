@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+
+  ddns:
+    image: rootski/ddns
+    build:
+      context: .
+      dockerfile: Dockerfile

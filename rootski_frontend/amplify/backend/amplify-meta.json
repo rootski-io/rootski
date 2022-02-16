@@ -1,0 +1,39 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-authapp-authappenv-114736-authRole",
+      "UnauthRoleArn": "arn:aws:iam::091910621680:role/amplify-authapp-authappenv-114736-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::091910621680:role/amplify-authapp-authappenv-114736-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-authapp-authappenv-114736-deployment",
+      "UnauthRoleName": "amplify-authapp-authappenv-114736-unauthRole",
+      "StackName": "amplify-authapp-authappenv-114736",
+      "StackId": "arn:aws:cloudformation:us-west-2:091910621680:stack/amplify-authapp-authappenv-114736/d8340720-55a3-11ea-b291-0624ad86cf72",
+      "AmplifyAppId": "d3djwvitvjnao7"
+    }
+  },
+  "auth": {
+    "authapp3375bbd9": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-authapp-authappenv-114736-deployment/amplify-cfn-templates/auth/authapp3375bbd9-cloudformation-template.yml",
+        "logicalId": "authauthapp3375bbd9"
+      },
+      "lastPushTimeStamp": "2020-02-22T20:07:20.386Z",
+      "output": {
+        "AppClientSecret": "1sfhdh1blklvlv6rbhtrmom8u5pl5v7hagpnn67prv9655ao6r17",
+        "UserPoolId": "us-west-2_oH3VhGPjZ",
+        "AppClientIDWeb": "7etsid1jn9mu8d42qetqp11r1b",
+        "AppClientID": "6c5npqgru6u57tju8qh3cqkneu",
+        "HostedUIDomain": "auth-app-federated-authappenv",
+        "IdentityPoolId": "us-west-2:b7670135-a073-489b-a745-493f6b4f7ca3",
+        "IdentityPoolName": "authapp3375bbd9_identitypool_3375bbd9__authappenv",
+        "OAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"http://localhost:3000/\"],\"LogoutURLs\":[\"http://localhost:3000/\"]}",
+        "UserPoolName": "authapp3375bbd9_userpool_3375bbd9"
+      },
+      "lastPushDirHash": "lrW7dDZWqxcaPo160p42oi5QT3s="
+    }
+  }
+}

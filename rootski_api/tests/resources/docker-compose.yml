@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+
+  rootski:
+    command: py.test tests/functional_tests/main/endpoints -xv
+#    command: tail -f /dev/null
+    image: rootski-api
+    build:
+      context: ../.. # rootski_api/
+      dockerfile: ./tests/resources/Dockerfile
+    env_file:
+      - test.env
+    volumes:
+      - ../..:/usr/src/rootski_api
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # (1) this database intentionally has no volumes; the database for tests should be fresh
+  # (2) we run it on port 8432 to avoid accidentally wiping databases running on 5432
+  postgres:
+    image: postgres:9.6
+    command: "-p 8432"
+    env_file:
+      - test.env
+    ports:
+      - "8432:8432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready --username test-user --dbname test_db --port 8432" ]
+      interval: 1s
+      timeout: 1s
+      retries: 6
