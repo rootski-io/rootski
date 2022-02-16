@@ -1,0 +1,4 @@
+outs:
+- md5: ff2d335ef78660da8360604af6234296
+  size: 1349275
+  path: model_checkpoint.pt

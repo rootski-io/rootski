@@ -1,0 +1,5 @@
+/test_clean_double.tsv
+/train_clean_double.tsv
+/g2p_model.pt
+/test_clean.csv
+/train_clean.csv

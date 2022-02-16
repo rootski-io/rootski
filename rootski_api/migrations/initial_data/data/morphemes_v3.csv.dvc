@@ -1,0 +1,4 @@
+outs:
+- md5: 3398c41bd5ac41965c19a3fd5384d6d2
+  size: 67262
+  path: morphemes_v3.csv

@@ -1,0 +1,4 @@
+outs:
+- md5: 5d848cfd60d0ba7e8eb3c489f1fd221a
+  size: 3881514
+  path: word_types.csv

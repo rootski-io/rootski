@@ -1,0 +1,4 @@
+outs:
+- md5: de6152861575a6f72d45103bcc4846fa
+  size: 7970048
+  path: sentences.csv

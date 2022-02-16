@@ -1,0 +1,4 @@
+outs:
+- md5: f22757b55b2f724ffc7f034780ec19f8
+  size: 3714930
+  path: word_to_sentence.csv

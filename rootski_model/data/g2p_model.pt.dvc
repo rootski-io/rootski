@@ -1,0 +1,4 @@
+outs:
+- md5: e853c298b379496251d8542d29272ba3
+  size: 8621507
+  path: g2p_model.pt

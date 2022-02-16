@@ -1,0 +1,4 @@
+outs:
+- md5: 9acd500178c7506f081631a0c3ee32e1
+  size: 2493376
+  path: adjectives.csv

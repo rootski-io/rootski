@@ -1,0 +1,4 @@
+outs:
+- md5: 68c6f8f47bc05c175187544da6329527
+  size: 1576249
+  path: word_defs.csv

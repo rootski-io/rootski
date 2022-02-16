@@ -1,0 +1,4 @@
+outs:
+- md5: 5c63e279e880805e06d01a9bde3a0cb7
+  size: 9873775
+  path: words.csv

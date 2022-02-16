@@ -1,0 +1,4 @@
+outs:
+- md5: 94fa35552a7621a8ff0db2b063d567c2
+  size: 50146
+  path: family_meanings_v1.csv

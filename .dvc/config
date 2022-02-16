@@ -1,0 +1,5 @@
+[core]
+    remote = rootski-seed-data-s3-bucket
+['remote "rootski-seed-data-s3-bucket"']
+    url = s3://rootski-seed-data/seed-data/
+    profile = "rootski"

@@ -1,0 +1,4 @@
+outs:
+- md5: 3806847b80f537499565ad94635a69bb
+  size: 436916
+  path: verb_pairs.csv

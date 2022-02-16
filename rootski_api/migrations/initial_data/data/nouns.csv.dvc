@@ -1,0 +1,4 @@
+outs:
+- md5: c211ec5b860aa3fb5a0ff4bdbab3b21d
+  size: 26257475
+  path: nouns.csv
