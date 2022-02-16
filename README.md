@@ -13,7 +13,7 @@ Rootski uses an A.I. algorithm called a "transformer" to break Russian words int
 the word breakdowns with data such as definitions, grammar information, related words, and examples
 and then displays this information to users for them to study.
 
-## How is the Rootski project run? (Hint, [get involved](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 😃)
+## How is the Rootski project run? (Hint, [get involved here](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 😃)
 
 Rootski is developed by volunteers!
 
@@ -45,12 +45,12 @@ Onboarded and contributed features :D
 
 - [Eric Riddoch](ericriddoch.info) - Been working on Rootski for 3 years and counting!
 - [Ryan Gardner](https://www.linkedin.com/in/gardner-ryan/) - Helping with all of the legal/business aspects and dabbling in development
-- [Isaac Robbins](https://www.linkedin.com/in/isaacrobbins/) - Learning and building experience in MLOps and DevOps!
 
 ## Friends
 
-Completed a lot of the Rootski onboarding or just chat with us in our [Slack workspace](https://join.slack.com/t/rootskiio/shared_invite/zt-13avx8j84-mocJVx5wFAGNf5wUuy07OA) about miscellanious code questions, careers, advice, etc.
+Completed a lot of the Rootski onboarding and chat with us in our [Slack workspace](https://join.slack.com/t/rootskiio/shared_invite/zt-13avx8j84-mocJVx5wFAGNf5wUuy07OA) about miscellanious code questions, careers, advice, etc.
 
+- [Isaac Robbins](https://www.linkedin.com/in/isaacrobbins/) - Learning and building experience in MLOps and DevOps!
 - [Colin Varney](https://www.linkedin.com/in/colin-varney-b7283135/) - Full-stack python guy. Is working his first full-time software job!
 - [Fazleem Baig](https://www.linkedin.com/in/fazleem-baig/) - MLOps guy. Quite experienced with Python and learning about AWS. Working for an AI startup in Canada.
 - [Ayse (Aysha) Arslan](https://www.linkedin.com/in/ayse-seyyide-arslan-5b1594137/) - Learning about all things MLOps. Working her first MLE/MLOps job!
@@ -63,7 +63,7 @@ Completed a lot of the Rootski onboarding or just chat with us in our [Slack wor
 
 ### How to deploy an entire Rootski environment from scratch
 
-Going through this, you'll notice that there are several one-time manual steps. This is common even for teams
+Going through this, you'll notice that there are several one-time, manual steps. This is common even for teams
 with a heavily automated infrastructure-as-code workflow, particularly when it comes to the creation of users
 and storing of credentials.
 
