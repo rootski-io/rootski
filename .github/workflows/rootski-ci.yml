@@ -43,9 +43,6 @@ jobs:
         # install docker-compose because it is needed to run the tests
         make install-docker-compose
         
-        # run the tests
-        make full-test-ci
-        
     - name: run tests and other code quality checks
       run: |
         # check the backend code quality (formatting, linting, static code checks)
