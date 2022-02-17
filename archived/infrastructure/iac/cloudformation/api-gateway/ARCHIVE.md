@@ -1,5 +1,5 @@
 Before the rootski backend fell under the subdomain `api.rootski.io`, the backend
-could only be accessed using an IP address. 
+could only be accessed using an IP address.
 
 This CloudFormation template creates
 a REST API that invokes a Lambda function that pulls a single parameter value

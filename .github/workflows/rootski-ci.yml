@@ -1,0 +1,59 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Rootski CI
+
+on:
+  push:
+    # CI is triggered when commits enter these branches (on the GitHub remote server, not locally)
+    branches: [ trunk ]
+  pull_request:
+    # CI is triggered when PRs are opened with these branches as targets
+    branches: [ trunk ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    # checkout the code
+    - uses: actions/checkout@v2
+
+    # allow tests and other automated steps to interact with the rootski AWS account
+    - name: configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.CI__AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.CI__AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: install 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.9"
+
+    - name: install docker
+      uses: docker-practice/actions-setup-docker@1.0.8
+
+    - name: install dependencies
+      run: |
+        # install global python dependencies
+        make install
+
+        # install python dependencies specific to the backend code
+        cd rootski_api
+        make install
+
+        # install docker-compose because it is needed to run the tests
+        make install-docker-compose
+
+    - name: run tests and other code quality checks
+      run: |
+        # check the code quality across the entire project (formatting, linting, static code checks)
+        make check-code-quality-ci
+
+        # run the backend tests
+        cd rootski_api
+        make full-test-ci

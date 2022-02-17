@@ -17,7 +17,7 @@ and then displays this information to users for them to study.
 
 Rootski is developed by volunteers!
 
-We use Rootski as a platform to learn and mentor anyone with an interest in 
+We use Rootski as a platform to learn and mentor anyone with an interest in
 frontend/backend development, developing data science models,
 data engineering, MLOps, DevOps, UX, and running a business. Although the code is open-source,
 the license for reuse and redistribution is tightly restricted.
@@ -31,13 +31,13 @@ production-ready, high quality software is to
 
 For better or worse, it's hard to find code for large software systems built to be hosted in
 the cloud and used by a large number of customers. This is because virtually all apps that fit
-this description... are proprietary 🤣. That makes (1) hard. 
+this description... are proprietary 🤣. That makes (1) hard.
 
 (2) can be inaccessible due to
 the amount of time it takes to write well-written software systems without a team (or mentorship). If you're only interested
 in a sub-part of engineering, or if you are a beginner, it can be infeasible to build an entire production
 system on your own. Think of this as working on a personal project... with a bunch of other fun people
-working on it with you. 
+working on it with you.
 
 ## Contributors
 
@@ -81,7 +81,7 @@ be discussed below. This includes creating several types of infrastructure using
 
 #### 2. Create an SSH key pair
 
-1. In the AWS console, go to EC2 and create an SSH key pair named `rootski`. 
+1. In the AWS console, go to EC2 and create an SSH key pair named `rootski`.
 2. Download the key pair.
 3. Save the key pair somewhere you won't forget. If the pair isn't already named, I like to rename them and store them at `~/.ssh/rootski/rootski.id_rsa` (private key) and `~/.ssh/rootski/rootski.id_rsa.pub` (public key).
 4. Create a new GitHub account for a "Machine User". Copy/paste the contents of `rootski.id_rsa.pub` into any boxes you have to to make this work :D
@@ -92,7 +92,7 @@ this "machine user" is now authorized to clone the rootski repository!
 | Parameter      | Description |
 | ----------- | ----------- |
 | `/rootski/ssh/private_key`      | The contents of the private key needed to clone the `rootski` repository.       |
-| `/rootski/prod/database_config`   | A stringified JSON object with database connection information (see below) | 
+| `/rootski/prod/database_config`   | A stringified JSON object with database connection information (see below) |
 
 ```json
 {
