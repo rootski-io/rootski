@@ -29,13 +29,11 @@ jobs:
         aws-secret-access-key: ${{ secrets.CI__AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-2
     
-    # install python
-    - name: Set up Python 3.9
+    - name: install 3.9
       uses: actions/setup-python@v2
       with:
         python-version: "3.9"
         
-    # install docker
     - name: install docker
       uses: docker-practice/actions-setup-docker@1.0.8
     
@@ -53,11 +51,11 @@ jobs:
         
     - name: run tests and other code quality checks
       run: |
-        # check the backend code quality (formatting, linting, static code checks)
-        cd rootski_api
+        # check the code quality across the entire project (formatting, linting, static code checks)
         make check-code-quality-ci
         
         # run the backend tests
+        cd rootski_api
         make full-tests-ci
         
         
