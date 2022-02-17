@@ -1,5 +1,4 @@
 import boto3
-import botocore
 import os
 import re
 import subprocess
@@ -75,7 +74,7 @@ def create_s3_client():
         aws_access_key_id=BACKUP_DB__AWS_ACCESS_KEY_ID,
         aws_secret_access_key=BACKUP_DB__AWS_SECRET_ACCESS_KEY,
     )
-    return sess.client('s3')
+    return sess.client("s3")
 
 
 def upload_backup_to_s3(s3_client, backup_fpath, backup_bucket_name, backup_object_name):
@@ -105,7 +104,7 @@ def backup_database(object_name):
     )
     run_shell_command(backup_cmd, env_vars={"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]})
 
-    # upload the backup to S3    
+    # upload the backup to S3
     print("Backing up the database as", object_name, "to S3")
     upload_backup_to_s3(create_s3_client(), db_backup_gzip_fpath, BACKUP_BUCKET, object_name)
 
