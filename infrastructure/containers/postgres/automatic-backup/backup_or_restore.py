@@ -1,3 +1,5 @@
+import boto3
+import botocore
 import os
 import re
 import subprocess
@@ -11,7 +13,10 @@ from textwrap import dedent
 # --- Constants --- #
 #####################
 
+BACKUP_BUCKET = os.environ["BACKUP_BUCKET"]
 BACKUP_DIR = Path(os.environ["BACKUP_DIR"])
+BACKUP_DB__AWS_ACCESS_KEY_ID = os.environ["BACKUP_DB__AWS_ACCESS_KEY_ID"]
+BACKUP_DB__AWS_SECRET_ACCESS_KEY = os.environ["BACKUP_DB__AWS_SECRET_ACCESS_KEY"]
 BACKUP_INTERVAL = os.environ["BACKUP_INTERVAL"]
 CONNECTION_STRING = "postgresql://{username}:{password}@{host}:{port}/{database}".format(
     username=os.environ["POSTGRES_USER"],
@@ -56,16 +61,41 @@ def run_shell_command(command, env_vars):
 ###################
 
 
-def make_backup_fpath():
-    return BACKUP_DIR / datetime.now().strftime(FILENAME_DATETIME_FORMAT)
+def make_object_name():
+    return datetime.now().strftime(FILENAME_DATETIME_FORMAT)
 
 
-def backup_database(db_backup_gzip_fpath):
+def make_backup_fpath(object_name):
+    return BACKUP_DIR / object_name
+
+
+def create_s3_client():
+    """Creates and returns an AWS S3 client for uploading backup to the cloud."""
+    sess = boto3.session.Session(
+        aws_access_key_id=BACKUP_DB__AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=BACKUP_DB__AWS_SECRET_ACCESS_KEY,
+    )
+    return sess.client('s3')
+
+
+def upload_backup_to_s3(s3_client, backup_fpath, backup_bucket_name, backup_object_name):
+    """Uploads the backup_fpath file to AWS S3."""
+    with open(str(backup_fpath), "rb") as f:
+        s3_client.upload_fileobj(f, backup_bucket_name, backup_object_name)
+
+
+def delete_local_backup_file(backup_fpath):
+    """Deletes the local backup file once it has been uplaoded to S3."""
+    os.remove(str(backup_fpath))
+
+
+def backup_database(object_name):
     # make sure the backup directory exists
+    db_backup_gzip_fpath = make_backup_fpath(object_name)
     db_backup_gzip_fpath.parent.mkdir(parents=True, exist_ok=True)
 
     # backup the database
-    print("Backing up database to", db_backup_gzip_fpath)
+    print("Creating the backup")
 
     # run the backup command
     backup_cmd = (
@@ -74,6 +104,13 @@ def backup_database(db_backup_gzip_fpath):
         )
     )
     run_shell_command(backup_cmd, env_vars={"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]})
+
+    # upload the backup to S3    
+    print("Backing up the database as", object_name, "to S3")
+    upload_backup_to_s3(create_s3_client(), db_backup_gzip_fpath, BACKUP_BUCKET, object_name)
+
+    # delete local backup
+    delete_local_backup_file(db_backup_gzip_fpath)
 
 
 def backup_database_on_interval(seconds):
@@ -85,7 +122,7 @@ def backup_database_on_interval(seconds):
     )
     while True:
         time.sleep(seconds)
-        backup_database(make_backup_fpath())
+        backup_database(make_object_name())
 
 
 ###################

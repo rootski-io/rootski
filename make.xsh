@@ -487,6 +487,34 @@ def export_rootski_profile_aws_creds():
         )
 
 
+def export_rootski_profile_aws_creds_db_backup():
+    log(
+        "Exporting [magenta]rootski[/magenta] profile AWS credentials to"
+        + " [yellow]DB_BACKUP__AWS_SECRET_ACCESS_KEY[/yellow] and [yellow]DB_BACKUP__AWS_ACCESS_KEY_ID[/yellow]")
+    aws_creds_rel_path = ".aws/credentials"
+    aws_credentials_file = Path.home() / aws_creds_rel_path
+    if not aws_credentials_file.exists():
+        log(
+            f"No credentials file found at \"{aws_creds_rel_path}\". Credentials not exported."
+            + " This is okay if you don't need valid HTTPS certs for Traefik or if you are using IAM"
+            + "Role-based Authentication.",
+            mode="error"
+        )
+
+    try:
+        config = configparser.RawConfigParser()
+        config.read(str(aws_credentials_file))
+        $BACKUP_DB__AWS_ACCESS_KEY_ID = config.get("rootski", "aws_access_key_id")
+        $BACKUP_DB__AWS_SECRET_ACCESS_KEY = config.get("rootski", "aws_secret_access_key")
+    except configparser.NoSectionError:
+        log(
+            f"No credentials file found at \"{aws_creds_rel_path}\". Credentials not exported."
+            + " This is okay if you don't need valid HTTPS certs for Traefik or if you are using IAM"
+            + "Role-based Authentication.",
+            mode="error"
+        )
+
+
 def get_spot_instance_ip():
     """Get the IP address of currently deployed spot instance."""
     tfstate_fpath = str(THIS_DIR / "./infrastructure/iac/terraform/rootski-backend/terraform.tfstate")
@@ -521,6 +549,7 @@ def __start_backend(env_file):
 
     export_dot_env_vars(env_file)
     export_rootski_profile_aws_creds()
+    export_rootski_profile_aws_creds_db_backup()
 
     # derive the <user>:<bcrypted password> strings for basic-auth-protected
     # traefik routes and export them as environment variables for docker swarm
