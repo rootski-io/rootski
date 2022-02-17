@@ -56,4 +56,4 @@ jobs:
 
         # run the backend tests
         cd rootski_api
-        make full-tests-ci
+        make full-test-ci
