@@ -1,2 +1,4 @@
-The entire contents of this repository are the exclusive property of Rootski, L.L.C. Any
+The entire contents of this repository are the sole property of Rootski, L.L.C. Any
 reuse or redistribution of any portion of the code herein without written consent is strictly prohibited.
+
+Inquiries are welcome.

@@ -71,7 +71,7 @@ onboard:
 # read the header comment in the "make.xsh" file or the LONG comment in the
 # "onboard.sh" file.
 install:
-\tpython -m pip install xonsh==0.10.1 rich==10.12.0 pre-commit==2.15.0 bcrypt==3.2.0 dvc[s3]==2.9.4
+\tpython -m pip install xonsh==0.10.1 rich==10.12.0 pre-commit==2.15.0 bcrypt==3.2.0
 \tpre-commit install
 """)
 
@@ -629,10 +629,22 @@ def print_dev_backend_startup_message():
     It uses [magenta]GraphQL[/magenta] for requests that read data. We have a
     ✨ fancy UI ✨ for each of these. Check them out!
 
-    REST API Docs  [yellow]https://localhost[magenta]/docs[/magenta][/yellow]
+    REST API Docs  [yellow]https://{ $TRAEFIK__ROOTSKI_API_SUBDOMAIN }.{ $TRAEFIK__ROOTSKI_DOMAIN }[magenta]/docs[/magenta][/yellow]
     GraphQL        [yellow]https://{ $TRAEFIK__ROOTSKI_API_SUBDOMAIN }.{ $TRAEFIK__ROOTSKI_DOMAIN }[magenta]/graphql[/magenta][/yellow]
     username       [dim bold green]{ $TRAEFIK__ROOTSKI_DOCS_USER }[/dim bold green]
-    password       [dim bold green]{ $TRAEFIK__ROOTSKI_DOCS_PASSWORD }[/dim bold green]
+    password       [dim bold green]{  $TRAEFIK__ROOTSKI_DOCS_PASSWORD }[/dim bold green]
+
+    [cyan]
+    Traefik UI
+    ----------[/cyan]
+
+    [magenta]Traefik[/magenta] is a "proxy server". It encrypts requests/responses
+    from our backend API. In other words, Traefik allows us to send
+    traffic to our backend API from our frontend over HTTPS.
+
+    url       [yellow]https://{ $TRAEFIK__TRAEFIK_UI_SUBDOMAIN }.{ $TRAEFIK__ROOTSKI_DOMAIN }[/yellow]
+    username  [dim bold green]{ $TRAEFIK__TRAEFIK_UI_USER }[/dim bold green]
+    password  [dim bold green]{ $TRAEFIK__TRAEFIK_UI_PASSWORD }[/dim bold green]
 
     [cyan]
     PostgreSQL Connection Information
@@ -652,7 +664,12 @@ def print_dev_backend_startup_message():
     Notes
     -----[/cyan]
 
-    [cyan]*[/cyan] The docker extension for VS Code makes
+    [cyan](1)[/cyan] the traefik UI and backend API docs may
+        show a warning in your browser. This is because we don't have
+        HTTPS certs for your local machine. To get past this,
+        click [magenta]"Advanced" > "Proceed to [yellow]xxx.{ $TRAEFIK__ROOTSKI_DOMAIN }[/yellow]"[/magenta]
+
+    [cyan](2)[/cyan] The docker extension for VS Code makes
         it really easy to view the logs to all of the rootski containers,
         or get a bash shell inside of them to explore and debug.
     """)
