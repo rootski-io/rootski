@@ -77,6 +77,15 @@ def create_s3_client():
     return sess.client("s3")
 
 
+def create_s3_session():
+    """Creates and returns an AWS session for listing and downloading backups in S3."""
+    sess = boto3.session.Session(
+        aws_access_key_id=BACKUP_DB__AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=BACKUP_DB__AWS_SECRET_ACCESS_KEY,
+    )
+    return sess
+
+
 def upload_backup_to_s3(s3_client, backup_fpath, backup_bucket_name, backup_object_name):
     """Uploads the backup_fpath file to AWS S3."""
     with open(str(backup_fpath), "rb") as f:
@@ -129,9 +138,21 @@ def backup_database_on_interval(seconds):
 ###################
 
 
-def get_most_recent_backup_fpath():
+def download_backup_object(session, backup_bucket_name, backup_obj_name, backup_fpath):
+    """Downloads the object_name backup from the backup_bucket_name S3 bucket."""
+    s3_client = session.client("s3")
+    s3_client.download_file(backup_bucket_name, backup_obj_name, backup_fpath)
+
+
+def list_bucket_objects(session, backup_bucket_name):
+    """Returns a list of all objects in the backup_bucket_name S3 bucket."""
+    bucket = session.resource("s3").Bucket(backup_bucket_name)
+    return [obj.key for obj in bucket.objects.all()]
+
+
+def get_most_recent_backup_obj_name(session):
     # get a list of all the backup files
-    backup_files = BACKUP_DIR.glob("*.sql.gz")
+    backup_files = list_bucket_objects(session, BACKUP_BUCKET)
 
     # get the most recent backup file
     get_datetime_from_fpath = lambda fpath: datetime.strptime(str(fpath.name), FILENAME_DATETIME_FORMAT)
@@ -140,11 +161,11 @@ def get_most_recent_backup_fpath():
     return most_recent_backup_fpath
 
 
-def restore_database(backup_fpath):
+def restore_database(backup_obj_name=None):
     """
     (1) drop the database
     (2) re-create it (but totally empty)
-    (3) restore from the backup at backup_fpath
+    (3) restore from the most recent backup in S3
     """
 
     pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
@@ -167,6 +188,17 @@ def restore_database(backup_fpath):
     )
     run_shell_command(create_db_cmd, env_vars=pg_env_vars)
 
+    # find the most recent backup or verify the specify backup exists
+    session = create_s3_session()
+    if backup_obj_name is None:
+        backup_obj_name = get_most_recent_backup_obj_name(session)
+    elif backup_obj_name not in list_bucket_objects(session, BACKUP_BUCKET):
+        return False
+    backup_fpath = make_backup_fpath(backup_obj_name)
+
+    # download the backup
+    download_backup_object(session, BACKUP_BUCKET, backup_obj_name, backup_fpath)
+
     # restore the database from a backup
     print("Restoring database from", backup_fpath)
     restore_cmd = "gunzip --keep --stdout {backup_fpath} | psql --dbname {conn_string}".format(
@@ -183,15 +215,15 @@ def restore_database(backup_fpath):
 def main():
     print("Running database-backup process with subcommand", sys.argv[1])
     if sys.argv[1] == "backup":
-        backup_database(make_backup_fpath())
+        backup_database(make_object_name())
     elif sys.argv[1] == "backup-on-interval":
         backup_interval_seconds = parse_timedelta(BACKUP_INTERVAL).seconds
         backup_database_on_interval(seconds=backup_interval_seconds)
     elif sys.argv[1] == "restore-from-most-recent":
-        restore_database(get_most_recent_backup_fpath())
+        restore_database()
     elif sys.argv[1] == "restore-from-backup":
-        backup_fpath = BACKUP_DIR / sys.argv[2]
-        restore_database(backup_fpath)
+        backup_obj_name = sys.argv[2]
+        restore_database(backup_obj_name)
     else:
         print(
             dedent(
