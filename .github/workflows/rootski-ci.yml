@@ -62,5 +62,6 @@ jobs:
     - name: codecov
       uses: codecov/codecov-action@v2.1.0
       with:
-        files: ./rootski_api/test-reports/coverage.xml
+        # directory to search for coverage reports
+        directory: ./rootski_api/test-reports/
         name: rootski backend tests
