@@ -10,7 +10,7 @@ setuptools.setup(
     description="An empty CDK Python app",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="phitoduck",
+    author="rootski-io",
     package_dir={"": "cognito"},
     packages=setuptools.find_packages(where="cognito"),
     install_requires=["aws-cdk.core==1.109.0", "aws-cdk.aws_cognito", "PyYAML"],
