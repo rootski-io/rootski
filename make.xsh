@@ -100,6 +100,9 @@ def build_images():
     export_dot_env_vars(env_file=DEV_ENV_FILE)
     docker-compose build
 
+    cd rootski_api
+    docker-compose build
+
 
 @makefile.target(tag="run services locally")
 def start_backend():
