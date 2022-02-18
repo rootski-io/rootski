@@ -73,7 +73,7 @@ To get started, head over to our [knowledge base](https://quickest-trail-808.not
 
 Onboarded and contributed features :D
 
-- [Eric Riddoch](ericriddoch.info) - Been working on Rootski for 3 years and counting!
+- [Eric Riddoch](https://ericriddoch.info/) - Been working on Rootski for 3 years and counting!
 - [Ryan Gardner](https://www.linkedin.com/in/gardner-ryan/) - Helping with all of the legal/business aspects and dabbling in development
 
 ## Friends
