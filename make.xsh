@@ -71,7 +71,7 @@ onboard:
 # read the header comment in the "make.xsh" file or the LONG comment in the
 # "onboard.sh" file.
 install:
-\tpython -m pip install xonsh==0.10.1 rich==10.12.0 pre-commit==2.15.0 bcrypt==3.2.0 dvc[s3]==2.9.4
+\tpython -m pip install xonsh==0.10.1 rich pre-commit==2.15.0 bcrypt==3.2.0 dvc[s3]==2.9.4
 \tpre-commit install
 """)
 
