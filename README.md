@@ -19,7 +19,6 @@ sheilds.io homepage where color choices are documented: https://shields.io/
 [![ClickUp](https://img.shields.io/badge/ticket%20board-ClickUp-ff69b4.svg)](https://sharing.clickup.com/l/h/4-30114956-1/80ea8d248c817f3)
 [![YouTube Playlist](https://img.shields.io/badge/YouTube-playlist-ff0000.svg)](https://www.youtube.com/playlist?list=PLwF2z4Iu4rabmY7RbRNetjZprLfe8qWNz)
 
-
 # 📣 Welcome to the Rootski codebase!
 
 This is the codebase for the application running at [rootski.io](https://www.rootski.io).
@@ -66,6 +65,8 @@ If you're [willing to learn](https://www.linkedin.com/posts/eric-riddoch_im-will
 We have training materials that can take you from whatever experience level you may be at and get you onboarded and contributing.
 
 To get started, head over to our [knowledge base](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc).
+
+> ⚠️ Disclaimer, please read! This is 100% "free labor" in the sense that Eric Riddoch owns the Rootski project. The value of contributing to rootski is really in getting to work on part of a real product, having mentorship, and experimenting with tools you don't use at your day job. Whether or not you're experienced, that "mentorship" looks exactly the way it would at a paid job: we're a bunch of non-experts working together, some of us knowing more about certain technologies than others. For Eric, this project truly is about learning/mentoring and he'd rather move really slowly so that people can learn rather than focus on exploiting people adding new features. Eric is happy if the work we're doing here does nothing more than give people career opportunities and help remove confusion about how "real" software is built. Many of the contributors make real sacrifices offering their time and mentorship working on this project. Please don't criticize our motives. We truly do want you do do what's best for you. Please *do* or please *don't* contribute based on what you think is best for your career and personal growth. This model for building a product was inspired by this podcast interview with the creator of the [Python discord channel](https://talkpython.fm/episodes/show/305/python-community-at-python-discord). Eric finds their intentions to be genuine. Please know that for over a year, Eric has "sunk" many evenings and weekends mentoring engineers and has seen no personal "return on investment" outside of relationships; he will gladly continue to do so, time permitting. Feel free to reach out to any of the "Contributors" or "Friends" to ask them about their experience.
 
 </br>
 
