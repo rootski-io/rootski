@@ -134,6 +134,7 @@ def backup_database_dev():
     all of the tables in the instace of Postgres running locally.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
+    export_rootski_profile_aws_creds_db_backup()
     $POSTGRES_HOST = get_localhost()
     docker network prune --force
     docker-compose run database-backup backup
@@ -148,6 +149,7 @@ def restore_database():
     Note that this will wipe the existing data in the database first.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
+    export_rootski_profile_aws_creds_db_backup()
     docker network prune --force
     database_backup_container_id = $(docker ps --quiet --filter name=database-backup)
     database_backup_container_id = database_backup_container_id.strip()
