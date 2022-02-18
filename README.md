@@ -1,6 +1,6 @@
 ![breakdown-svg](./rootski_frontend/src/assets/images/breakdown-window.svg)
 
-![rootski workflow](https://github.com/phitoduck/rootski/actions/workflows/rootski-ci/badge.svg)
+![rootski-ci](https://github.com/phitoduck/rootski/actions/workflows/rootski-ci/badge.svg)
 
 # 📣 Welcome to the Rootski codebase!
 
