@@ -141,7 +141,7 @@ def backup_database_on_interval(seconds):
 def download_backup_object(session, backup_bucket_name, backup_obj_name, backup_fpath):
     """Downloads the object_name backup from the backup_bucket_name S3 bucket."""
     s3_client = session.client("s3")
-    s3_client.download_file(backup_bucket_name, backup_obj_name, backup_fpath)
+    s3_client.download_file(backup_bucket_name, backup_obj_name, str(backup_fpath))
 
 
 def list_bucket_objects(session, backup_bucket_name):
@@ -155,7 +155,7 @@ def get_most_recent_backup_obj_name(session):
     backup_files = list_bucket_objects(session, BACKUP_BUCKET)
 
     # get the most recent backup file
-    get_datetime_from_fpath = lambda fpath: datetime.strptime(str(fpath.name), FILENAME_DATETIME_FORMAT)
+    get_datetime_from_fpath = lambda fpath: datetime.strptime(fpath, FILENAME_DATETIME_FORMAT)
     most_recent_backup_fpath = max(backup_files, key=get_datetime_from_fpath)
 
     return most_recent_backup_fpath
@@ -179,6 +179,8 @@ def restore_database(backup_obj_name=None):
     )
     run_shell_command(drop_db_cmd, env_vars=pg_env_vars)
 
+    time.sleep(30)
+
     print("Creating empty database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
     create_db_cmd = "createdb --host={host} --port={port} --username={user} {db_name}".format(
         host=os.environ["POSTGRES_HOST"],
@@ -187,6 +189,8 @@ def restore_database(backup_obj_name=None):
         db_name=os.environ["POSTGRES_DB"],
     )
     run_shell_command(create_db_cmd, env_vars=pg_env_vars)
+
+    time.sleep(30)
 
     # find the most recent backup or verify the specify backup exists
     session = create_s3_session()
@@ -213,6 +217,7 @@ def restore_database(backup_obj_name=None):
 
 
 def main():
+    print("System args:", sys.argv)
     print("Running database-backup process with subcommand", sys.argv[1])
     if sys.argv[1] == "backup":
         backup_database(make_object_name())
