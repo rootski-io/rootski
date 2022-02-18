@@ -19,7 +19,6 @@ sheilds.io homepage where color choices are documented: https://shields.io/
 [![ClickUp](https://img.shields.io/badge/ticket%20board-ClickUp-ff69b4.svg)](https://sharing.clickup.com/l/h/4-30114956-1/80ea8d248c817f3)
 [![YouTube Playlist](https://img.shields.io/badge/YouTube-playlist-ff0000.svg)](https://www.youtube.com/playlist?list=PLwF2z4Iu4rabmY7RbRNetjZprLfe8qWNz)
 
-</br>
 
 # 📣 Welcome to the Rootski codebase!
 
@@ -39,7 +38,7 @@ and then displays this information to users for them to study.
 
 Rootski is developed by volunteers!
 
-Above all else, Rootski as a platform to learn and mentor anyone with an interest in
+Above all else, Rootski is a platform to learning and mentoring anyone with an interest in
 
 - frontend/backend development
 - developing data science models
