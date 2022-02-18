@@ -64,4 +64,3 @@ jobs:
       with:
         files: ./rootski_api/test-reports/coverage.xml
         name: rootski backend tests
- 
