@@ -3,7 +3,18 @@
 <!-- badges:
 - build pass/fail (built into GitHub)
 - coverage percentage (provided by codecov) -->
-![rootski-ci](https://github.com/rootski-io/rootski/actions/workflows/rootski-ci.yml/badge.svg) [![codecov](https://codecov.io/gh/rootski-io/rootski/branch/trunk/graph/badge.svg?token=YZJ0UFXNU3)](https://codecov.io/gh/rootski-io/rootski)
+![rootski-ci](https://github.com/rootski-io/rootski/actions/workflows/rootski-ci.yml/badge.svg) 
+[![codecov](https://codecov.io/gh/rootski-io/rootski/branch/trunk/graph/badge.svg?token=YZJ0UFXNU3)](https://codecov.io/gh/rootski-io/rootski) 
+
+<!-- 
+custom badges:
+Each of these are created using a open-source, free, publically hosted service called sheilds.io
+GitHub gist explaining how to make custom badges like these: https://github.com/8bitDesigner/slack-badge/blob/master/README.md
+sheilds.io homepage where color choices are documented: https://shields.io/
+ -->
+[![](https://img.shields.io/badge/chat-slack-purple.svg)](https://join.slack.com/t/rootskiio/shared_invite/zt-13avx8j84-mocJVx5wFAGNf5wUuy07OA) 
+[![](https://img.shields.io/badge/onboarding-knowledge%20base-blue.svg)](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 
+[![](https://img.shields.io/badge/ticket%20board-ClickUp-ff69b4.svg)](https://sharing.clickup.com/l/h/4-30114956-1/80ea8d248c817f3)
 
 # 📣 Welcome to the Rootski codebase!
 
@@ -18,31 +29,38 @@ Rootski uses an A.I. algorithm called a "transformer" to break Russian words int
 the word breakdowns with data such as definitions, grammar information, related words, and examples
 and then displays this information to users for them to study.
 
-## How is the Rootski project run? (Hint, [get involved here](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 😃)
+## How is the Rootski project run? (Hint, click here to [get involved](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 😃)
 
 Rootski is developed by volunteers!
 
-We use Rootski as a platform to learn and mentor anyone with an interest in
-frontend/backend development, developing data science models,
-data engineering, MLOps, DevOps, UX, and running a business. Although the code is open-source,
-the license for reuse and redistribution is tightly restricted.
+Above all else, Rootski as a platform to learn and mentor anyone with an interest in
 
-The premise for building Rootski "in the open" is this: possibly the best ways to learn to write
-production-ready, high quality software is to
+- frontend/backend development
+- developing data science models
+- data engineering 
+- analytics
+- MLOps
+- DevOps
+- UI/UX design
+- product design
+- building a SaaS product that handles real customer transactions (note, we're aware of GDPR and data privacy regulations and do not expose the subset of customer data that is sensitive to contributors)
+- running a business
 
-1. explore other high-quality software that is already written
-2. develop an application meant to support a large number of users
-3. work with experienced mentors
+The best way to learn to write production-ready software is to... write production-ready software 🤣. If one of these describes you, you may really enjoy contributing some pieces to Rootski,
 
-For better or worse, it's hard to find code for large software systems built to be hosted in
-the cloud and used by a large number of customers. This is because virtually all apps that fit
-this description... are proprietary 🤣. That makes (1) hard.
+- you are inexperienced at writing software, modeling, doing analytics, etc., but you would love to learn how it is done--ideally with the guidance of some really experienced, friendly mentors
+- you work in some area of tech for you day job and want to explore areas to keep growing, but you don't necessarily want to build an entire SaaS product yourself just to learn about a handful of sub-parts of that
 
-(2) can be inaccessible due to
-the amount of time it takes to write well-written software systems without a team (or mentorship). If you're only interested
-in a sub-part of engineering, or if you are a beginner, it can be infeasible to build an entire production
-system on your own. Think of this as working on a personal project... with a bunch of other fun people
-working on it with you.
+Engineers learn a lot by seeing examples of how things are built. The difficulty there is that
+you typically have to join a company to see the inside of a large SaaS product. Rootski is "built in the open"
+so that anyone interested in software or data science can see a fully working example of an SaaS/AI
+product built with industry best practices.
+
+If you're willing to learn, we'd love to have you on our team! 
+
+We have training materials that can take you from whatever experience level you may be at and get you onboarded and contributing.
+
+To get started, head over to our [knowledge base](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc).
 
 ## Contributors
 
@@ -61,6 +79,7 @@ Completed a lot of the Rootski onboarding and chat with us in our [Slack workspa
 - [Ayse (Aysha) Arslan](https://www.linkedin.com/in/ayse-seyyide-arslan-5b1594137/) - Learning about all things MLOps. Working her first MLE/MLOps job!
 - [Sebastian Sanchez](https://www.linkedin.com/in/sebbsanchez/) - Learning about frontend development.
 - [Yashwanth (Yash) Kumar](https://www.linkedin.com/in/yashpkumar/) - Finishing up the Georgia Tech online masters in CS.
+- [Ben Doyle](https://www.linkedin.com/in/benjamin-doyle/) - Mixed work experience in NLP, full-stack development, and data analytics. Finishing undergrad at BYU in December 2022.
 
 </br></br></br></br></br>
 
