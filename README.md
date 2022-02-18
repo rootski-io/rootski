@@ -1,9 +1,9 @@
 ![breakdown-svg](./rootski_frontend/src/assets/images/breakdown-window.svg)
 
-<!-- badge: whether the build passed or failed; this badge is native to GitHub -->
-![rootski-ci](https://github.com/rootski-io/rootski/actions/workflows/rootski-ci.yml/badge.svg)
-<!-- badge: percentage of code coverage; this badge is  -->
-[![codecov](https://codecov.io/gh/rootski-io/rootski/branch/trunk/graph/badge.svg?token=YZJ0UFXNU3)](https://codecov.io/gh/rootski-io/rootski)
+<!-- badges:
+- build pass/fail (built into GitHub)
+- coverage percentage (provided by codecov) -->
+![rootski-ci](https://github.com/rootski-io/rootski/actions/workflows/rootski-ci.yml/badge.svg) [![codecov](https://codecov.io/gh/rootski-io/rootski/branch/trunk/graph/badge.svg?token=YZJ0UFXNU3)](https://codecov.io/gh/rootski-io/rootski)
 
 # 📣 Welcome to the Rootski codebase!
 
