@@ -10,7 +10,7 @@ setuptools.setup(
     description="An empty CDK Python app",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="phitoduck",
+    author="rootski-io",
     package_dir={"": "."},
     packages=setuptools.find_packages(include=["lightsail", "lightsail-dependencies"]),
     install_requires=[

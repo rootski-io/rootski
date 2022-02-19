@@ -71,7 +71,7 @@ onboard:
 # read the header comment in the "make.xsh" file or the LONG comment in the
 # "onboard.sh" file.
 install:
-\tpython -m pip install xonsh==0.10.1 rich pre-commit==2.15.0 bcrypt==3.2.0 dvc[s3]==2.9.4
+\tpython -m pip install xonsh==0.10.1 rich==10.12.0 pre-commit==2.15.0 bcrypt==3.2.0
 \tpre-commit install
 """)
 
@@ -98,9 +98,6 @@ makefile = Makefile(
 def build_images():
     """Build images needed for the backend."""
     export_dot_env_vars(env_file=DEV_ENV_FILE)
-    docker-compose build
-
-    cd rootski_api
     docker-compose build
 
 
@@ -139,7 +136,6 @@ def backup_database_dev():
     all of the tables in the instace of Postgres running locally.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
-    export_rootski_profile_aws_creds_db_backup()
     $POSTGRES_HOST = get_localhost()
     docker network prune --force
     docker-compose run database-backup backup
@@ -154,7 +150,6 @@ def restore_database():
     Note that this will wipe the existing data in the database first.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
-    export_rootski_profile_aws_creds_db_backup()
     docker network prune --force
     database_backup_container_id = $(docker ps --quiet --filter name=database-backup)
     database_backup_container_id = database_backup_container_id.strip()
@@ -494,34 +489,6 @@ def export_rootski_profile_aws_creds():
         )
 
 
-def export_rootski_profile_aws_creds_db_backup():
-    log(
-        "Exporting [magenta]rootski[/magenta] profile AWS credentials to"
-        + " [yellow]DB_BACKUP__AWS_SECRET_ACCESS_KEY[/yellow] and [yellow]DB_BACKUP__AWS_ACCESS_KEY_ID[/yellow]")
-    aws_creds_rel_path = ".aws/credentials"
-    aws_credentials_file = Path.home() / aws_creds_rel_path
-    if not aws_credentials_file.exists():
-        log(
-            f"No credentials file found at \"{aws_creds_rel_path}\". Credentials not exported."
-            + " This is okay if you don't need valid HTTPS certs for Traefik or if you are using IAM"
-            + "Role-based Authentication.",
-            mode="error"
-        )
-
-    try:
-        config = configparser.RawConfigParser()
-        config.read(str(aws_credentials_file))
-        $BACKUP_DB__AWS_ACCESS_KEY_ID = config.get("rootski", "aws_access_key_id")
-        $BACKUP_DB__AWS_SECRET_ACCESS_KEY = config.get("rootski", "aws_secret_access_key")
-    except configparser.NoSectionError:
-        log(
-            f"No credentials file found at \"{aws_creds_rel_path}\". Credentials not exported."
-            + " This is okay if you don't need valid HTTPS certs for Traefik or if you are using IAM"
-            + "Role-based Authentication.",
-            mode="error"
-        )
-
-
 def get_spot_instance_ip():
     """Get the IP address of currently deployed spot instance."""
     tfstate_fpath = str(THIS_DIR / "./infrastructure/iac/terraform/rootski-backend/terraform.tfstate")
@@ -556,7 +523,6 @@ def __start_backend(env_file):
 
     export_dot_env_vars(env_file)
     export_rootski_profile_aws_creds()
-    export_rootski_profile_aws_creds_db_backup()
 
     # derive the <user>:<bcrypted password> strings for basic-auth-protected
     # traefik routes and export them as environment variables for docker swarm
@@ -663,10 +629,22 @@ def print_dev_backend_startup_message():
     It uses [magenta]GraphQL[/magenta] for requests that read data. We have a
     ✨ fancy UI ✨ for each of these. Check them out!
 
-    REST API Docs  [yellow]https://localhost[magenta]/docs[/magenta][/yellow]
+    REST API Docs  [yellow]https://{ $TRAEFIK__ROOTSKI_API_SUBDOMAIN }.{ $TRAEFIK__ROOTSKI_DOMAIN }[magenta]/docs[/magenta][/yellow]
     GraphQL        [yellow]https://{ $TRAEFIK__ROOTSKI_API_SUBDOMAIN }.{ $TRAEFIK__ROOTSKI_DOMAIN }[magenta]/graphql[/magenta][/yellow]
     username       [dim bold green]{ $TRAEFIK__ROOTSKI_DOCS_USER }[/dim bold green]
-    password       [dim bold green]{ $TRAEFIK__ROOTSKI_DOCS_PASSWORD }[/dim bold green]
+    password       [dim bold green]{  $TRAEFIK__ROOTSKI_DOCS_PASSWORD }[/dim bold green]
+
+    [cyan]
+    Traefik UI
+    ----------[/cyan]
+
+    [magenta]Traefik[/magenta] is a "proxy server". It encrypts requests/responses
+    from our backend API. In other words, Traefik allows us to send
+    traffic to our backend API from our frontend over HTTPS.
+
+    url       [yellow]https://{ $TRAEFIK__TRAEFIK_UI_SUBDOMAIN }.{ $TRAEFIK__ROOTSKI_DOMAIN }[/yellow]
+    username  [dim bold green]{ $TRAEFIK__TRAEFIK_UI_USER }[/dim bold green]
+    password  [dim bold green]{ $TRAEFIK__TRAEFIK_UI_PASSWORD }[/dim bold green]
 
     [cyan]
     PostgreSQL Connection Information
@@ -686,7 +664,12 @@ def print_dev_backend_startup_message():
     Notes
     -----[/cyan]
 
-    [cyan]*[/cyan] The docker extension for VS Code makes
+    [cyan](1)[/cyan] the traefik UI and backend API docs may
+        show a warning in your browser. This is because we don't have
+        HTTPS certs for your local machine. To get past this,
+        click [magenta]"Advanced" > "Proceed to [yellow]xxx.{ $TRAEFIK__ROOTSKI_DOMAIN }[/yellow]"[/magenta]
+
+    [cyan](2)[/cyan] The docker extension for VS Code makes
         it really easy to view the logs to all of the rootski containers,
         or get a bash shell inside of them to explore and debug.
     """)

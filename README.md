@@ -1,11 +1,29 @@
 ![breakdown-svg](./rootski_frontend/src/assets/images/breakdown-window.svg)
 
+</br>
+
+<!-- badges:
+- build pass/fail (built into GitHub)
+- coverage percentage (provided by codecov) -->
+![rootski-ci](https://github.com/rootski-io/rootski/actions/workflows/rootski-ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/rootski-io/rootski/branch/trunk/graph/badge.svg?token=YZJ0UFXNU3)](https://codecov.io/gh/rootski-io/rootski)
+
+<!--
+custom badges:
+Each of these are created using a open-source, free, publically hosted service called sheilds.io
+GitHub gist explaining how to make custom badges like these: https://github.com/8bitDesigner/slack-badge/blob/master/README.md
+sheilds.io homepage where color choices are documented: https://shields.io/
+ -->
+[![Slack](https://img.shields.io/badge/chat-slack-purple.svg)](https://join.slack.com/t/rootskiio/shared_invite/zt-13avx8j84-mocJVx5wFAGNf5wUuy07OA)
+[![Notion](https://img.shields.io/badge/onboarding-knowledge%20base-blue.svg)](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc)
+[![ClickUp](https://img.shields.io/badge/ticket%20board-ClickUp-ff69b4.svg)](https://sharing.clickup.com/l/h/4-30114956-1/80ea8d248c817f3)
+[![YouTube Playlist](https://img.shields.io/badge/YouTube-playlist-ff0000.svg)](https://www.youtube.com/playlist?list=PLwF2z4Iu4rabmY7RbRNetjZprLfe8qWNz)
+
 # 📣 Welcome to the Rootski codebase!
 
 This is the codebase for the application running at [rootski.io](https://www.rootski.io).
 
-> 🗒 Note: You can find information and training on the architecture, ticket board, development practices, and how to contribute
-on our [knowledge base](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc).
+> 🗒 Note: you can find detailed information about the [architecture/tech stack](https://quickest-trail-808.notion.site/Rootski-Architecture-9892c9f2159e4865a4438c163e235c41), onboarding/contributing, general full-stack development training resources and more on our [knowledge base](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc).
 
 Rootski is a full-stack application for studying the Russian language by learning roots.
 
@@ -13,31 +31,44 @@ Rootski uses an A.I. algorithm called a "transformer" to break Russian words int
 the word breakdowns with data such as definitions, grammar information, related words, and examples
 and then displays this information to users for them to study.
 
-## How is the Rootski project run? (Hint, [get involved here](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 😃)
+</br></br>
+
+## How is the Rootski project run? (Hint, click here to [get involved](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 😃)
 
 Rootski is developed by volunteers!
 
-We use Rootski as a platform to learn and mentor anyone with an interest in 
-frontend/backend development, developing data science models,
-data engineering, MLOps, DevOps, UX, and running a business. Although the code is open-source,
-the license for reuse and redistribution is tightly restricted.
+Above all else, Rootski is a platform to learning and mentoring anyone with an interest in
 
-The premise for building Rootski "in the open" is this: possibly the best ways to learn to write
-production-ready, high quality software is to
+- frontend/backend development
+- developing data science models
+- data engineering
+- analytics
+- MLOps
+- DevOps
+- UI/UX design
+- product design
+- building a SaaS product that handles real customer transactions (note, we're aware of GDPR and data privacy regulations and do not expose the subset of customer data that is sensitive to contributors)
+- running a business
 
-1. explore other high-quality software that is already written
-2. develop an application meant to support a large number of users
-3. work with experienced mentors
+The best way to learn to write production-ready software is to... write production-ready software 🤣. If one of these describes you, you may really enjoy contributing some pieces to Rootski,
 
-For better or worse, it's hard to find code for large software systems built to be hosted in
-the cloud and used by a large number of customers. This is because virtually all apps that fit
-this description... are proprietary 🤣. That makes (1) hard. 
+- you are inexperienced at writing software, modeling, doing analytics, etc., but you would love to learn how it is done--ideally with the guidance of some really experienced, friendly mentors
+- you work in some area of tech for you day job and want to explore areas to keep growing, but you don't necessarily want to build an entire SaaS product yourself just to learn about a handful of sub-parts of that
 
-(2) can be inaccessible due to
-the amount of time it takes to write well-written software systems without a team (or mentorship). If you're only interested
-in a sub-part of engineering, or if you are a beginner, it can be infeasible to build an entire production
-system on your own. Think of this as working on a personal project... with a bunch of other fun people
-working on it with you. 
+Engineers learn a lot by seeing examples of how things are built. The difficulty there is that
+you typically have to join a company to see the inside of a large SaaS product. Rootski is "built in the open"
+so that anyone interested in software or data science can see a fully working example of an SaaS/AI
+product built with industry best practices.
+
+If you're [willing to learn](https://www.linkedin.com/posts/eric-riddoch_im-willing-to-learn-candidates-for-ds-activity-6895803295609233408-dKmu), we'd love to have you on our team!
+
+We have training materials that can take you from whatever experience level you may be at and get you onboarded and contributing.
+
+To get started, head over to our [knowledge base](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc).
+
+> ⚠️ Disclaimer, please read! This is 100% "free labor" in the sense that Eric Riddoch owns the Rootski project. The value of contributing to rootski is really in getting to work on part of a real product, having mentorship, and experimenting with tools you don't use at your day job. Whether or not you're experienced, that "mentorship" looks exactly the way it would at a paid job: we're a bunch of non-experts working together, some of us knowing more about certain technologies than others. For Eric, this project truly is about learning/mentoring and he'd rather move really slowly so that people can learn rather than focus on exploiting people adding new features. Eric pays $20+/mo (sometimes $50) on this and earns nothing. If that ever changes, he will be clear about that. If anyone were to be paid to work on this, the project simply wouldn't be possible. Eric is happy if the work we're doing here does nothing more than give people career opportunities and help remove confusion about how "real" software is built. Many of the contributors make real sacrifices offering their time and mentorship working on this project. Please don't criticize our motives. We truly do want you do do what's best for you. Please *do* or please *don't* contribute based on what you think is best for your career and personal growth. This model for building a product was inspired by this [podcast interview with the creator of the Python discord channel](https://talkpython.fm/episodes/show/305/python-community-at-python-discord). Eric finds their intentions to be genuine. Please know that for over a year, Eric has "sunk" many evenings and weekends mentoring engineers and has seen no personal "return on investment" outside of relationships; he will gladly continue to do so, time permitting. Feel free to reach out to any of the "Contributors" or "Friends" to ask them about their experience.
+
+</br>
 
 ## Contributors
 
@@ -56,8 +87,11 @@ Completed a lot of the Rootski onboarding and chat with us in our [Slack workspa
 - [Ayse (Aysha) Arslan](https://www.linkedin.com/in/ayse-seyyide-arslan-5b1594137/) - Learning about all things MLOps. Working her first MLE/MLOps job!
 - [Sebastian Sanchez](https://www.linkedin.com/in/sebbsanchez/) - Learning about frontend development.
 - [Yashwanth (Yash) Kumar](https://www.linkedin.com/in/yashpkumar/) - Finishing up the Georgia Tech online masters in CS.
+- [Ben Doyle](https://www.linkedin.com/in/benjamin-doyle/) - Mixed work experience in NLP, full-stack development, and data analytics. Finishing undergrad at BYU in December 2022.
 
-</br></br></br></br></br>
+
+
+<!-- </br></br></br></br></br>
 
 ## The Technical Stuff
 
@@ -81,7 +115,7 @@ be discussed below. This includes creating several types of infrastructure using
 
 #### 2. Create an SSH key pair
 
-1. In the AWS console, go to EC2 and create an SSH key pair named `rootski`. 
+1. In the AWS console, go to EC2 and create an SSH key pair named `rootski`.
 2. Download the key pair.
 3. Save the key pair somewhere you won't forget. If the pair isn't already named, I like to rename them and store them at `~/.ssh/rootski/rootski.id_rsa` (private key) and `~/.ssh/rootski/rootski.id_rsa.pub` (public key).
 4. Create a new GitHub account for a "Machine User". Copy/paste the contents of `rootski.id_rsa.pub` into any boxes you have to to make this work :D
@@ -92,7 +126,7 @@ this "machine user" is now authorized to clone the rootski repository!
 | Parameter      | Description |
 | ----------- | ----------- |
 | `/rootski/ssh/private_key`      | The contents of the private key needed to clone the `rootski` repository.       |
-| `/rootski/prod/database_config`   | A stringified JSON object with database connection information (see below) | 
+| `/rootski/prod/database_config`   | A stringified JSON object with database connection information (see below) |
 
 ```json
 {
@@ -141,4 +175,4 @@ into the appropriate place in `infrastructure/iac/cloudformation/front-end/stati
 make deploy-frontend
 ```
 
-DONE!
+DONE! -->
