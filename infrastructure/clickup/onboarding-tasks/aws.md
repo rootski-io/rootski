@@ -18,7 +18,7 @@ Find resources for this in the `Onboarding` page of the knowledge base.
 
 ## Project Requirements
 
-1. Ask Eric to create an IAM user for you in AWS.
+1. Ask in `#onboarding-and-training` in slack to create an IAM user for you in AWS.
 
 2. Get an AWS access key and secret key for your user from Eric.
 

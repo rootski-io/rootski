@@ -17,6 +17,6 @@ Good luck!
 
 2. Go through each of the concepts on the `Linux and bash` page. Research and understand each of them.
 
-3. (Bonus) Do a video call with someone else on the team to ask/answer questions about
+3. (Optional) Do a video call with someone else on the team to ask/answer questions about
    these points. This can be a get-to-know-you activity that helps you have a fun time
    collaborating with them in the future. Discussing these in slack is good, too.
