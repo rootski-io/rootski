@@ -233,15 +233,14 @@ def restore_database(backup_obj_name: Optional[str] = None):
     # find the most recent backup or verify the specify backup exists
     print("Getting backup file from S3")
     session = create_s3_session()
-    if backup_obj_name is None:
-        backup_obj_name = get_most_recent_backup_obj_name(session)
+    backup_object_name_to_restore_from = backup_obj_name or get_most_recent_backup_obj_name(session)
 
     # download the backup
     download_backup_object(
         session=session,
         backup_bucket_name=BACKUP_BUCKET,
-        backup_object_name=backup_obj_name,
-        backup_fpath=backup_obj_name,
+        backup_object_name=backup_object_name_to_restore_from,
+        backup_fpath=backup_object_name_to_restore_from,
     )
 
     # restore the database from a backup
