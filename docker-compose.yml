@@ -20,6 +20,7 @@ services:
   postgres:
     image: postgres:9.6
     environment:
+      POSTGRES_HOST: ${POSTGRES_HOST?Variable not set}
       POSTGRES_USER: ${POSTGRES_USER?Variable not set}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
       POSTGRES_DB: ${POSTGRES_DB?Variable not set}
@@ -70,7 +71,7 @@ services:
       BACKUP_DB__AWS_ACCESS_KEY_ID: ${BACKUP_DB__AWS_ACCESS_KEY_ID?Variable not set}
       BACKUP_DB__AWS_SECRET_ACCESS_KEY: ${BACKUP_DB__AWS_SECRET_ACCESS_KEY?Variable not set}
       # database connection variables
-      POSTGRES_HOST: host.docker.internal
+      POSTGRES_HOST: ${POSTGRES_HOST?Variable not set}
       POSTGRES_PORT: ${POSTGRES_PORT?Variable not set}
       POSTGRES_DB: ${POSTGRES_DB?Variable not set}
       POSTGRES_USER: ${POSTGRES_USER?Variable not set}
