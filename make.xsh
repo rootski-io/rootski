@@ -133,7 +133,7 @@ def start_backend_prod():
     __start_backend(env_file=PROD_ENV_FILE)
 
 @makefile.target(tag="run services locally")
-def backup_database_dev():
+def run_local_db():
     """
     Use the "database-backup" service in the "docker-compose.yml" file to backup
     all of the tables in the instace of Postgres running locally.
@@ -141,24 +141,45 @@ def backup_database_dev():
     export_dot_env_vars(env_file=DEV_ENV_FILE)
     export_rootski_profile_aws_creds_db_backup()
     $POSTGRES_HOST = get_localhost()
-    docker network prune --force
-    docker-compose run database-backup backup
+    docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
 
 @makefile.target(tag="run services locally")
-def restore_database():
+def backup_local_db():
     """
-    Use the "database-backup" service in the "docker-compose.yml" file to identify
-    the most recent backup in "infrastructure/containers/postgres/backups" and load that data
-    into the database.
-
-    Note that this will wipe the existing data in the database first.
+    Use the "database-backup" service in the "docker-compose.yml" file to backup
+    all of the tables in the instace of Postgres running locally. You must have a
+    postgres container running which you can run using "make run-local-db"
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
     export_rootski_profile_aws_creds_db_backup()
-    docker network prune --force
-    database_backup_container_id = $(docker ps --quiet --filter name=database-backup)
-    database_backup_container_id = database_backup_container_id.strip()
-    docker exec @(database_backup_container_id) python3 backup_or_restore.py restore-from-most-recent
+    $POSTGRES_HOST = get_localhost()
+    # Runs a postgres instance if one is not already running
+    docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
+    docker-compose run database-backup backup
+
+@makefile.target(tag="run services locally")
+def restore_local_db():
+    """
+    Use the "database-backup" service in the "docker-compose.yml" file to backup
+    all of the tables in the instace of Postgres running locally.
+    """
+    export_dot_env_vars(env_file=DEV_ENV_FILE)
+    export_rootski_profile_aws_creds_db_backup()
+    $POSTGRES_HOST = get_localhost()
+    # Runs a postgres instance if one is not already running
+    docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
+    docker-compose run database-backup restore-from-most-recent
+
+@makefile.target(tag="run services locally")
+def backup_local_db_on_interval():
+    """
+    Use the "database-backup" service in the "docker-compose.yml" file to backup
+    all of the tables in the instace of Postgres running locally.
+    """
+    export_dot_env_vars(env_file=DEV_ENV_FILE)
+    export_rootski_profile_aws_creds_db_backup()
+    $POSTGRES_HOST = get_localhost()
+    docker-compose run database-backup backup-on-interval
 
 @makefile.target(tag="deploy")
 def deploy_backend():
@@ -495,9 +516,6 @@ def export_rootski_profile_aws_creds():
 
 
 def export_rootski_profile_aws_creds_db_backup():
-    log(
-        "Exporting [magenta]rootski[/magenta] profile AWS credentials to"
-        + " [yellow]DB_BACKUP__AWS_SECRET_ACCESS_KEY[/yellow] and [yellow]DB_BACKUP__AWS_ACCESS_KEY_ID[/yellow]")
     aws_creds_rel_path = ".aws/credentials"
     aws_credentials_file = Path.home() / aws_creds_rel_path
     if not aws_credentials_file.exists():
