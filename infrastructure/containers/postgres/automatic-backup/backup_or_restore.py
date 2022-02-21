@@ -1,12 +1,14 @@
 import boto3
+import botocore
 import os
 import re
 import subprocess
 import sys
 import time
 from datetime import datetime, timedelta
-from pathlib import Path
+from pathlib import PosixPath, Path
 from textwrap import dedent
+from typing import List, Optional, Union
 
 #####################
 # --- Constants --- #
@@ -31,7 +33,7 @@ FILENAME_DATETIME_FORMAT = "rootski-db-%m-%d-%Y_%Hh-%Mm-%Ss.sql.gz"
 ############################
 
 
-def parse_timedelta(time_str):
+def parse_timedelta(time_str: str) -> timedelta:
     """Parse strings of the form "1d12h" or "1h30m" or "70s" into timedelta objects."""
     time_str_regex_pattern = re.compile(
         r"((?P<days>\d+?)d)?((?P<hours>\d+?)h)?((?P<minutes>\d+?)m)?((?P<seconds>\d+?)s)?"
@@ -48,7 +50,7 @@ def parse_timedelta(time_str):
     return timedelta(**time_params)
 
 
-def run_shell_command(command, env_vars):
+def run_shell_command(command: str, env_vars: dict):
     """Run a shell command and return the output."""
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, env=env_vars)
     output, _ = process.communicate()
@@ -60,15 +62,17 @@ def run_shell_command(command, env_vars):
 ###################
 
 
-def make_object_name():
+def make_object_name() -> str:
+    """Returns a string for the name of the"""
     return datetime.now().strftime(FILENAME_DATETIME_FORMAT)
 
 
-def make_backup_fpath(object_name):
+def make_backup_fpath(object_name: str) -> PosixPath:
+    """Prepends the backup path to give a filepath for the object"""
     return BACKUP_DIR / object_name
 
 
-def create_s3_client():
+def create_s3_client() -> botocore.client:
     """Creates and returns an AWS S3 client for uploading backup to the cloud."""
     sess = boto3.session.Session(
         aws_access_key_id=BACKUP_DB__AWS_ACCESS_KEY_ID,
@@ -77,7 +81,7 @@ def create_s3_client():
     return sess.client("s3")
 
 
-def create_s3_session():
+def create_s3_session() -> boto3.session.Session:
     """Creates and returns an AWS session for listing and downloading backups in S3."""
     sess = boto3.session.Session(
         aws_access_key_id=BACKUP_DB__AWS_ACCESS_KEY_ID,
@@ -86,18 +90,21 @@ def create_s3_session():
     return sess
 
 
-def upload_backup_to_s3(s3_client, backup_fpath, backup_bucket_name, backup_object_name):
+def upload_backup_to_s3(
+    s3_client: botocore.client, backup_fpath: PosixPath, backup_bucket_name: str, backup_object_name: str
+):
     """Uploads the backup_fpath file to AWS S3."""
     with open(str(backup_fpath), "rb") as f:
         s3_client.upload_fileobj(f, backup_bucket_name, backup_object_name)
 
 
-def delete_local_backup_file(backup_fpath):
+def delete_local_backup_file(backup_fpath: PosixPath):
     """Deletes the local backup file once it has been uplaoded to S3."""
     os.remove(str(backup_fpath))
 
 
-def backup_database(object_name):
+def backup_database(object_name: str):
+    """Creates a local backup of the database, uploades it to S3, and delets the local backup."""
     # make sure the backup directory exists
     db_backup_gzip_fpath = make_backup_fpath(object_name)
     db_backup_gzip_fpath.parent.mkdir(parents=True, exist_ok=True)
@@ -121,7 +128,8 @@ def backup_database(object_name):
     delete_local_backup_file(db_backup_gzip_fpath)
 
 
-def backup_database_on_interval(seconds):
+def backup_database_on_interval(seconds: Union[int, float]):
+    """Backs up the database to S3 repeatedly on an interval."""
     print("Starting rootski backup daemon. Backups will run every {seconds}".format(seconds=seconds))
     print(
         "Backup interval in seconds is derived from {interval} found in BACKUP_INTERVAL".format(
@@ -138,19 +146,22 @@ def backup_database_on_interval(seconds):
 ###################
 
 
-def download_backup_object(session, backup_bucket_name, backup_obj_name, backup_fpath):
+def download_backup_object(
+    session: boto3.session.Session, backup_bucket_name: str, backup_obj_name: str, backup_fpath: str
+):
     """Downloads the object_name backup from the backup_bucket_name S3 bucket."""
     s3_client = session.client("s3")
     s3_client.download_file(backup_bucket_name, backup_obj_name, backup_fpath)
 
 
-def list_bucket_objects(session, backup_bucket_name):
+def list_bucket_objects(session: boto3.session.Session, backup_bucket_name: str) -> List[str]:
     """Returns a list of all objects in the backup_bucket_name S3 bucket."""
     bucket = session.resource("s3").Bucket(backup_bucket_name)
     return [obj.key for obj in bucket.objects.all()]
 
 
-def get_most_recent_backup_obj_name(session):
+def get_most_recent_backup_obj_name(session: boto3.session.Session) -> str:
+    """Returns the name of the most recent backup in S3."""
     # get a list of all the backup files
     backup_files = list_bucket_objects(session, BACKUP_BUCKET)
 
@@ -161,7 +172,7 @@ def get_most_recent_backup_obj_name(session):
     return most_recent_backup_fpath
 
 
-def restore_database(backup_obj_name=None):
+def restore_database(backup_obj_name: Optional[str] = None):
     """
     (1) drop the database
     (2) re-create it (but totally empty)
@@ -192,8 +203,6 @@ def restore_database(backup_obj_name=None):
     session = create_s3_session()
     if backup_obj_name is None:
         backup_obj_name = get_most_recent_backup_obj_name(session)
-    elif backup_obj_name not in list_bucket_objects(session, BACKUP_BUCKET):
-        return False
 
     # download the backup
     download_backup_object(session, BACKUP_BUCKET, backup_obj_name, backup_obj_name)
