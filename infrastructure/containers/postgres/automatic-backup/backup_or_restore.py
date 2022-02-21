@@ -152,8 +152,8 @@ def backup_database_on_interval(seconds: Union[int, float]):
     )
     while True:
         time.sleep(seconds)
-        s3_database_backup_object_name = make_backup_object_name_from_datetime()
-        backup_database(s3_database_backup_object_name)
+        s3_backup_object_name = make_backup_object_name_from_datetime()
+        backup_database(s3_backup_object_name)
 
 
 ###################
@@ -204,7 +204,7 @@ def get_most_recent_backup_obj_name(session: boto3.session.Session) -> str:
     return most_recent_backup_fpath
 
 
-def restore_database(backup_obj_name: Optional[str] = None):
+def restore_database(backup_object_name_to_restore_from__override: Optional[str] = None):
     """
     (1) drop the database
     (2) re-create it (but totally empty)
@@ -233,7 +233,9 @@ def restore_database(backup_obj_name: Optional[str] = None):
     # find the most recent backup or verify the specify backup exists
     print("Getting backup file from S3")
     session = create_s3_session()
-    backup_object_name_to_restore_from = backup_obj_name or get_most_recent_backup_obj_name(session)
+    backup_object_name_to_restore_from = (
+        backup_object_name_to_restore_from__override or get_most_recent_backup_obj_name(session)
+    )
 
     # download the backup
     download_backup_object(
@@ -260,16 +262,16 @@ def main():
     print("System args:", sys.argv)
     print("Running database-backup process with subcommand", sys.argv[1])
     if sys.argv[1] == "backup":
-        s3_database_backup_object_name = make_backup_object_name_from_datetime()
-        backup_database(s3_database_backup_object_name)
+        s3_backup_object_name = make_backup_object_name_from_datetime()
+        backup_database(s3_backup_object_name)
     elif sys.argv[1] == "backup-on-interval":
         backup_interval_seconds = parse_timedelta(BACKUP_INTERVAL).seconds
         backup_database_on_interval(seconds=backup_interval_seconds)
     elif sys.argv[1] == "restore-from-most-recent":
         restore_database()
     elif sys.argv[1] == "restore-from-backup":
-        s3_database_backup_object_name_to_restore_from = sys.argv[2]
-        restore_database(s3_database_backup_object_name_to_restore_from)
+        s3_backup_object_name_to_restore_from__override = sys.argv[2]
+        restore_database(s3_backup_object_name_to_restore_from__override)
     else:
         print(
             dedent(
