@@ -269,8 +269,8 @@ def main():
     elif sys.argv[1] == "restore-from-most-recent":
         restore_database()
     elif sys.argv[1] == "restore-from-backup":
-        backup_obj_name = sys.argv[2]
-        restore_database(backup_obj_name)
+        s3_database_backup_object_name_to_restore_from = sys.argv[2]
+        restore_database(s3_database_backup_object_name_to_restore_from)
     else:
         print(
             dedent(
