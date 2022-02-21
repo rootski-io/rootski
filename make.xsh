@@ -179,6 +179,8 @@ def backup_local_db_on_interval():
     export_dot_env_vars(env_file=DEV_ENV_FILE)
     export_rootski_profile_aws_creds_db_backup()
     $POSTGRES_HOST = get_localhost()
+    # Runs a postgres instance if one is not already running
+    docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
     docker-compose run database-backup backup-on-interval
 
 @makefile.target(tag="deploy")
