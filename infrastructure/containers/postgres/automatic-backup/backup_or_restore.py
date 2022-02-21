@@ -261,7 +261,8 @@ def main():
     print("System args:", sys.argv)
     print("Running database-backup process with subcommand", sys.argv[1])
     if sys.argv[1] == "backup":
-        backup_database(make_backup_object_name_from_datetime())
+        s3_database_backup_object_name = make_backup_object_name_from_datetime()
+        backup_database(s3_database_backup_object_name)
     elif sys.argv[1] == "backup-on-interval":
         backup_interval_seconds = parse_timedelta(BACKUP_INTERVAL).seconds
         backup_database_on_interval(seconds=backup_interval_seconds)
