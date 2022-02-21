@@ -72,15 +72,6 @@ def make_backup_fpath(object_name: str) -> PosixPath:
     return BACKUP_DIR / object_name
 
 
-def create_s3_client() -> botocore.client.BaseClient:
-    """Creates and returns an AWS S3 client for uploading backup to the cloud."""
-    sess = boto3.session.Session(
-        aws_access_key_id=BACKUP_DB__AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=BACKUP_DB__AWS_SECRET_ACCESS_KEY,
-    )
-    return sess.client("s3")
-
-
 def create_s3_session() -> boto3.session.Session:
     """Creates and returns an AWS session for listing and downloading backups in S3."""
     sess = boto3.session.Session(
@@ -88,6 +79,12 @@ def create_s3_session() -> boto3.session.Session:
         aws_secret_access_key=BACKUP_DB__AWS_SECRET_ACCESS_KEY,
     )
     return sess
+
+
+def create_s3_client() -> botocore.client.BaseClient:
+    """Creates and returns an AWS S3 client for uploading backup to the cloud."""
+    sess = create_s3_session()
+    return sess.client("s3")
 
 
 def upload_backup_to_s3(
