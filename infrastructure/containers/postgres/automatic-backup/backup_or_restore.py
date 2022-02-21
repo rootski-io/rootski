@@ -122,7 +122,12 @@ def backup_database(object_name: str):
 
     # upload the backup to S3
     print("Backing up the database as", object_name, "to S3")
-    upload_backup_to_s3(create_s3_client(), db_backup_gzip_fpath, BACKUP_BUCKET, object_name)
+    upload_backup_to_s3(
+        s3_client=create_s3_client(),
+        backup_fpath=db_backup_gzip_fpath,
+        backup_bucket_name=BACKUP_BUCKET,
+        backup_object_name=object_name,
+    )
 
     # delete local backup
     delete_local_backup_file(db_backup_gzip_fpath)
@@ -205,7 +210,12 @@ def restore_database(backup_obj_name: Optional[str] = None):
         backup_obj_name = get_most_recent_backup_obj_name(session)
 
     # download the backup
-    download_backup_object(session, BACKUP_BUCKET, backup_obj_name, backup_obj_name)
+    download_backup_object(
+        session=session,
+        backup_bucket_name=BACKUP_BUCKET,
+        backup_object_name=backup_obj_name,
+        backup_fpath=backup_obj_name,
+    )
 
     # restore the database from a backup
     print("Restoring database from", backup_obj_name)
