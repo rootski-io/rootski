@@ -62,7 +62,7 @@ def run_shell_command(command: str, env_vars: dict):
 ###################
 
 
-def make_object_name() -> str:
+def make_backup_object_name_from_datetime() -> str:
     """Returns a string for the name of the"""
     return datetime.now().strftime(FILENAME_DATETIME_FORMAT)
 
@@ -152,7 +152,8 @@ def backup_database_on_interval(seconds: Union[int, float]):
     )
     while True:
         time.sleep(seconds)
-        backup_database(make_object_name())
+        s3_database_backup_object_name = make_backup_object_name_from_datetime()
+        backup_database(s3_database_backup_object_name)
 
 
 ###################
@@ -260,7 +261,7 @@ def main():
     print("System args:", sys.argv)
     print("Running database-backup process with subcommand", sys.argv[1])
     if sys.argv[1] == "backup":
-        backup_database(make_object_name())
+        backup_database(make_backup_object_name_from_datetime())
     elif sys.argv[1] == "backup-on-interval":
         backup_interval_seconds = parse_timedelta(BACKUP_INTERVAL).seconds
         backup_database_on_interval(seconds=backup_interval_seconds)
