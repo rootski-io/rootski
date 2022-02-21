@@ -93,7 +93,15 @@ def upload_backup_to_s3(
     backup_bucket_name: str,
     backup_object_name: str,
 ):
-    """Uploads the backup_fpath file to AWS S3."""
+    """
+    Uploads the backup_fpath file to AWS S3.
+
+    Params:
+        s3_client (botocore.client.BaseClient): an S3 client to use to upload the file
+        backup_fpath (PosixPath): the filepath to the file that will be uploaded
+        backup_bucket name (str): the S3 bucket to upload the file to
+        backup_object_name (str): the filename for the uploaded object in S3
+    """
     with open(str(backup_fpath), "rb") as f:
         s3_client.upload_fileobj(f, backup_bucket_name, backup_object_name)
 
@@ -154,13 +162,30 @@ def backup_database_on_interval(seconds: Union[int, float]):
 def download_backup_object(
     session: boto3.session.Session, backup_bucket_name: str, backup_obj_name: str, backup_fpath: str
 ):
-    """Downloads the object_name backup from the backup_bucket_name S3 bucket."""
+    """
+    Downloads the object_name backup from the backup_bucket_name S3 bucket.
+
+    Params:
+        session (boto3.session.Session): the AWS session to be used for downloading the file
+        backup_bucket_name (str): the name of the bucket to downlaod the file from
+        backup_obj_name (str): the name of the object to download
+        backup_fpath (str): the filepath for the downloaded file
+    """
     s3_client = session.client("s3")
     s3_client.download_file(backup_bucket_name, backup_obj_name, backup_fpath)
 
 
 def list_bucket_objects(session: boto3.session.Session, backup_bucket_name: str) -> List[str]:
-    """Returns a list of all objects in the backup_bucket_name S3 bucket."""
+    """
+    Returns a list of all objects in the backup_bucket_name S3 bucket.
+
+    Params:
+        session (boto3.session.Session): the AWS session to be used for downloading the file
+        backup_bucket_name (str): the name of the bucket to list the objects in
+
+    Returns:
+        (List[str]): a list containing the names of all of the objects in the bucket
+    """
     bucket = session.resource("s3").Bucket(backup_bucket_name)
     return [obj.key for obj in bucket.objects.all()]
 
