@@ -16,8 +16,8 @@ from typing import List, Optional, Union
 
 BACKUP_BUCKET = os.environ["BACKUP_BUCKET"]
 BACKUP_DIR = Path(os.environ["BACKUP_DIR"])
-BACKUP_DB__AWS_ACCESS_KEY_ID = os.environ["BACKUP_DB__AWS_ACCESS_KEY_ID"]
-BACKUP_DB__AWS_SECRET_ACCESS_KEY = os.environ["BACKUP_DB__AWS_SECRET_ACCESS_KEY"]
+AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
+AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
 BACKUP_INTERVAL = os.environ["BACKUP_INTERVAL"]
 CONNECTION_STRING = "postgresql://{username}:{password}@{host}:{port}/{database}".format(
     username=os.environ["POSTGRES_USER"],
@@ -75,8 +75,8 @@ def make_backup_fpath(object_name: str) -> PosixPath:
 def create_s3_session() -> boto3.session.Session:
     """Creates and returns an AWS session for listing and downloading backups in S3."""
     sess = boto3.session.Session(
-        aws_access_key_id=BACKUP_DB__AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=BACKUP_DB__AWS_SECRET_ACCESS_KEY,
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
     )
     return sess
 

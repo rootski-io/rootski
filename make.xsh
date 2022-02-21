@@ -139,7 +139,7 @@ def run_local_db():
     all of the tables in the instace of Postgres running locally.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
-    export_rootski_profile_aws_creds_db_backup()
+    export_rootski_profile_aws_creds()
     $POSTGRES_HOST = get_localhost()
     docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
 
@@ -151,7 +151,7 @@ def backup_local_db():
     postgres container running which you can run using "make run-local-db"
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
-    export_rootski_profile_aws_creds_db_backup()
+    export_rootski_profile_aws_creds()
     $POSTGRES_HOST = get_localhost()
     # Runs a postgres instance if one is not already running
     docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
@@ -164,7 +164,7 @@ def restore_local_db():
     all of the tables in the instace of Postgres running locally.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
-    export_rootski_profile_aws_creds_db_backup()
+    export_rootski_profile_aws_creds()
     $POSTGRES_HOST = get_localhost()
     # Runs a postgres instance if one is not already running
     docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
@@ -177,7 +177,7 @@ def backup_local_db_on_interval():
     all of the tables in the instace of Postgres running locally.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
-    export_rootski_profile_aws_creds_db_backup()
+    export_rootski_profile_aws_creds()
     $POSTGRES_HOST = get_localhost()
     # Runs a postgres instance if one is not already running
     docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
@@ -492,7 +492,7 @@ def export_bcrypt_user_password_env_var(username, password, env_var_name):
 def export_rootski_profile_aws_creds():
     log(
         "Exporting [magenta]rootski[/magenta] profile AWS credentials to"
-        + " [yellow]TRAEFIK__AWS_SECRET_ACCESS_KEY[/yellow] and [yellow]TRAEFIK__AWS_ACCESS_KEY_ID[/yellow]")
+        + " [yellow]AWS_SECRET_ACCESS_KEY[/yellow] and [yellow]AWS_ACCESS_KEY_ID[/yellow]")
     aws_creds_rel_path = ".aws/credentials"
     aws_credentials_file = Path.home() / aws_creds_rel_path
     if not aws_credentials_file.exists():
@@ -506,33 +506,8 @@ def export_rootski_profile_aws_creds():
     try:
         config = configparser.RawConfigParser()
         config.read(str(aws_credentials_file))
-        $TRAEFIK__AWS_ACCESS_KEY_ID = config.get("rootski", "aws_access_key_id")
-        $TRAEFIK__AWS_SECRET_ACCESS_KEY = config.get("rootski", "aws_secret_access_key")
-    except configparser.NoSectionError:
-        log(
-            f"No credentials file found at \"{aws_creds_rel_path}\". Credentials not exported."
-            + " This is okay if you don't need valid HTTPS certs for Traefik or if you are using IAM"
-            + "Role-based Authentication.",
-            mode="error"
-        )
-
-
-def export_rootski_profile_aws_creds_db_backup():
-    aws_creds_rel_path = ".aws/credentials"
-    aws_credentials_file = Path.home() / aws_creds_rel_path
-    if not aws_credentials_file.exists():
-        log(
-            f"No credentials file found at \"{aws_creds_rel_path}\". Credentials not exported."
-            + " This is okay if you don't need valid HTTPS certs for Traefik or if you are using IAM"
-            + "Role-based Authentication.",
-            mode="error"
-        )
-
-    try:
-        config = configparser.RawConfigParser()
-        config.read(str(aws_credentials_file))
-        $BACKUP_DB__AWS_ACCESS_KEY_ID = config.get("rootski", "aws_access_key_id")
-        $BACKUP_DB__AWS_SECRET_ACCESS_KEY = config.get("rootski", "aws_secret_access_key")
+        $AWS_ACCESS_KEY_ID = config.get("rootski", "aws_access_key_id")
+        $AWS_SECRET_ACCESS_KEY = config.get("rootski", "aws_secret_access_key")
     except configparser.NoSectionError:
         log(
             f"No credentials file found at \"{aws_creds_rel_path}\". Credentials not exported."
@@ -576,7 +551,6 @@ def __start_backend(env_file):
 
     export_dot_env_vars(env_file)
     export_rootski_profile_aws_creds()
-    export_rootski_profile_aws_creds_db_backup()
 
     # derive the <user>:<bcrypted password> strings for basic-auth-protected
     # traefik routes and export them as environment variables for docker swarm
