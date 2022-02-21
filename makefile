@@ -85,8 +85,8 @@ restore-local-db:
 
 # Use the "database-backup" service in the "docker-compose.yml" file to backup
 # the database continually on the interval specified in /docker-compose.yml
-backup-local-db-on-interval:
-	python -m xonsh make.xsh backup-local-db-on-interval
+start-database-stack:
+	python -m xonsh make.xsh start-database-stack
 
 
 # runs the entire rootski app (backend and frontend)

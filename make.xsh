@@ -171,10 +171,11 @@ def restore_local_db():
     docker-compose run database-backup restore-from-most-recent
 
 @makefile.target(tag="run services locally")
-def backup_local_db_on_interval():
+def start_database_stack():
     """
-    Use the "database-backup" service in the "docker-compose.yml" file to backup
-    all of the tables in the instace of Postgres running locally.
+    Use the "database-backup" service in the "docker-compose.yml" file to backup on a
+    regular inteval specified in the "docker-compose.yml" all of the tables in the
+    instace of Postgres that is running.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
     export_rootski_profile_aws_creds()
