@@ -1,5 +1,5 @@
 import boto3
-import botocore
+from botocore.client import BaseClient
 import os
 import re
 import subprocess
@@ -81,14 +81,14 @@ def create_s3_session() -> boto3.session.Session:
     return sess
 
 
-def create_s3_client() -> botocore.client.BaseClient:
+def create_s3_client() -> BaseClient:
     """Creates and returns an AWS S3 client for uploading backup to the cloud."""
     sess = create_s3_session()
     return sess.client("s3")
 
 
 def upload_backup_to_s3(
-    s3_client: botocore.client.BaseClient,
+    s3_client: BaseClient,
     backup_fpath: PosixPath,
     backup_bucket_name: str,
     backup_object_name: str,
@@ -130,8 +130,9 @@ def backup_database(object_name: str):
 
     # upload the backup to S3
     print("Backing up the database as", object_name, "to S3")
+    s3_client = create_s3_client()  # s3_client: BaseClient = create_s3_client()
     upload_backup_to_s3(
-        s3_client=create_s3_client(),
+        s3_client=s3_client,
         backup_fpath=db_backup_gzip_fpath,
         backup_bucket_name=BACKUP_BUCKET,
         backup_object_name=object_name,
