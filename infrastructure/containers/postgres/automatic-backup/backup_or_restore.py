@@ -181,7 +181,7 @@ def restore_database(backup_obj_name: Optional[str] = None):
     """
     (1) drop the database
     (2) re-create it (but totally empty)
-    (3) restore from the most recent backup in S3
+    (3) If `s3_object_name_of_db_backup_to_restore_from__override` is `None`, restore from the most recent backup in S3. Otherwise, restore from specified backup stored in S3.
     """
     pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
 
