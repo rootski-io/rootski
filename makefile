@@ -65,19 +65,28 @@ start-backend-prod:
 	python -m xonsh make.xsh start-backend-prod
 
 
+# Starts up a local postgres container from the docker-compose.yml
+run-local-db:
+	python -m xonsh make.xsh run-local-db
+
+
 # Use the "database-backup" service in the "docker-compose.yml" file to backup
 # all of the tables in the instace of Postgres running locally.
-backup-database-dev:
-	python -m xonsh make.xsh backup-database-dev
+backup-local-db:
+	python -m xonsh make.xsh backup-local-db
 
 
-# Use the "database-backup" service in the "docker-compose.yml" file to identify
-# the most recent backup in "infrastructure/containers/postgres/backups" and load that data
-# into the database.
-#
-# Note that this will wipe the existing data in the database first.
-restore-database:
-	python -m xonsh make.xsh restore-database
+# Use the "database-backup" service in the "docker-compose.yml" file to drop the
+# db, recreate it, and restore all of the tables in the instace of Postgres
+# running locally from the most recent backup in S3.
+restore-local-db:
+	python -m xonsh make.xsh restore-local-db
+
+
+# Use the "database-backup" service in the "docker-compose.yml" file to backup
+# the database continually on the interval specified in /docker-compose.yml
+backup-local-db-on-interval:
+	python -m xonsh make.xsh backup-local-db-on-interval
 
 
 # runs the entire rootski app (backend and frontend)
@@ -96,6 +105,11 @@ run:
 # Wipe and seed the dev database running locally.
 seed-dev-db:
 	python -m xonsh make.xsh seed-dev-db
+
+
+# Wipe and seed the dev database running locally.
+run-database:
+	python -m xonsh make.xsh run-database
 
 
 # Wipe and seed prod database running locally.
