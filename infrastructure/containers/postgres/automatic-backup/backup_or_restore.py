@@ -141,7 +141,7 @@ def backup_database_on_interval(seconds):
 def download_backup_object(session, backup_bucket_name, backup_obj_name, backup_fpath):
     """Downloads the object_name backup from the backup_bucket_name S3 bucket."""
     s3_client = session.client("s3")
-    s3_client.download_file(backup_bucket_name, backup_obj_name, str(backup_fpath))
+    s3_client.download_file(backup_bucket_name, backup_obj_name, backup_fpath)
 
 
 def list_bucket_objects(session, backup_bucket_name):
@@ -167,7 +167,6 @@ def restore_database(backup_obj_name=None):
     (2) re-create it (but totally empty)
     (3) restore from the most recent backup in S3
     """
-
     pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
 
     print("Dropping database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
@@ -179,8 +178,6 @@ def restore_database(backup_obj_name=None):
     )
     run_shell_command(drop_db_cmd, env_vars=pg_env_vars)
 
-    time.sleep(30)
-
     print("Creating empty database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
     create_db_cmd = "createdb --host={host} --port={port} --username={user} {db_name}".format(
         host=os.environ["POSTGRES_HOST"],
@@ -190,23 +187,21 @@ def restore_database(backup_obj_name=None):
     )
     run_shell_command(create_db_cmd, env_vars=pg_env_vars)
 
-    time.sleep(30)
-
     # find the most recent backup or verify the specify backup exists
+    print("Getting backup file from S3")
     session = create_s3_session()
     if backup_obj_name is None:
         backup_obj_name = get_most_recent_backup_obj_name(session)
     elif backup_obj_name not in list_bucket_objects(session, BACKUP_BUCKET):
         return False
-    backup_fpath = make_backup_fpath(backup_obj_name)
 
     # download the backup
-    download_backup_object(session, BACKUP_BUCKET, backup_obj_name, backup_fpath)
+    download_backup_object(session, BACKUP_BUCKET, backup_obj_name, backup_obj_name)
 
     # restore the database from a backup
-    print("Restoring database from", backup_fpath)
+    print("Restoring database from", backup_obj_name)
     restore_cmd = "gunzip --keep --stdout {backup_fpath} | psql --dbname {conn_string}".format(
-        backup_fpath=backup_fpath, conn_string=CONNECTION_STRING
+        backup_fpath=backup_obj_name, conn_string=CONNECTION_STRING
     )
     run_shell_command(restore_cmd, env_vars=pg_env_vars)
 
