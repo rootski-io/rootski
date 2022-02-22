@@ -1,0 +1,1 @@
+copy/paste key from ClickUp > Settings > My Apps > Apps > API Token
