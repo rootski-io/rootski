@@ -75,6 +75,7 @@ Onboarded and contributed features :D
 - [Eric Riddoch](https://ericriddoch.info) - Been working on rootski for 3 years and counting!
 - [Ryan Gardner](https://www.linkedin.com/in/gardner-ryan/) - Helping with all of the legal/business aspects and dabbling in development
 - [Isaac Robbins](https://www.linkedin.com/in/isaacrobbins/) - Learning and building experience in MLOps and DevOps!
+- [Josh Abrahamsen](https://www.linkedin.com/in/joshabrahamsen/) - Experienced in SDET/DevOps/Azure looking to gain experience in more languages and technologies.
 
 ### Friends
 
