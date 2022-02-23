@@ -104,7 +104,6 @@ repos:
                     --ignore-init-module-imports,
                 ]
 
-
     - repo: https://github.com/pre-commit/mirrors-prettier
       rev: "" # Use the sha or tag you want to point at
       hooks:
@@ -112,3 +111,15 @@ repos:
           args: ["--tab-width=2", "--write=src/**/*.ts{,x}"]
           # only include files in the rootski_frontend folder
           files: ^rootski_frontend/
+
+    - repo: https://github.com/akaihola/darker
+      rev: 1.4.1
+      hooks:
+        #darker handles formatting and linting for only added/modified code
+        - id: darker
+          args: [--isort, -L flake8 ./, -L pylint, -L pydocstyle ./, -v]
+          additional_dependencies:
+          - isort~=5.9
+          - flake8~=4.0
+          - pylint~=2.12
+          - pydocstyle~=6.1
