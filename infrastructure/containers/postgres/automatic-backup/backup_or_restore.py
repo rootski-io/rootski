@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timedelta
-from pathlib import PosixPath, Path
+from pathlib import Path
 from textwrap import dedent
 from typing import List, Optional, Union
 
@@ -94,16 +94,16 @@ def make_backup_object_name_from_datetime() -> str:
     return datetime.now().strftime(FILENAME_DATETIME_FORMAT)
 
 
-def make_backup_fpath(object_name: str) -> PosixPath:
+def make_backup_fpath(object_name: str) -> Path:
     """Prepends the backup path to give a filepath for the object.
 
     :param object_name: the name of an object to which the BACKUP_DIR
         global variable should be prepended, defaults to None
     :type object_name: str
 
-    :return: returns a :class:'PosixPath' object that gives a filepath
+    :return: returns a :class:'Path' object that gives a filepath
         for the 'object_name' file in the BACKUP_DIR directory
-    :rtype: PosixPath
+    :rtype: Path
     """
     return BACKUP_DIR / object_name
 
@@ -136,7 +136,7 @@ def create_s3_client() -> BaseClient:
 
 def upload_backup_to_s3(
     s3_client: BaseClient,
-    backup_fpath: PosixPath,
+    backup_fpath: Path,
     backup_bucket_name: str,
     backup_object_name: str,
 ):
@@ -146,7 +146,7 @@ def upload_backup_to_s3(
     :type s3_client: BaseClient
     :param backup_fpath: the filepath to the file that will be uploaded
         , defaults to None
-    :type backup_fpath: PosixPath
+    :type backup_fpath: Path
     :param backup_bucket_name: the S3 bucket to upload the file to
         , defaults to None
     :type backup_bucket_name: str
@@ -158,12 +158,12 @@ def upload_backup_to_s3(
         s3_client.upload_fileobj(Fileobj=f, Bucket=backup_bucket_name, Key=backup_object_name)
 
 
-def delete_local_backup_file(backup_fpath: PosixPath):
+def delete_local_backup_file(backup_fpath: Path):
     """Deletes the local backup file once it has been uplaoded to S3.
 
     :param backup_fpath: the filepath to the file that will be deleted
         , defaults to None
-    :type backup_fpath: PosixPath
+    :type backup_fpath: Path
     """
     os.remove(str(backup_fpath))
 
