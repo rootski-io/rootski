@@ -14,11 +14,14 @@ from typing import List, Optional, Union
 # --- Constants --- #
 #####################
 
-BACKUP_BUCKET = os.environ["BACKUP_BUCKET"]
-BACKUP_DIR = Path(os.environ["BACKUP_DIR"])
+# AWS credentials used to read/write to the database backup bucket
 AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
 AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
+# Backup specific variables
+BACKUP_BUCKET = os.environ["BACKUP_BUCKET"]
+BACKUP_DIR = Path(os.environ["BACKUP_DIR"])
 BACKUP_INTERVAL = os.environ["BACKUP_INTERVAL"]
+# Postgres connection string
 CONNECTION_STRING = "postgresql://{username}:{password}@{host}:{port}/{database}".format(
     username=os.environ["POSTGRES_USER"],
     password=os.environ["POSTGRES_PASSWORD"],
@@ -26,6 +29,7 @@ CONNECTION_STRING = "postgresql://{username}:{password}@{host}:{port}/{database}
     port=os.environ["POSTGRES_PORT"],
     database=os.environ["POSTGRES_DB"],
 )
+# Format for backup filenames
 FILENAME_DATETIME_FORMAT = "rootski-db-%m-%d-%Y_%Hh-%Mm-%Ss.sql.gz"
 
 ############################
