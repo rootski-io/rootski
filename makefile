@@ -65,22 +65,15 @@ start-backend-prod:
 	python -m xonsh make.xsh start-backend-prod
 
 
-# Starts up a local postgres container from the docker-compose.yml
-run-local-db:
-	python -m xonsh make.xsh run-local-db
+# Runs the database, wipes it, and restores it
+run-database:
+	python -m xonsh make.xsh run-database
 
 
 # Use the "database-backup" service in the "docker-compose.yml" file to backup
 # all of the tables in the instace of Postgres running locally.
-backup-local-db:
-	python -m xonsh make.xsh backup-local-db
-
-
-# Use the "database-backup" service in the "docker-compose.yml" file to drop the
-# db, recreate it, and restore all of the tables in the instace of Postgres
-# running locally from the most recent backup in S3.
-restore-local-db:
-	python -m xonsh make.xsh restore-local-db
+backup-database:
+	python -m xonsh make.xsh backup-database
 
 
 # Use the "database-backup" service in the "docker-compose.yml" file to backup
@@ -105,11 +98,6 @@ run:
 # Wipe and seed the dev database running locally.
 seed-dev-db:
 	python -m xonsh make.xsh seed-dev-db
-
-
-# Wipe and seed the dev database running locally.
-run-database:
-	python -m xonsh make.xsh run-database
 
 
 # Wipe and seed prod database running locally.
