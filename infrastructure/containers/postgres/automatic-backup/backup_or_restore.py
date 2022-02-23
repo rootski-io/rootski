@@ -162,7 +162,7 @@ def backup_database_on_interval(seconds: Union[int, float]):
 
 
 def download_backup_object(
-    session: boto3.session.Session, backup_bucket_name: str, backup_obj_name: str, backup_fpath: str
+    session: boto3.session.Session, backup_bucket_name: str, backup_object_name: str, backup_fpath: str
 ):
     """
     Downloads the object_name backup from the backup_bucket_name S3 bucket.
@@ -170,11 +170,11 @@ def download_backup_object(
     Params:
         session (boto3.session.Session): the AWS session to be used for downloading the file
         backup_bucket_name (str): the name of the bucket to downlaod the file from
-        backup_obj_name (str): the name of the object to download
+        backup_object_name (str): the name of the object to download
         backup_fpath (str): the filepath for the downloaded file
     """
     s3_client = session.client("s3")
-    s3_client.download_file(backup_bucket_name, backup_obj_name, backup_fpath)
+    s3_client.download_file(backup_bucket_name, backup_object_name, backup_fpath)
 
 
 def list_bucket_objects(session: boto3.session.Session, backup_bucket_name: str) -> List[str]:
@@ -192,7 +192,7 @@ def list_bucket_objects(session: boto3.session.Session, backup_bucket_name: str)
     return [obj.key for obj in bucket.objects.all()]
 
 
-def get_most_recent_backup_obj_name(session: boto3.session.Session) -> str:
+def get_most_recent_backup_object_name(session: boto3.session.Session) -> str:
     """Returns the name of the most recent backup in S3."""
     # get a list of all the backup files
     backup_files = list_bucket_objects(session, BACKUP_BUCKET)
@@ -234,7 +234,7 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
     print("Getting backup file from S3")
     session = create_s3_session()
     backup_object_name_to_restore_from = (
-        backup_object_name_to_restore_from__override or get_most_recent_backup_obj_name(session)
+        backup_object_name_to_restore_from__override or get_most_recent_backup_object_name(session)
     )
 
     # download the backup
@@ -246,9 +246,9 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
     )
 
     # restore the database from a backup
-    print("Restoring database from", backup_obj_name)
+    print("Restoring database from", backup_object_name_to_restore_from)
     restore_cmd = "gunzip --keep --stdout {backup_fpath} | psql --dbname {conn_string}".format(
-        backup_fpath=backup_obj_name, conn_string=CONNECTION_STRING
+        backup_fpath=backup_object_name_to_restore_from, conn_string=CONNECTION_STRING
     )
     run_shell_command(restore_cmd, env_vars=pg_env_vars)
 
