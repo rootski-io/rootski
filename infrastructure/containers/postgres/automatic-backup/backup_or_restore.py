@@ -33,6 +33,10 @@ FILENAME_DATETIME_FORMAT = "rootski-db-%m-%d-%Y_%Hh-%Mm-%Ss.sql.gz"
 ############################
 
 
+class DatabaseBackupNotFoundError(Exception):
+    """Raised when when the specified backup object is not found in the S3 backups bucket."""
+
+
 def parse_timedelta(time_str: str) -> timedelta:
     """Parse strings of the form "1d12h" or "1h30m" or "70s" into timedelta objects.
 
@@ -147,7 +151,7 @@ def upload_backup_to_s3(
     :type backup_object_name: str
     """
     with open(str(backup_fpath), "rb") as f:
-        s3_client.upload_fileobj(f, backup_bucket_name, backup_object_name)
+        s3_client.upload_fileobj(Fileobj=f, Bucket=backup_bucket_name, Key=backup_object_name)
 
 
 def delete_local_backup_file(backup_fpath: PosixPath):
@@ -168,7 +172,7 @@ def backup_database(backup_object_name: str):
     :type backup_object_name: str
     """
     # make sure the backup directory exists
-    db_backup_gzip_fpath = make_backup_fpath(backup_object_name)
+    db_backup_gzip_fpath = make_backup_fpath(object_name=backup_object_name)
     db_backup_gzip_fpath.parent.mkdir(parents=True, exist_ok=True)
 
     # backup the database
@@ -180,7 +184,7 @@ def backup_database(backup_object_name: str):
             conn_string=CONNECTION_STRING, backup_fpath=db_backup_gzip_fpath
         )
     )
-    run_shell_command(backup_cmd, env_vars={"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]})
+    run_shell_command(command=backup_cmd, env_vars={"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]})
 
     # upload the backup to S3
     print("Backing up the database as", backup_object_name, "to S3")
@@ -193,7 +197,7 @@ def backup_database(backup_object_name: str):
     )
 
     # delete local backup
-    delete_local_backup_file(db_backup_gzip_fpath)
+    delete_local_backup_file(backup_fpath=db_backup_gzip_fpath)
 
 
 def backup_database_on_interval(seconds: Union[int, float]):
@@ -212,7 +216,7 @@ def backup_database_on_interval(seconds: Union[int, float]):
     while True:
         time.sleep(seconds)
         s3_backup_object_name = make_backup_object_name_from_datetime()
-        backup_database(s3_backup_object_name)
+        backup_database(backup_object_name=s3_backup_object_name)
 
 
 ###################
@@ -237,7 +241,7 @@ def download_backup_object(
     :type backup_fpath: str
     """
     s3_client = session.client("s3")
-    s3_client.download_file(backup_bucket_name, backup_object_name, backup_fpath)
+    s3_client.download_file(Bucket=backup_bucket_name, Key=backup_object_name, Filename=backup_fpath)
 
 
 def list_bucket_objects(session: boto3.session.Session, backup_bucket_name: str) -> List[str]:
@@ -253,7 +257,7 @@ def list_bucket_objects(session: boto3.session.Session, backup_bucket_name: str)
     :return: a list containing the names of all of the objects in the bucket
     :rtype: List[str]
     """
-    bucket = session.resource("s3").Bucket(backup_bucket_name)
+    bucket = session.resource("s3").Bucket(name=backup_bucket_name)
     return [obj.key for obj in bucket.objects.all()]
 
 
@@ -268,7 +272,7 @@ def get_most_recent_backup_object_name(session: boto3.session.Session) -> str:
     :rtype: str
     """
     # get a list of all the backup files
-    backup_files = list_bucket_objects(session, BACKUP_BUCKET)
+    backup_files = list_bucket_objects(session=session, backup_bucket_name=BACKUP_BUCKET)
 
     # get the most recent backup file
     get_datetime_from_fpath = lambda fpath: datetime.strptime(fpath, FILENAME_DATETIME_FORMAT)
@@ -300,7 +304,7 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
         user=os.environ["POSTGRES_USER"],
         db_name=os.environ["POSTGRES_DB"],
     )
-    run_shell_command(drop_db_cmd, env_vars=pg_env_vars)
+    run_shell_command(command=drop_db_cmd, env_vars=pg_env_vars)
 
     print("Creating empty database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
     create_db_cmd = "createdb --host={host} --port={port} --username={user} {db_name}".format(
@@ -309,14 +313,26 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
         user=os.environ["POSTGRES_USER"],
         db_name=os.environ["POSTGRES_DB"],
     )
-    run_shell_command(create_db_cmd, env_vars=pg_env_vars)
+    run_shell_command(command=create_db_cmd, env_vars=pg_env_vars)
 
     # find the most recent backup or verify the specify backup exists
     print("Getting backup file from S3")
     session = create_s3_session()
-    backup_object_name_to_restore_from = (
-        backup_object_name_to_restore_from__override or get_most_recent_backup_object_name(session)
-    )
+
+    if not backup_object_name_to_restore_from__override:
+        # get the most recent backup name if no override is set
+        backup_object_name_to_restore_from = get_most_recent_backup_object_name(session=session)
+        s3_bucket_objects = list_bucket_objects(session=session, backup_bucket_name=BACKUP_BUCKET)
+    elif backup_object_name_to_restore_from__override in s3_bucket_objects:
+        # use the override backup name if the backup exists
+        backup_object_name_to_restore_from = backup_object_name_to_restore_from__override
+    else:
+        # raise an error if the backup does not exist
+        raise DatabaseBackupNotFoundError(
+            "No database backup was found in the {bucket_name} bucket with object name {backup_object_name}".format(
+                bucket_name=BACKUP_BUCKET, backup_object_name=backup_object_name_to_restore_from__override
+            )
+        )
 
     # download the backup
     download_backup_object(
@@ -331,7 +347,7 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
     restore_cmd = "gunzip --keep --stdout {backup_fpath} | psql --dbname {conn_string}".format(
         backup_fpath=backup_object_name_to_restore_from, conn_string=CONNECTION_STRING
     )
-    run_shell_command(restore_cmd, env_vars=pg_env_vars)
+    run_shell_command(command=restore_cmd, env_vars=pg_env_vars)
 
 
 ######################
@@ -353,6 +369,7 @@ def main():
     elif sys.argv[1] == "restore-from-backup":
         s3_backup_object_name_to_restore_from__override = sys.argv[2]
         restore_database(s3_backup_object_name_to_restore_from__override)
+
     else:
         print(
             dedent(
