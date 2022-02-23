@@ -81,7 +81,9 @@ class SelfAttention(nn.Module):
         # q - d_query, k - d_key
         # h - number of heads
         # d - head dimension (d_model // h)
-        energy = torch.einsum("nqhd,nkhd->nhqk", [queries, keys])  # [batch_size, num heads, d_query, d_key]
+        energy = torch.einsum(
+            "nqhd,nkhd->nhqk", [queries, keys]
+        )  # [batch_size, num heads, d_query, d_key] adding this to trigger darker
 
         if mask is not None:
             # wherever mask is 0, fill energy with a very negative number
@@ -409,6 +411,19 @@ class Transformer(nn.Module):
 
         return out
 
+    # adding to trigger darker
+    def backward(self, src, trg):
+        src_mask = self.make_src_mask(src)
+        trg_mask = self.make_trg_mask(trg)
+
+        # pass the source sentence batch into the encoder
+        enc_src = self.encoder(src, src_mask)
+
+        # pass the encoded source sentences into the decoder
+        out = self.decoder(trg, enc_src, src_mask, trg_mask)
+
+        return out
+
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -429,3 +444,22 @@ if __name__ == "__main__":
     # model = Transformer(src_vocab_size, trg_vocab_size, src_pad_idx, trg_pad_idx).to(device)
     # out = model(x, trg[:, :-1])
     # print(out.shape)
+
+    # adding this to trigger darker
+    def function_with_missing_argument(arg1: str):
+        """Do something cool."""
+
+    def sphinx_formatted_function(arg1: str):
+        """
+        Do something cool.
+
+        :param arg1: explanation
+        """
+
+    def google_formatted_function(arg1: str):
+        """
+        Do something cool.
+
+        Args:
+            arg1: explanation
+        """
