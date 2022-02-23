@@ -113,6 +113,14 @@ stop:
 	python -m xonsh make.xsh stop
 
 
+# Tears down the "rootski-database" docker-swarm stack and removes
+# ALL currently running docker containers.
+#
+# Use if you ran "run".
+stop-database:
+	python -m xonsh make.xsh stop-database
+
+
 ##################
 # --- DEPLOY --- #
 ##################

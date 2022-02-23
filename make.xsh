@@ -169,8 +169,27 @@ def start_database_stack():
     export_rootski_profile_aws_creds()
     $POSTGRES_HOST = get_localhost()
     # Runs a postgres instance if one is not already running
-    docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
-    docker-compose run database-backup backup-on-interval
+    docker network prune --force
+    docker swarm init || echo "docker swarm is already initialized :D"
+    docker stack deploy --compose-file docker-compose.yml rootski-database
+    # docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
+    # docker-compose run database-backup backup-on-interval
+
+@makefile.target(tag="run services locally")
+def stop_database():
+    """
+    Tears down the \"rootski-database\" docker-swarm stack and removes
+    ALL currently running docker containers.
+
+    Use if you ran \"run-database\".
+    """
+    log("Removing the \"rootski-database\" docker swarm stack and ALL running docker containers")
+    docker stack rm rootski-database
+    docker container rm --force $(docker ps -aq)
+    log(
+        "Done! If you want to run rootski-database again, note that it takes docker "
+        + "\n\tseveral seconds to finish removing networks."
+    )
 
 @makefile.target(tag="deploy")
 def deploy_backend():
