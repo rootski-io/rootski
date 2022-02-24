@@ -65,13 +65,12 @@ start-backend-prod:
 	python -m xonsh make.xsh start-backend-prod
 
 
-# Runs the database, wipes it, and restores it
-run-database:
-	python -m xonsh make.xsh run-database
+# Wipes and restores the database from the most recent backup in S3
+restore-database:
+	python -m xonsh make.xsh restore-database
 
 
-# Use the "database-backup" service in the "docker-compose.yml" file to backup
-# all of the tables in the instace of Postgres running locally.
+# Creates a backup of the current database and uploads it to S3
 backup-database:
 	python -m xonsh make.xsh backup-database
 
@@ -117,8 +116,8 @@ stop:
 # ALL currently running docker containers.
 #
 # Use if you ran "run".
-stop-database:
-	python -m xonsh make.xsh stop-database
+stop-database-stack:
+	python -m xonsh make.xsh stop-database-stack
 
 
 ##################

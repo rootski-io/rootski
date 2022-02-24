@@ -133,7 +133,7 @@ def start_backend_prod():
     __start_backend(env_file=PROD_ENV_FILE)
 
 @makefile.target(tag="run services locally")
-def run_database():
+def restore_database():
     """
     Use the "database-backup" service in the "docker-compose.yml" file drop, recreate,
     and restore all of the tables from S3.
@@ -141,9 +141,10 @@ def run_database():
     export_dot_env_vars(env_file=DEV_ENV_FILE)
     export_rootski_profile_aws_creds()
     $POSTGRES_HOST = get_localhost()
-    # Runs a postgres instance if one is not already running
-    docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
-    docker-compose run database-backup restore-from-most-recent
+    # Checks for a running Postgres container and restores the database if it is running.
+    docker ps | grep postgres && \
+        docker-compose run database-backup restore-from-most-recent || \
+        echo "There is not a Postgres container currently running. Run `make start-database-stack` to start the database."
 
 @makefile.target(tag="run services locally")
 def backup_database():
@@ -154,9 +155,10 @@ def backup_database():
     export_dot_env_vars(env_file=DEV_ENV_FILE)
     export_rootski_profile_aws_creds()
     $POSTGRES_HOST = get_localhost()
-    # Runs a postgres instance if one is not already running
-    docker ps | grep postgres || docker-compose run -d -p $POSTGRES_PORT:$POSTGRES_PORT postgres
-    docker-compose run database-backup backup
+    # Checks if there is a running Postgres container and backs up the database to S3
+    docker ps | grep postgres && \
+        docker-compose run database-backup backup || \
+        echo "There is not a Postgres container currently running. Run `make start-database-stack` to start the database."
 
 @makefile.target(tag="run services locally")
 def start_database_stack():
@@ -176,7 +178,7 @@ def start_database_stack():
     # docker-compose run database-backup backup-on-interval
 
 @makefile.target(tag="run services locally")
-def stop_database():
+def stop_database_stack():
     """
     Tears down the \"rootski-database\" docker-swarm stack and removes
     ALL currently running docker containers.
