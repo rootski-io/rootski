@@ -112,8 +112,8 @@ repos:
           # only include files in the rootski_frontend folder
           files: ^rootski_frontend/
 
-    - repo: https://github.com/rootski-io/rootski
-      rev: 172973a87fb0a153b95eea54c828f6d8f2f5721e
+    - repo: https://github.com/jabracadabrah/darker
+      rev: 01cefd983d7b5b0e3109fd8cea9bfbd27a5cd766
       hooks:
         #darker handles formatting and linting for only added/modified code
         - id: darker
@@ -123,4 +123,3 @@ repos:
           - flake8~=4.0
           - pylint~=2.12
           - pydocstyle~=6.1
-          - darker~=1.4
