@@ -113,7 +113,7 @@ repos:
           files: ^rootski_frontend/
 
     - repo: https://github.com/rootski-io/rootski
-      rev: feature/darkertest
+      rev: 4c80dd02bfb955cbf937c8a3b9ac304915a975d1
       hooks:
         #darker handles formatting and linting for only added/modified code
         - id: darker
