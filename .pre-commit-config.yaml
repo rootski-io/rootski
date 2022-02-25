@@ -117,7 +117,7 @@ repos:
       hooks:
         #darker handles formatting and linting for only added/modified code
         - id: darker
-          args: [--isort, -r HEAD, -L flake8 ./, -L pylint, -L pydocstyle ./, -v]
+          args: [--isort, -L flake8 ./, -L pylint, -L pydocstyle ./, -v]
           additional_dependencies:
           - isort~=5.9
           - flake8~=4.0
