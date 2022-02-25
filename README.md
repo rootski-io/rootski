@@ -229,6 +229,9 @@ cd path/to/rootski/
 source ./venv/bin/activate  # required for pre-commit hooks to work!
 make install
 
+# build docker image for the backend API
+make build-images
+
 cd ./rootski_api/
 make install  # install backend specific python requirements
 make run-local-db
