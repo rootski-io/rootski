@@ -107,7 +107,6 @@ def create_s3_session() -> boto3.session.Session:
     :return: returns a :class:'boto3.session.Session' object using the AWS_ACCESS_KEY_ID
     and AWS_SECRET_ACCESS_KEY global variables that are set from the environment
     variables of the same name for interacting with AWS
-    :rtype: boto3.session.Session
     """
     sess = boto3.session.Session(
         aws_access_key_id=AWS_ACCESS_KEY_ID,
