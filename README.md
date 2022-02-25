@@ -182,6 +182,9 @@ source ./venv/bin/activate
 # install pre-commit, git-lfs, DVC, xonsh, and other utilities needed to run makefile targets
 make install
 
+# build docker images to run the backend API and a development server for the frontend
+make build-images
+
 # run the frontend and backend locally in docker
 make run
 ```
@@ -225,6 +228,9 @@ cd path/to/rootski/
 # activate virtual environment and install global python requirements
 source ./venv/bin/activate  # required for pre-commit hooks to work!
 make install
+
+# build docker image for the backend API
+make build-images
 
 cd ./rootski_api/
 make install  # install backend specific python requirements
