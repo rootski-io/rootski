@@ -27,7 +27,7 @@ install:
 	# install git lfs for downloading rootski CSVs and other large files in the repo
 	git lfs install
 	git fetch https://github.com/rootski-io/rootski/
-	git branch trunk https://github.com/rootski-io/rootski/trunk
+	git branch trunk origin/trunk
 
 
 
