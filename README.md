@@ -182,6 +182,9 @@ source ./venv/bin/activate
 # install pre-commit, git-lfs, DVC, xonsh, and other utilities needed to run makefile targets
 make install
 
+# build docker images to run the backend API and a development server for the frontend
+make build-images
+
 # run the frontend and backend locally in docker
 make run
 ```
