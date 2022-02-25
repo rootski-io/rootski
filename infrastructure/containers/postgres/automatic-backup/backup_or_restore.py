@@ -46,7 +46,7 @@ def parse_timedelta(time_str: str) -> timedelta:
 
     :param time_str: the string to be parsed into a :class:timedelta object, defaults to None
 
-    :return: returns a :class:'timedelta' object
+    :return: returns a :class:'timedelta' object from the string representation
     """
     time_str_regex_pattern = re.compile(
         r"((?P<days>\d+?)d)?((?P<hours>\d+?)h)?((?P<minutes>\d+?)m)?((?P<seconds>\d+?)s)?"
