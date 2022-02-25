@@ -26,8 +26,7 @@ install:
 	pre-commit install
 	# install git lfs for downloading rootski CSVs and other large files in the repo
 	git lfs install
-	git fetch --all
-	git remote -v
+	git fetch
 	git checkout -b trunk origin/trunk
 	git checkout -b ${GITHUB_HEAD_REF} origin/${GITHUB_HEAD_REF}
 
