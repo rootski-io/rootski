@@ -1,1 +1,191 @@
-{"Isaac Robbins": {"user": {"id": 26364446, "username": "Isaac Robbins", "color": "#ff4081", "profilePicture": null, "initials": "IR"}}, "Chris Alexiuk": {"user": {"id": 26375595, "username": "Chris Alexiuk", "color": "#304ffe", "profilePicture": null, "initials": "CA"}}, "null": {"user": {"id": 26378497, "username": null, "color": null, "profilePicture": null, "initials": "N"}}, "Rahul Ojha": {"user": {"id": 26378490, "username": "Rahul Ojha", "color": null, "profilePicture": null, "initials": "RO"}}, "Ramraj Sekar": {"user": {"id": 26378493, "username": "Ramraj Sekar", "color": "#304ffe", "profilePicture": null, "initials": "RS"}}, "Eric Riddoch": {"user": {"id": 30097352, "username": "Eric Riddoch", "color": "#304ffe", "profilePicture": "https://attachments.clickup.com/profilePictures/30097352_HuZ.jpg", "initials": "ER"}}, "Ayse Arslan": {"user": {"id": 30099296, "username": "Ayse Arslan", "color": "#8ac34a", "profilePicture": null, "initials": "AA"}}, "Colin Varney": {"user": {"id": 30099297, "username": "Colin Varney", "color": null, "profilePicture": null, "initials": "CV"}}, "Fazleem": {"user": {"id": 30099298, "username": "Fazleem", "color": null, "profilePicture": null, "initials": "F"}}, "Ryan G": {"user": {"id": 30099299, "username": "Ryan G", "color": null, "profilePicture": null, "initials": "RG"}}, "Sebastian Sanchez": {"user": {"id": 30099300, "username": "Sebastian Sanchez", "color": "#ffa727", "profilePicture": null, "initials": "SS"}}, "Yashwanth Kumar Pamidimukkala": {"user": {"id": 48005486, "username": "Yashwanth Kumar Pamidimukkala", "color": "#02579b", "profilePicture": null, "initials": "YP"}}, "Ben Doyle": {"user": {"id": 48098689, "username": "Ben Doyle", "color": "#5f7c8a", "profilePicture": null, "initials": "BD"}}, "Zachary Beach": {"user": {"id": 48215984, "username": "Zachary Beach", "color": "#ff897f", "profilePicture": null, "initials": "ZB"}}, "Josh Abrahamsen": {"user": {"id": 48217406, "username": "Josh Abrahamsen", "color": "#388d3c", "profilePicture": null, "initials": "JA"}}, "Aastha Khanna ": {"user": {"id": 55231243, "username": "Aastha Khanna ", "color": null, "profilePicture": null, "initials": "AK"}}}
+{
+    "Isaac Robbins": {
+        "user": {
+            "id": 26364446,
+            "username": "Isaac Robbins",
+            "color": "#ff4081",
+            "profilePicture": null,
+            "initials": "IR"
+        }
+    },
+    "Chris Alexiuk": {
+        "user": {
+            "id": 26375595,
+            "username": "Chris Alexiuk",
+            "color": "#304ffe",
+            "profilePicture": null,
+            "initials": "CA"
+        }
+    },
+    "null": {
+        "user": {
+            "id": 26378494,
+            "username": null,
+            "color": null,
+            "profilePicture": null,
+            "initials": "O"
+        }
+    },
+    "Rahul Ojha": {
+        "user": {
+            "id": 26378490,
+            "username": "Rahul Ojha",
+            "color": null,
+            "profilePicture": null,
+            "initials": "RO"
+        }
+    },
+    "Joseph Drapeau": {
+        "user": {
+            "id": 26378491,
+            "username": "Joseph Drapeau",
+            "color": "#81b1ff",
+            "profilePicture": null,
+            "initials": "JD"
+        }
+    },
+    "Ramraj Sekar": {
+        "user": {
+            "id": 26378493,
+            "username": "Ramraj Sekar",
+            "color": "#304ffe",
+            "profilePicture": null,
+            "initials": "RS"
+        }
+    },
+    "Niha": {
+        "user": {
+            "id": 26378495,
+            "username": "Niha",
+            "color": null,
+            "profilePicture": null,
+            "initials": "N"
+        }
+    },
+    "Nikhil Gulwade": {
+        "user": {
+            "id": 26378497,
+            "username": "Nikhil Gulwade",
+            "color": "#afb42b",
+            "profilePicture": null,
+            "initials": "NG"
+        }
+    },
+    "Subhronil Bose": {
+        "user": {
+            "id": 26378503,
+            "username": "Subhronil Bose",
+            "color": "#ff4081",
+            "profilePicture": null,
+            "initials": "SB"
+        }
+    },
+    "Jared Garlick": {
+        "user": {
+            "id": 26379994,
+            "username": "Jared Garlick",
+            "color": "#0388d1",
+            "profilePicture": null,
+            "initials": "JG"
+        }
+    },
+    "Eric Riddoch": {
+        "user": {
+            "id": 30097352,
+            "username": "Eric Riddoch",
+            "color": "#304ffe",
+            "profilePicture": "https://attachments.clickup.com/profilePictures/30097352_HuZ.jpg",
+            "initials": "ER"
+        }
+    },
+    "Ayse Arslan": {
+        "user": {
+            "id": 30099296,
+            "username": "Ayse Arslan",
+            "color": "#8ac34a",
+            "profilePicture": null,
+            "initials": "AA"
+        }
+    },
+    "Colin Varney": {
+        "user": {
+            "id": 30099297,
+            "username": "Colin Varney",
+            "color": null,
+            "profilePicture": null,
+            "initials": "CV"
+        }
+    },
+    "Fazleem": {
+        "user": {
+            "id": 30099298,
+            "username": "Fazleem",
+            "color": null,
+            "profilePicture": null,
+            "initials": "F"
+        }
+    },
+    "Ryan G": {
+        "user": {
+            "id": 30099299,
+            "username": "Ryan G",
+            "color": null,
+            "profilePicture": null,
+            "initials": "RG"
+        }
+    },
+    "Sebastian Sanchez": {
+        "user": {
+            "id": 30099300,
+            "username": "Sebastian Sanchez",
+            "color": "#ffa727",
+            "profilePicture": null,
+            "initials": "SS"
+        }
+    },
+    "Yashwanth Kumar Pamidimukkala": {
+        "user": {
+            "id": 48005486,
+            "username": "Yashwanth Kumar Pamidimukkala",
+            "color": "#02579b",
+            "profilePicture": null,
+            "initials": "YP"
+        }
+    },
+    "Ben Doyle": {
+        "user": {
+            "id": 48098689,
+            "username": "Ben Doyle",
+            "color": "#5f7c8a",
+            "profilePicture": null,
+            "initials": "BD"
+        }
+    },
+    "Zachary Beach": {
+        "user": {
+            "id": 48215984,
+            "username": "Zachary Beach",
+            "color": "#ff897f",
+            "profilePicture": null,
+            "initials": "ZB"
+        }
+    },
+    "Josh Abrahamsen": {
+        "user": {
+            "id": 48217406,
+            "username": "Josh Abrahamsen",
+            "color": "#388d3c",
+            "profilePicture": null,
+            "initials": "JA"
+        }
+    },
+    "Aastha Khanna ": {
+        "user": {
+            "id": 55231243,
+            "username": "Aastha Khanna ",
+            "color": null,
+            "profilePicture": null,
+            "initials": "AK"
+        }
+    }
+}
