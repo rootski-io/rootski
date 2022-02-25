@@ -113,11 +113,11 @@ repos:
           files: ^rootski_frontend/
 
     - repo: https://github.com/jabracadabrah/darker
-      rev: 504b3f00dc676bfffbc5b9438bc2e7fc313c4826
+      rev: 01cefd983d7b5b0e3109fd8cea9bfbd27a5cd766
       hooks:
         #darker handles formatting and linting for only added/modified code
         - id: darker
-          args: [--isort, -L flake8 ./, -L pylint, -L pydocstyle ./, -v, --revision trunk]
+          args: [--isort, -L flake8 ./, -L pylint, -L pydocstyle ./, -v]
           additional_dependencies:
           - isort~=5.9
           - flake8~=4.0
