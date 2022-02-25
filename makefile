@@ -26,7 +26,8 @@ install:
 	pre-commit install
 	# install git lfs for downloading rootski CSVs and other large files in the repo
 	git lfs install
-	git fetch https://github.com/rootski-io/rootski/
+	git fetch --all
+	git remote -v
 	git checkout -b trunk origin/trunk
 
 
