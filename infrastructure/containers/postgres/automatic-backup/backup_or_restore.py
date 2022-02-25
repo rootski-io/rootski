@@ -45,10 +45,8 @@ def parse_timedelta(time_str: str) -> timedelta:
     """Parse strings of the form "1d12h" or "1h30m" or "70s" into timedelta objects.
 
     :param time_str: the string to be parsed into a :class:timedelta object, defaults to None
-    :type time_str: str
 
     :return: returns a :class:'timedelta' object
-    :rtype: timedelta
     """
     time_str_regex_pattern = re.compile(
         r"((?P<days>\d+?)d)?((?P<hours>\d+?)h)?((?P<minutes>\d+?)m)?((?P<seconds>\d+?)s)?"
@@ -69,9 +67,7 @@ def run_shell_command(command: str, env_vars: dict):
     """Run a shell command and return the output.
 
     :param command: the command to be run, defaults to None
-    :type command: str
     :param env_vars: a dictionary of environment variables, defaults to None
-    :type env_vars: dict
     """
 
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, env=env_vars)
@@ -89,7 +85,6 @@ def make_backup_object_name_from_datetime() -> str:
     global variable for using as the filename of the backups.
 
     :return: the string to be used for the backup file name
-    :rtype: str
     """
     return datetime.now().strftime(FILENAME_DATETIME_FORMAT)
 
@@ -99,11 +94,9 @@ def make_backup_fpath(object_name: str) -> Path:
 
     :param object_name: the name of an object to which the BACKUP_DIR
         global variable should be prepended, defaults to None
-    :type object_name: str
 
     :return: returns a :class:'Path' object that gives a filepath
         for the 'object_name' file in the BACKUP_DIR directory
-    :rtype: Path
     """
     return BACKUP_DIR / object_name
 
@@ -128,7 +121,6 @@ def create_s3_client() -> BaseClient:
 
     :return: returns a :class:'BaseClient' object for uploading the backup
         file to AWS S3
-    :rtype: BaseClient
     """
     sess = create_s3_session()
     return sess.client("s3")
@@ -143,16 +135,12 @@ def upload_backup_to_s3(
     """Uploads the backup_fpath file to AWS S3.
 
     :param s3_client: an S3 client to use to upload the file, defaults to None
-    :type s3_client: BaseClient
     :param backup_fpath: the filepath to the file that will be uploaded
         , defaults to None
-    :type backup_fpath: Path
     :param backup_bucket_name: the S3 bucket to upload the file to
         , defaults to None
-    :type backup_bucket_name: str
     :param backup_object_name: the filename for the uploaded object in S3
         , defaults to None
-    :type backup_object_name: str
     """
     with open(str(backup_fpath), "rb") as f:
         s3_client.upload_fileobj(Fileobj=f, Bucket=backup_bucket_name, Key=backup_object_name)
@@ -163,7 +151,6 @@ def delete_local_backup_file(backup_fpath: Path):
 
     :param backup_fpath: the filepath to the file that will be deleted
         , defaults to None
-    :type backup_fpath: Path
     """
     os.remove(str(backup_fpath))
 
@@ -173,7 +160,6 @@ def backup_database(backup_object_name: str):
 
     :param backup_object_name: the name to be used for the backup file
         , defaults to None
-    :type backup_object_name: str
     """
     # make sure the backup directory exists
     db_backup_gzip_fpath = make_backup_fpath(object_name=backup_object_name)
@@ -209,7 +195,6 @@ def backup_database_on_interval(seconds: Union[int, float]):
 
     :param seconds: the number of seconds to wait inbetween backups
         , defaults to None
-    :type seconds: Union[int, float]
     """
     print("Starting rootski backup daemon. Backups will run every {seconds}".format(seconds=seconds))
     print(
@@ -235,14 +220,10 @@ def download_backup_object(
 
     :param session: the AWS session to be used for downloading the file
         , defaults to None
-    :type session: boto3.session.Session
     :param backup_bucket_name: the name of the bucket to downlaod the file from
         , defaults to None
-    :type backup_bucket_name: str
     :param backup_object_name: the name of the object to download, defaults to None
-    :type backup_object_name: str
     :param backup_fpath: the filepath for the downloaded file, defaults to None
-    :type backup_fpath: str
     """
     s3_client = session.client("s3")
     s3_client.download_file(Bucket=backup_bucket_name, Key=backup_object_name, Filename=backup_fpath)
@@ -253,13 +234,10 @@ def list_bucket_objects(session: boto3.session.Session, backup_bucket_name: str)
 
     :param session: the AWS session to be used for downloading the file
         , defaults to None
-    :type session: boto3.session.Session
     :param backup_bucket_name: the name of the bucket to list the objects in
         , defaults to None
-    :type backup_bucket_name: str
 
     :return: a list containing the names of all of the objects in the bucket
-    :rtype: List[str]
     """
     bucket = session.resource("s3").Bucket(name=backup_bucket_name)
     return [obj.key for obj in bucket.objects.all()]
@@ -270,10 +248,8 @@ def get_most_recent_backup_object_name(session: boto3.session.Session) -> str:
 
     :param session: the AWS session to be used for listing all of the files in the
         AWS S3 bucket, defaults to None
-    :type session: boto3.session.Session
 
     :return: the name of the most recent backup file in the S3 bucket
-    :rtype: str
     """
     # get a list of all the backup files
     backup_files = list_bucket_objects(session=session, backup_bucket_name=BACKUP_BUCKET)
@@ -294,7 +270,6 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
     :param backup_object_name_to_restore_from__override: the name of a specific backup
         the S3 bucket to restore from as an override for using the most recent backup
         , defaults to None
-    :type backup_object_name_to_restore_from__override: str, Optional
 
     :raises ClientError: if backup_object_name_to_restore_from__override is specified but
         is not in the database, this error will be thrown
