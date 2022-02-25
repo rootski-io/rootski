@@ -83,7 +83,7 @@ class SelfAttention(nn.Module):
         # d - head dimension (d_model // h)
         energy = torch.einsum(
             "nqhd,nkhd->nhqk", [queries, keys]
-        )  # [batch_size, num heads, d_query, d_key] adding this to trigger darker
+        )  # [batch_size, num heads, d_query, d_key] adding this to trigger darker again testing a thing
 
         if mask is not None:
             # wherever mask is 0, fill energy with a very negative number
