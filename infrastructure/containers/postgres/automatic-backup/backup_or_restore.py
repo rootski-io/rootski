@@ -191,7 +191,6 @@ def backup_database_on_interval(seconds: Union[int, float]):
     """Backs up the database to S3 repeatedly on an interval.
 
     :param seconds: the number of seconds to wait inbetween backups
-        , defaults to None
     """
     print("Starting rootski backup daemon. Backups will run every {seconds}".format(seconds=seconds))
     print(
