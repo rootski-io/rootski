@@ -57,7 +57,7 @@ jobs:
         # creates a local branch of rootski remote default trunk branch
         git checkout -b trunk origin/trunk || echo "trunk already exists"
         # creates a local branch of the current running branch in pipeline
-        git checkout -b ${GITHUB_HEAD_REF} origin/${GITHUB_HEAD_REF}
+        git checkout -b ${GITHUB_HEAD_REF} origin/${GITHUB_HEAD_REF} || echo "${GITHUB_HEAD_REF} already exists"
 
     - name: run tests and other code quality checks
       run: |
