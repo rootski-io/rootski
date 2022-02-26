@@ -173,12 +173,12 @@ def start_database_stack():
 @makefile.target(tag="run services locally")
 def stop_database_stack():
     """
-    Tears down the \"rootski-database\" docker-swarm stack and removes
+    Tears down the `rootski-database` docker-swarm stack and removes
     ALL currently running docker containers.
 
-    Use if you ran \"run-database\".
+    Use if you ran `run-database`.
     """
-    log("Removing the \"rootski-database\" docker swarm stack and ALL running docker containers")
+    log("Removing the `rootski-database` docker swarm stack and ALL running docker containers")
     docker stack rm rootski-database
     docker container rm --force $(docker ps -aq)
     log(
@@ -372,11 +372,11 @@ def run():
     log(
         "(6/7) Checking if database is already seeded... (up to 30 seconds)"
         + "\n\n\tThis process (and seeding the database) is pretty tempermental. "
-        + "\n\tIf it fails, try running \"make run\" again a time or two. "
-        + "\n\tYou can also check the \"postgres\" docker container logs (the VS Code "
-        + "\n\t\"docker\" extension is great for that). You can ALSO try just running "
-        + "\n\t\"make start-backend\", checking that postgres is up, and then running "
-        + "\n\t\"make seed-dev-db\"."
+        + "\n\tIf it fails, try running `make run` again a time or two. "
+        + "\n\tYou can also check the `postgres` docker container logs (the VS Code "
+        + "\n\t`docker` extension is great for that). You can ALSO try just running "
+        + "\n\t`make start-backend`, checking that postgres is up, and then running "
+        + "\n\t`make seed-dev-db`."
     )
     if not is_db_seeded(env_file=DEV_ENV_FILE):
         log("(7/7) The database has not been seeded. Seeding now (this may take a few minutes)")
@@ -400,12 +400,12 @@ def seed_prod_db():
 @makefile.target(tag="run services locally")
 def stop():
     """
-    Tears down the \"rootski\" docker-swarm stack and removes
+    Tears down the `rootski` docker-swarm stack and removes
     ALL currently running docker containers.
 
-    Use if you ran \"run\".
+    Use if you ran `run`.
     """
-    log("Removing the \"rootski\" docker swarm stack and ALL running docker containers")
+    log("Removing the `rootski` docker swarm stack and ALL running docker containers")
     docker stack rm rootski
     docker container rm --force $(docker ps -aq)
     log(
