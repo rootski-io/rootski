@@ -112,7 +112,6 @@ repos:
     #       # only include files in the rootski_frontend folder
     #       files: ^rootski_frontend/
 
-    # - repo: https://github.com/jabracadabrah/darker
     - repo: https://github.com/akaihola/darker
       rev: 1.4.1
       hooks:

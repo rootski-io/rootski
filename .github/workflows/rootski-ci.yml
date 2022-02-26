@@ -51,6 +51,7 @@ jobs:
 
     - name: checkout trunk and current branches
       run: |
+        # these steps are necessary for darker to compare diffs properly
         # fetches all remote branches
         git fetch
         # creates a local branch of rootski remote default trunk branch
