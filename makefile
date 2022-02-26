@@ -26,8 +26,6 @@ install:
 	pre-commit install
 	# install git lfs for downloading rootski CSVs and other large files in the repo
 	git lfs install
-	
-	git fetch origin
 
 
 

@@ -112,7 +112,8 @@ repos:
     #       # only include files in the rootski_frontend folder
     #       files: ^rootski_frontend/
 
-    - repo: https://github.com/jabracadabrah/darker
+    # - repo: https://github.com/jabracadabrah/darker
+    - repo: https://github.com/akaihola/darker
       rev: 1.4.1
       hooks:
         # fail if black, pylint, flake8, isort, or pydocstyle find errors in the 'git --diff'
@@ -123,7 +124,7 @@ repos:
         # you got there, the build will still pass and your PR can go through.
         - id: darker
           args:
-            - -r trunk
+            - --revision trunk
             - --isort
             - -L flake8
             - -L pylint
@@ -136,3 +137,4 @@ repos:
           - flake8~=4.0
           - pylint~=2.12
           - pydocstyle~=6.1
+          entry: darker
