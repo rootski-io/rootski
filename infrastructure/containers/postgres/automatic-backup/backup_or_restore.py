@@ -66,7 +66,7 @@ def parse_timedelta(time_str: str) -> timedelta:
 def run_shell_command(command: str, env_vars: dict):
     """Run a shell command and return the output.
 
-    :param command: the command to be run, defaults to None
+    :param command: the command to be run
     :param env_vars: a dictionary of environment variables, defaults to None
     """
 
