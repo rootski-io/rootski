@@ -412,7 +412,7 @@ class Transformer(nn.Module):
         return out
 
     # adding to trigger darker
-    def backward(self, src, trg):
+    def backward(self, src, trg):  # noqa: D102 (missing docstring)
         src_mask = self.make_src_mask(src)
         trg_mask = self.make_trg_mask(trg)
 
@@ -433,9 +433,9 @@ if __name__ == "__main__":
         [[1, 5, 6, 4, 3, 9, 5, 2, 0], [1, 8, 7, 3, 4, 5, 6, 7, 2]]  # src sentence 1  # src sentence 2
     ).to(device)
 
-    trg = torch.tensor(
-        [[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2]]  # trg sentence 1  # trg sentence 2
-    ).to(device)
+    # trg = torch.tensor(
+    #     [[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2]]  # trg sentence 1  # trg sentence 2
+    # ).to(device)
 
     # src_pad_idx = 0
     # trg_pad_idx = 0
@@ -444,22 +444,3 @@ if __name__ == "__main__":
     # model = Transformer(src_vocab_size, trg_vocab_size, src_pad_idx, trg_pad_idx).to(device)
     # out = model(x, trg[:, :-1])
     # print(out.shape)
-
-    # adding this to trigger darker
-    def function_with_missing_argument(arg1: str):
-        """Do something cool."""
-
-    def sphinx_formatted_function(arg1: str):
-        """
-        Do something cool.
-
-        :param arg1: explanation
-        """
-
-    def google_formatted_function(arg1: str):
-        """
-        Do something cool.
-
-        Args:
-            arg1: explanation
-        """

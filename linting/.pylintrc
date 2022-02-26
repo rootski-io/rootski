@@ -10,3 +10,6 @@ disable=
 
     # we have a pre-commit hook that strips trailing whitespace
     trailing-whitespace,
+
+    # pydocstyle catches this
+    missing-function-docstring,

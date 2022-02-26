@@ -13,3 +13,6 @@ ignore=
 
     # (pydocstyle) Multi-line docstring summary should start at the first line
     D212,
+
+    # line too long; black catches this
+    E501,
