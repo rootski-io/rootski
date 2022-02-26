@@ -314,7 +314,7 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
 
     # find the most recent backup or verify the specify backup exists
     session = create_s3_session()
-    backup_object_name_to_restore_from = get_backup_object_name_to_restore_from(
+    backup_object_name_to_restore_from: str = get_backup_object_name_to_restore_from(
         session=session, backup_object_name__override=backup_object_name_to_restore_from__override
     )
 
