@@ -124,6 +124,7 @@ repos:
         - id: darker
           args:
             - --isort
+            # executes flake8 and pydocstyle (where pydocstyle is a flake8 plugin)
             - -L flake8 --config=./linting/.flake8
             - -L pylint --rcfile=./linting/.pylintrc
             # line length for black
@@ -134,5 +135,6 @@ repos:
             - flake8~=4.0
             - pylint~=2.12
             - pydocstyle~=6.1
+            # pydocstyle plugin for flake8
             - flake8-docstrings~=1.6
           entry: darker --revision trunk
