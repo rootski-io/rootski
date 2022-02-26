@@ -28,7 +28,7 @@ install:
 	git lfs install
 	git fetch
 	git checkout -b trunk origin/trunk
-	git checkout -b ${GITHUB_HEAD_REF} origin/${GITHUB_HEAD_REF}
+	git checkout -b $GITHUB_HEAD_REF origin/$GITHUB_HEAD_REF
 
 
 
