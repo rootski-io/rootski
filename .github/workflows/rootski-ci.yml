@@ -48,7 +48,7 @@ jobs:
 
         # install docker-compose because it is needed to run the tests
         make install-docker-compose
-        
+
     - name: checkout trunk and current branches
       run: |
         # fetches all remote branches

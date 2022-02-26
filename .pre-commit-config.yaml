@@ -124,7 +124,7 @@ repos:
         # you got there, the build will still pass and your PR can go through.
         - id: darker
           args:
-            - --revision trunk
+            # - --revision trunk
             - --isort
             - -L flake8
             - -L pylint
@@ -137,4 +137,4 @@ repos:
           - flake8~=4.0
           - pylint~=2.12
           - pydocstyle~=6.1
-          entry: darker
+          entry: darker --revision trunk
