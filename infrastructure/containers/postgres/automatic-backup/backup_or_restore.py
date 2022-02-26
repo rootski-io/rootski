@@ -168,10 +168,8 @@ def backup_database(backup_object_name: str):
     print("Creating the backup")
 
     # run the backup command
-    backup_cmd = (
-        "pg_dumpall --dbname {conn_string} --clean --if-exists | gzip --stdout > {backup_fpath}".format(
-            conn_string=CONNECTION_STRING, backup_fpath=db_backup_gzip_fpath
-        )
+    backup_cmd = "pg_dumpall --dbname {conn_string} | gzip --stdout > {backup_fpath}".format(
+        conn_string=CONNECTION_STRING, backup_fpath=db_backup_gzip_fpath
     )
     run_shell_command(command=backup_cmd, env_vars={"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]})
 
@@ -260,6 +258,40 @@ def get_most_recent_backup_object_name(session: boto3.session.Session) -> str:
     return most_recent_backup_fpath
 
 
+def get_backup_object_name_to_restore_from(
+    session: boto3.session.Session, backup_object_name__override: Optional[str]
+) -> str:
+    """Returns the name of the S3 backup to restore from. If an override is passed in,
+    the function verifies that the backup exists in S3 or raises an error. Otherwise
+    the function returns the name of the most recent backup in S3.
+
+    :param session: the AWS session to be used to pulling a list of all of the objects
+        in the S3 bucket, defaults to None
+    :param backup_object_name__override: the name of a specific backup file in S3 to
+        restore from, defaults to None
+
+    :raises ClientError: if backup_object_name_to_restore_from__override is specified but
+        is not in the database, this error will be thrown
+
+    :return: the name of the S3 backup object to download and restore the database from
+    """
+    if backup_object_name__override is None:
+        # get the name of the most recent backup object in S3
+        backup_object_name_to_restore_from = get_most_recent_backup_object_name(session=session)
+    else:
+        # verify that the override backup exists
+        s3_bucket_objects = list_bucket_objects(session=session, backup_bucket_name=BACKUP_BUCKET)
+        if backup_object_name__override in s3_bucket_objects:
+            backup_object_name_to_restore_from = backup_object_name__override
+        else:
+            raise DatabaseBackupNotFoundError(
+                "No database backup was found in the {bucket_name} bucket with object name {backup_object_name}".format(
+                    bucket_name=BACKUP_BUCKET, backup_object_name=backup_object_name__override
+                )
+            )
+    return backup_object_name_to_restore_from
+
+
 def restore_database(backup_object_name_to_restore_from__override: Optional[str] = None):
     """
     (1) drop the database
@@ -269,9 +301,6 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
     :param backup_object_name_to_restore_from__override: the name of a specific backup
         the S3 bucket to restore from as an override for using the most recent backup
         , defaults to None
-
-    :raises ClientError: if backup_object_name_to_restore_from__override is specified but
-        is not in the database, this error will be thrown
     """
     pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
 
@@ -294,25 +323,13 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
     run_shell_command(command=create_db_cmd, env_vars=pg_env_vars)
 
     # find the most recent backup or verify the specify backup exists
-    print("Getting backup file from S3")
     session = create_s3_session()
-
-    if not backup_object_name_to_restore_from__override:
-        # get the most recent backup name if no override is set
-        backup_object_name_to_restore_from = get_most_recent_backup_object_name(session=session)
-        s3_bucket_objects = list_bucket_objects(session=session, backup_bucket_name=BACKUP_BUCKET)
-    elif backup_object_name_to_restore_from__override in s3_bucket_objects:
-        # use the override backup name if the backup exists
-        backup_object_name_to_restore_from = backup_object_name_to_restore_from__override
-    else:
-        # raise an error if the backup does not exist
-        raise DatabaseBackupNotFoundError(
-            "No database backup was found in the {bucket_name} bucket with object name {backup_object_name}".format(
-                bucket_name=BACKUP_BUCKET, backup_object_name=backup_object_name_to_restore_from__override
-            )
-        )
+    backup_object_name_to_restore_from = get_backup_object_name_to_restore_from(
+        session=session, backup_object_name__override=backup_object_name_to_restore_from__override
+    )
 
     # download the backup
+    print("Downloading backup file from S3")
     download_backup_object(
         session=session,
         backup_bucket_name=BACKUP_BUCKET,
@@ -338,15 +355,17 @@ def main():
     print("Running database-backup process with subcommand", sys.argv[1])
     if sys.argv[1] == "backup":
         s3_backup_object_name = make_backup_object_name_from_datetime()
-        backup_database(s3_backup_object_name)
+        backup_database(backup_object_name=s3_backup_object_name)
     elif sys.argv[1] == "backup-on-interval":
-        backup_interval_seconds = parse_timedelta(BACKUP_INTERVAL).seconds
+        backup_interval_seconds = parse_timedelta(time_str=BACKUP_INTERVAL).seconds
         backup_database_on_interval(seconds=backup_interval_seconds)
     elif sys.argv[1] == "restore-from-most-recent":
         restore_database()
     elif sys.argv[1] == "restore-from-backup":
         s3_backup_object_name_to_restore_from__override = sys.argv[2]
-        restore_database(s3_backup_object_name_to_restore_from__override)
+        restore_database(
+            backup_object_name_to_restore_from__override=s3_backup_object_name_to_restore_from__override
+        )
 
     else:
         print(
