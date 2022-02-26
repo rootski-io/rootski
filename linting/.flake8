@@ -1,0 +1,15 @@
+# to ignore an error using flake8, add a line like this
+# noqa: <error code>
+# where <error code> is a short code like D107
+
+# note that flake8 supports installing many other linting tools as plugins; we currently
+# are using flake8-docstrings which is a plugin that integrates pydocstyles with flake8.
+# pydocstyles is a linter that checks docstrings for style issues.
+
+[flake8]
+ignore=
+    # (pydocstyle) requires docstring in __init__, often this is trivial
+    D107,
+
+    # (pydocstyle) Multi-line docstring summary should start at the first line
+    D212,
