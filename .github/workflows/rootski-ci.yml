@@ -22,20 +22,20 @@ jobs:
     - uses: actions/checkout@v2
 
     # allow tests and other automated steps to interact with the rootski AWS account
-    # - name: configure AWS credentials
-    #   uses: aws-actions/configure-aws-credentials@v1
-    #   with:
-    #     aws-access-key-id: ${{ secrets.CI__AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.CI__AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: us-west-2
+    - name: configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.CI__AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.CI__AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
 
     - name: install 3.9
       uses: actions/setup-python@v2
       with:
         python-version: "3.9"
 
-    # - name: install docker
-    #   uses: docker-practice/actions-setup-docker@1.0.8
+    - name: install docker
+      uses: docker-practice/actions-setup-docker@1.0.8
 
     - name: install dependencies
       run: |
@@ -47,7 +47,7 @@ jobs:
         make install
 
         # install docker-compose because it is needed to run the tests
-        # make install-docker-compose
+        make install-docker-compose
 
     - name: checkout trunk and current branches
       run: |
