@@ -1,6 +1,6 @@
 ![breakdown-svg](./rootski_frontend/src/assets/images/breakdown-window.svg)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 </br>
@@ -82,6 +82,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://github.com/ir3456"><img src="https://avatars.githubusercontent.com/u/25242220?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ir3456</b></sub></a><br /><a href="#infra-ir3456" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/rootski-io/rootski/commits?author=ir3456" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/jabracadabrah"><img src="https://avatars.githubusercontent.com/u/59886656?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Josh Abrahamsen</b></sub></a><br /><a href="#infra-jabracadabrah" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
   </tr>
 </table>
 
