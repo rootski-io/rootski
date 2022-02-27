@@ -57,7 +57,7 @@ rootski is developed by volunteers! Emojis represent types of contributions, ([e
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-Above all else, rootski is a platform to learning and mentoring anyone with an interest in
+Above all else, rootski is a platform for learning and mentoring anyone with an interest in
 
 - frontend/backend development
 - developing data science models
