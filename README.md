@@ -71,13 +71,33 @@ To get started, read the [Contributing](#contributing) section below.
 
 </br>
 
-### Contributors
+
+### Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/ir3456"><img src="https://avatars.githubusercontent.com/u/25242220?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ir3456</b></sub></a><br /><a href="#infra-ir3456" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/rootski-io/rootski/commits?author=ir3456" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 Onboarded and contributed features :D
 
 - [Eric Riddoch](https://ericriddoch.info) - Been working on rootski for 3 years and counting!
 - [Ryan Gardner](https://www.linkedin.com/in/gardner-ryan/) - Helping with all of the legal/business aspects and dabbling in development
 - [Isaac Robbins](https://www.linkedin.com/in/isaacrobbins/) - Learning and building experience in MLOps and DevOps!
+- [Josh Abrahamsen](https://www.linkedin.com/in/joshabrahamsen/) - Experienced in SDET/DevOps/Azure looking to gain experience in more languages and technologies.
 
 ### Friends
 
@@ -324,23 +344,3 @@ make deploy-frontend
 ```
 
 DONE! -->
-
-## Contributors ✨
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://github.com/ir3456"><img src="https://avatars.githubusercontent.com/u/25242220?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ir3456</b></sub></a><br /><a href="#infra-ir3456" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/rootski-io/rootski/commits?author=ir3456" title="Code">💻</a></td>
-  </tr>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
