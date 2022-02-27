@@ -39,7 +39,22 @@ and then displays this information to users for them to study.
 
 ## How is the rootski project run? (Hint, click here to [get involved](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 😃)
 
-rootski is developed by volunteers!
+rootski is developed by volunteers! Emojis represent types of contributions: ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/ir3456"><img src="https://avatars.githubusercontent.com/u/25242220?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ir3456</b></sub></a><br /><a href="https://github.com/rootski-io/rootski/commits?author=ir3456" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/jabracadabrah"><img src="https://avatars.githubusercontent.com/u/59886656?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Josh Abrahamsen</b></sub></a><br /><a href="#infra-jabracadabrah" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 Above all else, rootski is a platform to learning and mentoring anyone with an interest in
 
@@ -72,28 +87,6 @@ To get started, read the [Contributing](#contributing) section below.
 
 </br>
 
-
-## Contributors ✨
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://github.com/ir3456"><img src="https://avatars.githubusercontent.com/u/25242220?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ir3456</b></sub></a><br /><a href="#infra-ir3456" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/rootski-io/rootski/commits?author=ir3456" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/jabracadabrah"><img src="https://avatars.githubusercontent.com/u/59886656?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Josh Abrahamsen</b></sub></a><br /><a href="#infra-jabracadabrah" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-  </tr>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
 ### Contributors who have onboarded and contributed features
 
 - [Eric Riddoch](https://ericriddoch.info) - Been working on rootski for 3 years and counting!
@@ -111,7 +104,6 @@ Completed a lot of the rootski onboarding and chat with us in our [Slack workspa
 - [Sebastian Sanchez](https://www.linkedin.com/in/sebbsanchez/) - Learning about frontend development.
 - [Yashwanth (Yash) Kumar](https://www.linkedin.com/in/yashpkumar/) - Finishing up the Georgia Tech online masters in CS.
 - [Ben Doyle](https://www.linkedin.com/in/benjamin-doyle/) - Mixed work experience in NLP, full-stack development, and data analytics. Finishing undergrad at BYU in December 2022.
-
 
 
 </br></br></br></br></br>
