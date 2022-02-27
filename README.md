@@ -1,7 +1,4 @@
 ![breakdown-svg](./rootski_frontend/src/assets/images/breakdown-window.svg)
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 </br>
 
@@ -21,6 +18,10 @@ sheilds.io homepage where color choices are documented: https://shields.io/
 [![Notion](https://img.shields.io/badge/onboarding-knowledge%20base-blue.svg)](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc)
 [![ClickUp](https://img.shields.io/badge/ticket%20board-ClickUp-ff69b4.svg)](https://sharing.clickup.com/l/h/4-30114956-1/80ea8d248c817f3)
 [![YouTube Playlist](https://img.shields.io/badge/YouTube-playlist-ff0000.svg)](https://www.youtube.com/playlist?list=PLwF2z4Iu4rabmY7RbRNetjZprLfe8qWNz)
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 # 📣 Welcome to the rootski codebase!
 
@@ -72,7 +73,7 @@ To get started, read the [Contributing](#contributing) section below.
 </br>
 
 
-### Contributors ✨
+## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
@@ -93,7 +94,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-Onboarded and contributed features :D
+### Contributors who have onboarded and contributed features
 
 - [Eric Riddoch](https://ericriddoch.info) - Been working on rootski for 3 years and counting!
 - [Ryan Gardner](https://www.linkedin.com/in/gardner-ryan/) - Helping with all of the legal/business aspects and dabbling in development
