@@ -137,30 +137,58 @@ def start_backend_prod():
     __start_backend(env_file=PROD_ENV_FILE)
 
 @makefile.target(tag="run services locally")
-def backup_database_dev():
-    """
-    Use the "database-backup" service in the "docker-compose.yml" file to backup
-    all of the tables in the instace of Postgres running locally.
-    """
-    export_dot_env_vars(env_file=DEV_ENV_FILE)
-    $POSTGRES_HOST = get_localhost()
-    docker network prune --force
-    docker-compose run database-backup backup
-
-@makefile.target(tag="run services locally")
 def restore_database():
     """
-    Use the "database-backup" service in the "docker-compose.yml" file to identify
-    the most recent backup in "infrastructure/containers/postgres/backups" and load that data
-    into the database.
-
-    Note that this will wipe the existing data in the database first.
+    Use the "database-backup" service in the "docker-compose.yml" file drop, recreate,
+    and restore all of the tables from S3.
     """
-    export_dot_env_vars(env_file=DEV_ENV_FILE)
-    docker network prune --force
     database_backup_container_id = $(docker ps --quiet --filter name=database-backup)
     database_backup_container_id = database_backup_container_id.strip()
-    docker exec @(database_backup_container_id) python3 backup_or_restore.py restore-from-most-recent
+    docker exec @(database_backup_container_id) python3 backup_or_restore.py restore-from-most-recent || \
+        echo "There is not a Postgres container currently running. Run `make start-database-stack` to start the database."
+
+@makefile.target(tag="run services locally")
+def backup_database():
+    """
+    Use the "database-backup" service in the "docker-compose.yml" file to backup
+    the database to S3.
+    """
+    database_backup_container_id = $(docker ps --quiet --filter name=database-backup)
+    database_backup_container_id = database_backup_container_id.strip()
+    docker exec @(database_backup_container_id) python3 backup_or_restore.py backup || \
+        echo "There is not a Postgres container currently running. Run `make start-database-stack` to start the database."
+
+@makefile.target(tag="run services locally")
+def start_database_stack():
+    """
+    Use the "database-backup" service in the "docker-compose.yml" file to backup on a
+    regular inteval specified in the "docker-compose.yml" all of the tables in the
+    databse.
+    """
+    export_dot_env_vars(env_file=DEV_ENV_FILE)
+    export_rootski_profile_aws_creds()
+    $POSTGRES_HOST = get_localhost()
+    # Deletes any existing pgdata folder and reinitiates it.
+    rm -rf infrastructure/containers/postgres/data/pgdata/
+    docker network prune --force
+    docker swarm init || echo "docker swarm is already initialized :D"
+    docker stack deploy --compose-file docker-compose.yml rootski-database
+
+@makefile.target(tag="run services locally")
+def stop_database_stack():
+    """
+    Tears down the `rootski-database` docker-swarm stack and removes
+    ALL currently running docker containers.
+
+    Use if you ran `run-database`.
+    """
+    log("Removing the `rootski-database` docker swarm stack and ALL running docker containers")
+    docker stack rm rootski-database
+    docker container rm --force $(docker ps -aq)
+    log(
+        "Done! If you want to run rootski-database again, note that it takes docker "
+        + "\n\tseveral seconds to finish removing networks."
+    )
 
 @makefile.target(tag="deploy")
 def deploy_backend():
@@ -348,11 +376,11 @@ def run():
     log(
         "(6/7) Checking if database is already seeded... (up to 30 seconds)"
         + "\n\n\tThis process (and seeding the database) is pretty tempermental. "
-        + "\n\tIf it fails, try running \"make run\" again a time or two. "
-        + "\n\tYou can also check the \"postgres\" docker container logs (the VS Code "
-        + "\n\t\"docker\" extension is great for that). You can ALSO try just running "
-        + "\n\t\"make start-backend\", checking that postgres is up, and then running "
-        + "\n\t\"make seed-dev-db\"."
+        + "\n\tIf it fails, try running `make run` again a time or two. "
+        + "\n\tYou can also check the `postgres` docker container logs (the VS Code "
+        + "\n\t`docker` extension is great for that). You can ALSO try just running "
+        + "\n\t`make start-backend`, checking that postgres is up, and then running "
+        + "\n\t`make seed-dev-db`."
     )
     if not is_db_seeded(env_file=DEV_ENV_FILE):
         log("(7/7) The database has not been seeded. Seeding now (this may take a few minutes)")
@@ -376,12 +404,12 @@ def seed_prod_db():
 @makefile.target(tag="run services locally")
 def stop():
     """
-    Tears down the \"rootski\" docker-swarm stack and removes
+    Tears down the `rootski` docker-swarm stack and removes
     ALL currently running docker containers.
 
-    Use if you ran \"run\".
+    Use if you ran `run`.
     """
-    log("Removing the \"rootski\" docker swarm stack and ALL running docker containers")
+    log("Removing the `rootski` docker swarm stack and ALL running docker containers")
     docker stack rm rootski
     docker container rm --force $(docker ps -aq)
     log(
@@ -471,7 +499,7 @@ def export_bcrypt_user_password_env_var(username, password, env_var_name):
 def export_rootski_profile_aws_creds():
     log(
         "Exporting [magenta]rootski[/magenta] profile AWS credentials to"
-        + " [yellow]TRAEFIK__AWS_SECRET_ACCESS_KEY[/yellow] and [yellow]TRAEFIK__AWS_ACCESS_KEY_ID[/yellow]")
+        + " [yellow]AWS_SECRET_ACCESS_KEY[/yellow] and [yellow]AWS_ACCESS_KEY_ID[/yellow]")
     aws_creds_rel_path = ".aws/credentials"
     aws_credentials_file = Path.home() / aws_creds_rel_path
     if not aws_credentials_file.exists():
@@ -485,8 +513,8 @@ def export_rootski_profile_aws_creds():
     try:
         config = configparser.RawConfigParser()
         config.read(str(aws_credentials_file))
-        $TRAEFIK__AWS_ACCESS_KEY_ID = config.get("rootski", "aws_access_key_id")
-        $TRAEFIK__AWS_SECRET_ACCESS_KEY = config.get("rootski", "aws_secret_access_key")
+        $AWS_ACCESS_KEY_ID = config.get("rootski", "aws_access_key_id")
+        $AWS_SECRET_ACCESS_KEY = config.get("rootski", "aws_secret_access_key")
     except configparser.NoSectionError:
         log(
             f"No credentials file found at \"{aws_creds_rel_path}\". Credentials not exported."

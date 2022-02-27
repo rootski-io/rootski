@@ -20,6 +20,7 @@ services:
   postgres:
     image: postgres:9.6
     environment:
+      POSTGRES_HOST: ${POSTGRES_HOST?Variable not set}
       POSTGRES_USER: ${POSTGRES_USER?Variable not set}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
       POSTGRES_DB: ${POSTGRES_DB?Variable not set}
@@ -63,10 +64,14 @@ services:
       context: ./infrastructure/containers/postgres/automatic-backup/
       dockerfile: Dockerfile
     environment:
+      BACKUP_BUCKET: rootski-database-backups
       BACKUP_DIR: /backups
       BACKUP_INTERVAL: 1h
+      # AWS connection variables
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID?Variable not set}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY?Variable not set}
       # database connection variables
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: ${POSTGRES_HOST?Variable not set}
       POSTGRES_PORT: ${POSTGRES_PORT?Variable not set}
       POSTGRES_DB: ${POSTGRES_DB?Variable not set}
       POSTGRES_USER: ${POSTGRES_USER?Variable not set}

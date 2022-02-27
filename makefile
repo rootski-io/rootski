@@ -69,19 +69,20 @@ start-backend-prod:
 	python -m xonsh make.xsh start-backend-prod
 
 
-# Use the "database-backup" service in the "docker-compose.yml" file to backup
-# all of the tables in the instace of Postgres running locally.
-backup-database-dev:
-	python -m xonsh make.xsh backup-database-dev
-
-
-# Use the "database-backup" service in the "docker-compose.yml" file to identify
-# the most recent backup in "infrastructure/containers/postgres/backups" and load that data
-# into the database.
-#
-# Note that this will wipe the existing data in the database first.
+# Wipes and restores the database from the most recent backup in S3
 restore-database:
 	python -m xonsh make.xsh restore-database
+
+
+# Creates a backup of the current database and uploads it to S3
+backup-database:
+	python -m xonsh make.xsh backup-database
+
+
+# Use the "database-backup" service in the "docker-compose.yml" file to backup
+# the database continually on the interval specified in /docker-compose.yml
+start-database-stack:
+	python -m xonsh make.xsh start-database-stack
 
 
 # runs the entire rootski app (backend and frontend)
@@ -113,6 +114,14 @@ seed-prod-db:
 # Use if you ran "run".
 stop:
 	python -m xonsh make.xsh stop
+
+
+# Tears down the "rootski-database" docker-swarm stack and removes
+# ALL currently running docker containers.
+#
+# Use if you ran "run".
+stop-database-stack:
+	python -m xonsh make.xsh stop-database-stack
 
 
 ##################
