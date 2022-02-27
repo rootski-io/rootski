@@ -39,7 +39,7 @@ and then displays this information to users for them to study.
 
 ## How is the rootski project run? (Hint, click here to [get involved](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 😃)
 
-rootski is developed by volunteers! Emojis represent types of contributions: ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+rootski is developed by volunteers! Emojis represent types of contributions, ([emoji key](https://allcontributors.org/docs/en/emoji-key))
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
