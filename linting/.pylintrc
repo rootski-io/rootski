@@ -18,7 +18,9 @@ disable=
     # currently runs on python 3.5.3 which does not support f-strings
     consider-using-f-string,
 
-    # this only looks at packages that are installed in the venv, but the
-    # project is not set up in a way this can be easily fixed. Once fixed,
-    # this should be removed
+    # pylint is currently executed by the pre-commit framework which
+    # installs pylint in an isolated virtual environment--this means that
+    # pylint cannot "see" any 3rd party libraries imported by code in rootski.
+    # TODO - once we move away from "darker", execute pylint as a "local pre-commit hook"
+    # so that it runs in the same environment as the rest of our code.
     import-error
