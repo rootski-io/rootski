@@ -20,8 +20,12 @@ onboard:
 # read the header comment in the "make.xsh" file or the LONG comment in the
 # "onboard.sh" file.
 install:
+	# install python dependencies needed to execute various makefile targets
 	python -m pip install xonsh==0.10.1 rich pre-commit==2.15.0 bcrypt==3.2.0 dvc[s3]==2.9.4
+	# install pre-commit hooks to protect the quality of code committed by contributors
 	pre-commit install
+	# install git lfs for downloading rootski CSVs and other large files in the repo
+	git lfs install
 
 
 

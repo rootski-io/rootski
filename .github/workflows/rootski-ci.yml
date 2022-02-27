@@ -49,6 +49,16 @@ jobs:
         # install docker-compose because it is needed to run the tests
         make install-docker-compose
 
+    - name: checkout trunk and current branches
+      run: |
+        # these steps are necessary for darker to compare diffs properly
+        # fetches all remote branches
+        git fetch
+        # creates a local branch of rootski remote default trunk branch
+        git checkout -b trunk origin/trunk || echo "trunk already exists"
+        # creates a local branch of the current running branch in pipeline
+        git checkout -b ${GITHUB_HEAD_REF} origin/${GITHUB_HEAD_REF} || echo "${GITHUB_HEAD_REF} already exists"
+
     - name: run tests and other code quality checks
       run: |
         # check the code quality across the entire project (formatting, linting, static code checks)

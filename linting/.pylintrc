@@ -1,0 +1,24 @@
+# to disable certain pylint warnings, use the following format:
+# pylint: disable=long-form-warning-code-1,long-form-warning-code-2,...
+# Use the long form like "line-too-long" as opposed to the short form of the same error "C0301"
+
+[MESSAGES CONTROL]
+
+disable=
+    # taken care of by black
+    line-too-long,
+
+    # we have a pre-commit hook that strips trailing whitespace
+    trailing-whitespace,
+
+    # pydocstyle catches this
+    missing-function-docstring,
+
+    # infrastructure/containers/postgres/automatic-backup/backup_or_restore.py
+    # currently runs on python 3.5.3 which does not support f-strings
+    consider-using-f-string,
+
+    # this only looks at packages that are installed in the venv, but the
+    # project is not set up in a way this can be easily fixed. Once fixed,
+    # this should be removed
+    import-error

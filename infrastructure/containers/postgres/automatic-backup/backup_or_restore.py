@@ -1,5 +1,3 @@
-import boto3
-from botocore.client import BaseClient
 import os
 import re
 import subprocess
@@ -9,6 +7,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from textwrap import dedent
 from typing import List, Optional, Union
+
+import boto3
+from botocore.client import BaseClient
 
 #####################
 # --- Constants --- #
@@ -38,7 +39,11 @@ FILENAME_DATETIME_FORMAT = "rootski-db-%m-%d-%Y_%Hh-%Mm-%Ss.sql.gz"
 
 
 class DatabaseBackupNotFoundError(Exception):
-    """Raised when when the specified backup object is not found in the S3 backups bucket."""
+    """Raised when the specified backup object is not found in the S3 backups bucket."""
+
+
+class InvalidBackupIntervalError(Exception):
+    """Raised when the specified backup interval cannot be parsed onto a timedelta object."""
 
 
 def parse_timedelta(time_str: str) -> timedelta:
@@ -54,7 +59,7 @@ def parse_timedelta(time_str: str) -> timedelta:
 
     parts = time_str_regex_pattern.match(time_str)
     if not parts:
-        return
+        raise InvalidBackupIntervalError("The specified backup interval cannot be parsed.")
     parts = parts.groupdict()
     time_params = {}
     for name, param in parts.items():
@@ -69,7 +74,6 @@ def run_shell_command(command: str, env_vars: dict):
     :param command: the command to be run
     :param env_vars: a dictionary of environment variables
     """
-
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, env=env_vars)
     output, _ = process.communicate()
     print(output.decode("utf-8"))
@@ -81,8 +85,10 @@ def run_shell_command(command: str, env_vars: dict):
 
 
 def make_backup_object_name_from_datetime() -> str:
-    """Creates a string using the format specified by the FILENAME_DATETIME_FORMAT
-    global variable for using as the filename of the backups.
+    """Return a string using the format specified by the FILENAME_DATETIME_FORMAT.
+
+    This FILENAME_DATE_FORMAT is a global variable and the returned string will
+    be used as the filename of the backups.
 
     :return: the string to be used for the backup file name
     """
@@ -90,7 +96,7 @@ def make_backup_object_name_from_datetime() -> str:
 
 
 def make_backup_fpath(object_name: str) -> Path:
-    """Prepends the backup path to give a filepath for the object.
+    """Prepend the backup path to give a filepath for the object.
 
     :param object_name: the name of an object to which the BACKUP_DIR
         global variable should be prepended
@@ -102,7 +108,7 @@ def make_backup_fpath(object_name: str) -> Path:
 
 
 def create_s3_session() -> boto3.session.Session:
-    """Creates and returns an AWS session for listing and downloading backups in S3.
+    """Create and returns an AWS session for listing and downloading backups in S3.
 
     :return: returns a :class:'boto3.session.Session' object using the AWS_ACCESS_KEY_ID
     and AWS_SECRET_ACCESS_KEY global variables that are set from the environment
@@ -116,7 +122,7 @@ def create_s3_session() -> boto3.session.Session:
 
 
 def create_s3_client() -> BaseClient:
-    """Creates and returns an AWS S3 client for uploading backup to the cloud.
+    """Create and returns an AWS S3 client for uploading backup to the cloud.
 
     :return: returns a :class:'BaseClient' object for uploading the backup
         file to AWS S3
@@ -131,19 +137,19 @@ def upload_backup_to_s3(
     backup_bucket_name: str,
     backup_object_name: str,
 ):
-    """Uploads the backup_fpath file to AWS S3.
+    """Upload the backup_fpath file to AWS S3.
 
     :param s3_client: an S3 client to use to upload the file
     :param backup_fpath: the filepath to the file that will be uploaded
     :param backup_bucket_name: the S3 bucket to upload the file to
     :param backup_object_name: the filename for the uploaded object in S3
     """
-    with open(str(backup_fpath), "rb") as f:
-        s3_client.upload_fileobj(Fileobj=f, Bucket=backup_bucket_name, Key=backup_object_name)
+    with open(str(backup_fpath), "rb") as file:
+        s3_client.upload_fileobj(Fileobj=file, Bucket=backup_bucket_name, Key=backup_object_name)
 
 
 def delete_local_backup_file(backup_fpath: Path):
-    """Deletes the local backup file once it has been uplaoded to S3.
+    """Delete the local backup file once it has been uplaoded to S3.
 
     :param backup_fpath: the filepath to the file that will be deleted
     """
@@ -151,7 +157,7 @@ def delete_local_backup_file(backup_fpath: Path):
 
 
 def backup_database(backup_object_name: str):
-    """Creates a local backup of the database, uploades it to S3, and delets the local backup.
+    """Create a local backup of the database, uploades it to S3, and delets the local backup.
 
     :param backup_object_name: the name to be used for the backup file
     """
@@ -183,7 +189,7 @@ def backup_database(backup_object_name: str):
 
 
 def backup_database_on_interval(seconds: Union[int, float]):
-    """Backs up the database to S3 repeatedly on an interval.
+    """Back up the database to S3 repeatedly on an interval.
 
     :param seconds: the number of seconds to wait inbetween backups
     """
@@ -207,7 +213,7 @@ def backup_database_on_interval(seconds: Union[int, float]):
 def download_backup_object(
     session: boto3.session.Session, backup_bucket_name: str, backup_object_name: str, backup_fpath: str
 ):
-    """Downloads the object_name backup from the backup_bucket_name S3 bucket.
+    """Download the object_name backup from the backup_bucket_name S3 bucket.
 
     :param session: the AWS session to be used for downloading the file
     :param backup_bucket_name: the name of the bucket to downlaod the file from
@@ -219,7 +225,7 @@ def download_backup_object(
 
 
 def list_bucket_objects(session: boto3.session.Session, backup_bucket_name: str) -> List[str]:
-    """Returns a list of all objects in the backup_bucket_name S3 bucket.
+    """Return a list of all objects in the backup_bucket_name S3 bucket.
 
     :param session: the AWS session to be used for downloading the file
     :param backup_bucket_name: the name of the bucket to list the objects in
@@ -230,8 +236,22 @@ def list_bucket_objects(session: boto3.session.Session, backup_bucket_name: str)
     return [obj.key for obj in bucket.objects.all()]
 
 
+def get_datetime_from_fpath(
+    backup_object_name: str, datetime_format: str = FILENAME_DATETIME_FORMAT
+) -> datetime:
+    """Return a datetime object from a string of the FILENAME_DATETIME_FORMAT.
+
+    :param fpath: the backup_object_name to extract the datetime from
+    :param datetime_format: the datetime formatting string used to create and in this case
+        decode the backup file names, defaults to the FILENAME_DATETIME_FORMAT global variable
+
+    :return: a datetime object for when the backup was created
+    """
+    return datetime.strptime(backup_object_name, datetime_format)
+
+
 def get_most_recent_backup_object_name(session: boto3.session.Session) -> str:
-    """Returns the name of the most recent backup in S3.
+    """Return the name of the most recent backup in S3.
 
     :param session: the AWS session to be used for listing all of the files in the
         AWS S3 bucket
@@ -242,7 +262,6 @@ def get_most_recent_backup_object_name(session: boto3.session.Session) -> str:
     backup_files = list_bucket_objects(session=session, backup_bucket_name=BACKUP_BUCKET)
 
     # get the most recent backup file
-    get_datetime_from_fpath = lambda fpath: datetime.strptime(fpath, FILENAME_DATETIME_FORMAT)
     most_recent_backup_fpath = max(backup_files, key=get_datetime_from_fpath)
 
     return most_recent_backup_fpath
@@ -251,9 +270,11 @@ def get_most_recent_backup_object_name(session: boto3.session.Session) -> str:
 def get_backup_object_name_to_restore_from(
     session: boto3.session.Session, backup_object_name__override: Optional[str]
 ) -> str:
-    """Returns the name of the S3 backup to restore from. If an override is passed in,
-    the function verifies that the backup exists in S3 or raises an error. Otherwise
-    the function returns the name of the most recent backup in S3.
+    """Return the name of the S3 backup object to restore from.
+
+    If an override is passed in, the function verifies that the backup exists in
+    S3 or raises an error. Otherwise the function returns the name of the most
+    recent backup in S3.
 
     :param session: the AWS session to be used to pulling a list of all of the objects
         in the S3 bucket
