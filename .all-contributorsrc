@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "ir3456",
+      "name": "ir3456",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25242220?v=4",
+      "profile": "https://github.com/ir3456",
+      "contributions": [
+        "infra",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "rootski",
+  "projectOwner": "rootski-io",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
