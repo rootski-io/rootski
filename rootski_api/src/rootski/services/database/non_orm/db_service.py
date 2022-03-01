@@ -69,28 +69,33 @@ class RootskiDBService:
 
     def query_definitions(self, word_id):
         """
-        Returns [
-            {
-                "word_type": str,
-                "definitions": [
-                    {
-                        "definition_id": int,
-                        "def_position": int,              # the definition objs are sorted by def_position asc
-                        "sub_defs": [
-                            {
-                                "sub_def_id": int,
-                                "sub_def_position": int,  # sub_def objs are sorted by sub_def_position asc
-                                "definition": str,
-                                "notes": str | None
-                            },
-                            ...
-                        ]
-                    },
-                    ...
-                ]
-            },
-            ...
-        ]
+        Returns
+
+        .. code:: text
+
+            [
+                {
+                    "word_type": str,
+                    "definitions": [
+                        {
+                            "definition_id": int,
+                            "def_position": int,              # the definition objs are sorted by def_position asc
+                            "sub_defs": [
+                                {
+                                    "sub_def_id": int,
+                                    "sub_def_position": int,  # sub_def objs are sorted by sub_def_position asc
+                                    "definition": str,
+                                    "notes": str | None
+                                },
+                                ...
+                            ]
+                        },
+                        ...
+                    ]
+                },
+                ...
+            ]
+
         """
         query = sql_statements.DEFINITIONS.format(word_id=word_id)
         result_set = self.run_query(query, as_df=True)
@@ -155,24 +160,27 @@ class RootskiDBService:
     def query_morpheme_breakdown(self, word_id):
         """
         Returns a breakdown of the following form
-        [
-            {
-                'morpheme': 'год',
-                'morpheme_id': 294.0,
-                'level': 3.0,
-                'position': 0,                  # morphemes sorted by position asc
-                'type': 'root',
-                'family_id': 134,
-                'family': 'гож,год,гожд',
-                'meanings': [
-                    {
-                        'meaning': 'pleasing:1'
-                    },
-                    ...
-                ]
-            },
-            ...
-        ]
+
+        .. code:: text
+
+            [
+                {
+                    'morpheme': 'год',
+                    'morpheme_id': 294.0,
+                    'level': 3.0,
+                    'position': 0,                  # morphemes sorted by position asc
+                    'type': 'root',
+                    'family_id': 134,
+                    'family': 'гож,год,гожд',
+                    'meanings': [
+                        {
+                            'meaning': 'pleasing:1'
+                        },
+                        ...
+                    ]
+                },
+                ...
+            ]
         """
         # query = sql_statements.MORPHEME_BREAKDOWN.format(word_id)
         # result_set_df = self.run_query(query, as_df=True)
@@ -247,7 +255,7 @@ class RootskiDBService:
         5. The word itself
 
         Args:
-            word_id        (int): id of a word in the "words" table
+            word_id (int): id of a word in the "words" table
             main_word_type (str): one of ["noun", "adjective", "verb", "particle", "adverb", "preposition", "pronoun"]
 
         Returns:

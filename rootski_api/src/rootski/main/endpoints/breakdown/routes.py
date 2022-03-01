@@ -71,6 +71,7 @@ def get_breakdown(
 
     If this request does not have a "Bearer ..." Authorization header,
     the user is assumed to be anonymous.
+
     """
     breakdowns: List[orm.Breakdown] = (
         db.query(orm.Breakdown)
@@ -155,10 +156,9 @@ def submit_breakdown(
     Submit a breakdown on behalf of a user.
 
     Case: If the breakdown is not valid, an error is returned.
-    Case: If the user has already submitted a breakdown for this same word before,
-            the previously submitted breakdown is replaced for that user.
-    Case: If the user is an admin user, the breakdown is marked as "verified".
-            Otherwise it is unverified.
+    Case: If the user has already submitted a breakdown for this same word before, the previously submitted breakdown is replaced for that user.
+    Case: If the user is an admin user, the breakdown is marked as "verified". Otherwise it is unverified.
+
     """
 
     # does the word exist?

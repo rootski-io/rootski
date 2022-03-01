@@ -6,33 +6,43 @@ from sqlalchemy.orm import sessionmaker
 class SqlClient:
     """
     This class is a convenience wrapper around SQLAlchemy that makes it easy
-    to get an `engine` object to run queries against any SQL backend.
+    to get an ``engine`` object to run queries against any SQL backend.
 
     The official SQLAlchemy documentation page on engines, connections, transactions,
     sessions, etc. is very good:
     https://docs.sqlalchemy.org/en/13/core/connections.html
 
     Using this class, you have 2 options for running queries:
-    (1) You can use the `run_query` method to execute queries like a typical client
-    (2) You can get an engine or session and do ORM style queries
+
+    1. You can use the `run_query` method to execute queries like a typical client
+    2. You can get an engine or session and do ORM style queries
 
     Usage:
-    - SQLAlchemy requires underlying database drivers and python libraries to be installed.
-      For example, to connect to MySQL, you would need to install the `PyMySQL` package and
-      mysql driver binaries in the project that uses this class.
 
-      # python dependencies
-      postgres  : pip install psycopg2-binary
-      mysql     : pip install pymysql
-      snowflake : pip install snowflake-connector-python snowflake-sqlalchemy
+    (1)
 
-    - One of the big advantages of SQLAlchemy is that it allows you to use SQLite for writing
-      unit tests. Sadly, not all queries are testable in this way because of SQLite's limitations.
-      The following are some of the bigger limitations:
+    SQLAlchemy requires underlying database drivers and python libraries to be installed.
+    For example, to connect to MySQL, you would need to install the `PyMySQL` package and
+    mysql driver binaries in the project that uses this class.
 
-      SQLite does not support
-      (1) RETURNING clauses on INSERT statements
-      (2) UPDATE statements with multiple-table criteria
+    .. code:: text
+
+        # python dependencies
+        postgres  : pip install psycopg2-binary
+        mysql     : pip install pymysql
+        snowflake : pip install snowflake-connector-python snowflake-sqlalchemy
+
+    (2)
+
+    One of the big advantages of SQLAlchemy is that it allows you to use SQLite for writing
+    unit tests. Sadly, not all queries are testable in this way because of SQLite's limitations.
+    The following are some of the bigger limitations:
+
+    SQLite does not support
+
+    1. ``RETURNING`` clauses on ``INSERT`` statements
+    2. ``UPDATE`` statements with multiple-table criteria
+
     """
 
     def __init__(
@@ -106,29 +116,20 @@ class SqlClient:
 
     def run_query(self, query, *query_args, commit=True, fetch_all=False, return_raw_result=False):
         """
-        Execute a SQL query
-
-        See the `test_sql_client.py` unit tests for examples on how to consume the output of
-        a SQlAlchemy query.
+        Execute a SQL query.
 
         Args:
-            query (str | sqlalchemy expression): a SQL expression expressed as a string
-                            or SQLAlchemy string object.
+            query (str | sqlalchemy expression): a SQL expression expressed as a string or SQLAlchemy string object.
             query_args (object): any values that are to be inserted in some way into the query
             commit       (bool): whether or not to commit changes to the database
-            fetch_all    (bool): returns a ResultProxy (array of ResultRowProxy) objects if True
-                                 which can be treated as an array of Row results. Otherwise
-                                 returns a single ResultRowProxy or None if no results are found.
-            return_raw_results (bool): Set to True to skip fetching the query results. This is useful
-                                for non-select statements such as INSERT, UPDATE, CREATE, etc.
-                                which do not typically return anything.
+            fetch_all    (bool): returns a ResultProxy (array of ResultRowProxy) objects if True which can be treated as an array of Row results. Otherwise returns a single ResultRowProxy or None if no results are found.
+            return_raw_results (bool): Set to True to skip fetching the query results. This is useful for non-select statements such as INSERT, UPDATE, CREATE, etc. which do not typically return anything.
 
         Returns:
-            sqlalchemy.engine.result.ResultProxy: This is a very useful object, with attributes like
-                - `is_insert` for insert statements
-                - `rowcount` for number of inserted/updated rows
-                - `lastrowid` for the primary key of the last inserted row.
-                See this link for the full API: https://www.kite.com/python/docs/sqlalchemy.engine.ResultProxy
+            :py:class:`sqlalchemy.engine.result.ResultProxy`: This is a very useful object, with attributes like
+                - ``is_insert`` for insert statements
+                - ``rowcount`` for number of inserted/updated rows
+                - ``lastrowid`` for the primary key of the last inserted row. See this link for the full API: https://www.kite.com/python/docs/sqlalchemy.engine.ResultProxy
         """
 
         to_return = None

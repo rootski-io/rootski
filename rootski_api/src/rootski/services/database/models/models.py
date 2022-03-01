@@ -3,11 +3,9 @@ TODO
 (1) validate that this DDL works with sqlite
 (2) validate that this DDL works with postgres
 (3) use it on a postgres database
-(4) adjust the `gather_data.py` script to load data into
-    tables already created using this DDL
-(5) run some queries in the populated database to make sure
-    it all works right
-(6)
+(4) adjust the `gather_data.py` script to load data into tables already created using this DDL
+(5) run some queries in the populated database to make sure it all works right
+
 """
 
 from sqlalchemy import (
