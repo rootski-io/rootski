@@ -50,7 +50,6 @@ class LightsailIAMUserStack(cdk.Stack):
         rootski_db_bucket.grant_read_write(group)
 
         access_key = iam.AccessKey(self, id="rootski-lightsail-user-access-key", user=user)
-
         # ssm.StringParameter(
         #     self,
         #     id="rootski-iam-user-secret-key-id",

@@ -9,9 +9,9 @@ from aws_cdk import core as cdk
 
 # from stacks.backend_api.backend_api import BackendAPIStack
 
-from lightsail_dependencies.stacks.lightsail_iam_user_stack import LightsailIAMUserStack
-from lightsail_dependencies.stacks.db_backups_bucket_stack import DatabaseBackupsBucketStack
-from common.constants import StackNames
+from rootski_backend_cdk.lightsail_dependencies.stacks.lightsail_iam_user_stack import LightsailIAMUserStack
+from rootski_backend_cdk.lightsail_dependencies.stacks.db_backups_bucket_stack import DatabaseBackupsBucketStack
+from rootski_backend_cdk.common.constants import StackNames
 
 app = core.App()
 

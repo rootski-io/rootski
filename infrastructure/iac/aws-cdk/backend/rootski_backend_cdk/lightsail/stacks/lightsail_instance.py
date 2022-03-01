@@ -6,7 +6,7 @@ from jinja2 import Template
 from aws_cdk import core as cdk
 from aws_cdk import aws_lightsail as lightsail
 
-from common.constants import TAGS
+from rootski_backend_cdk.common.constants import TAGS
 
 THIS_DIR = Path(__file__).parent
 RESOURCES_DIR = THIS_DIR / "resources"

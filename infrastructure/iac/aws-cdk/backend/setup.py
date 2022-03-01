@@ -5,7 +5,7 @@ with open("README.md") as fp:
 
 
 setuptools.setup(
-    name="rootski_cdk",
+    name="rootski_backend_cdk",
     version="0.0.1",
     description="An empty CDK Python app",
     long_description=long_description,

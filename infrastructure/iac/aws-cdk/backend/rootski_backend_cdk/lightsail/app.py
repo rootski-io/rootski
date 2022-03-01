@@ -13,7 +13,7 @@ used for ContextVars (inputs) and Cloudformation Outputs (outputs).
 
 from aws_cdk import core as cdk
 
-from lightsail.stacks.lightsail_instance import ContextVars, LightsailInstanceStack
+from rootski_backend_cdk.lightsail.stacks.lightsail_instance import ContextVars, LightsailInstanceStack
 
 app = cdk.App()
 

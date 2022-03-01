@@ -5,18 +5,22 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-from common.constants import StackNames
-from common.outputs import get_stack_outputs
-from common.secrets import get_secret_by_id
+from rootski_backend_cdk.common.constants import StackNames
+from rootski_backend_cdk.common.outputs import get_stack_outputs
+from rootski_backend_cdk.common.secrets import get_secret_by_id
 
 from subprocess import Popen, PIPE, STDOUT
 
-from lightsail_dependencies.stacks.db_backups_bucket_stack import StackOutputs as DbBucketStackOutputKeys
-from lightsail_dependencies.stacks.lightsail_iam_user_stack import StackOutputs as IamUserStackOutputKeys
-from lightsail.stacks.lightsail_instance import StackOutputs as LightsailStackOutputKeys
+from rootski_backend_cdk.lightsail_dependencies.stacks.db_backups_bucket_stack import (
+    StackOutputs as DbBucketStackOutputKeys,
+)
+from rootski_backend_cdk.lightsail_dependencies.stacks.lightsail_iam_user_stack import (
+    StackOutputs as IamUserStackOutputKeys,
+)
+from rootski_backend_cdk.lightsail.stacks.lightsail_instance import StackOutputs as LightsailStackOutputKeys
 
-from lightsail.stacks.lightsail_instance import ContextVars as LightsailInstanceContextVars
-from lightsail_subdomains.stacks.subdomains import ContextVars as SubdomainsContextVars
+from rootski_backend_cdk.lightsail.stacks.lightsail_instance import ContextVars as LightsailInstanceContextVars
+from rootski_backend_cdk.lightsail_subdomains.stacks.subdomains import ContextVars as SubdomainsContextVars
 
 AWS_REGION = "us-west-2"
 

@@ -2,7 +2,7 @@
 
 from aws_cdk import core as cdk
 
-from lightsail_subdomains.stacks.subdomains import ContextVars, Subdomains
+from rootski_backend_cdk.lightsail_subdomains.stacks.subdomains import ContextVars, Subdomains
 
 app = cdk.App()
 

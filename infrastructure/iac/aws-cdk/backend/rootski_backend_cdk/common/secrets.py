@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 import boto3
-from common.outputs import get_stack_outputs
+from rootski_backend_cdk.common.outputs import get_stack_outputs
 
 
 def get_secret_response_by_secret_id(secret_id: str, region: Optional[str] = None) -> Dict[str, Any]:
@@ -17,7 +17,7 @@ def get_secret_response_by_secret_id(secret_id: str, region: Optional[str] = Non
                 "VersionId": "490a3ce1-c3d1-496a-b65e-cde9b8a7631c",
                 "SecretString": "test-secret-str",
                 "VersionStages": ["AWSCURRENT"],
-                "CreatedDate": datetime.datetime(2021, 2, 26, 21, 35, 32, 273000, tzinfo=tzlocal()),
+                "CreatedDate": "datetime.datetime(2021, 2, 26, 21, 35, 32, 273000, tzinfo=tzlocal())",
                 "ResponseMetadata":
                     {
                         "RequestId": "64163213-1f39-430a-9ad2-816983695e51",
