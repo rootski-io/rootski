@@ -355,6 +355,8 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
     )
     run_shell_command(command=restore_cmd, env_vars=pg_env_vars)
 
+    print("Successfully restored database from S3 backup")
+
 
 ######################
 # --- Entrypoint --- #

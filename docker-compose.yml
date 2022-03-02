@@ -24,6 +24,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER?Variable not set}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
       POSTGRES_DB: ${POSTGRES_DB?Variable not set}
+      POSTGRES_PORT: ${POSTGRES_PORT?Variable not set}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - ${POSTGRES_PORT?Variable not set}:${POSTGRES_PORT?Variable not set}
@@ -79,6 +80,7 @@ services:
     volumes:
       - ./infrastructure/containers/postgres/backups:/backups
       - ./infrastructure/containers/postgres/automatic-backup/backup_or_restore.py:/app/backup_or_restore.py
+      - ./infrastructure/containers/postgres/automatic-backup/scripts:/app/scripts
     networks:
       - backend
     deploy:
