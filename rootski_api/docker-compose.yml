@@ -2,6 +2,7 @@ version: "3"
 
 services:
   rootski_api:
+    image: rootski/rootski-api
     build:
       context: .
       dockerfile: Dockerfile
