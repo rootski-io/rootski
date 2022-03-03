@@ -35,6 +35,7 @@ jobs:
         python-version: "3.9"
 
     # cache the python environment for faster dependency installation
+    # it's important to use env.pythonLocation to get the current python version
     - uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
