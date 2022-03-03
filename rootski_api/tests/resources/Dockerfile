@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:experimental
 # The context for this file needs to be path/to/rootski_api
 FROM python:3.9.6-slim-buster
 
