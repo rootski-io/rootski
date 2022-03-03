@@ -13,6 +13,6 @@ RUN git init \
     && git config --global user.name "Banana man" \
     && git add version.txt \
     && git commit -m "initial commit"
-RUN -v $HOME/.cache/pip-docker/:/root/.cache/pip image_1 \
-    pip install -r requirements.txt
+RUN -v $HOME/.cache/pip-docker/:/root/.cache/pip image_1
+RUN pip install -r requirements.txt
 RUN make install
