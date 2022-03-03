@@ -59,7 +59,12 @@ jobs:
         key: ~/.cache/pre-commit-${{ hashFiles('makefile') }}
 
     - name: install docker
-      uses: docker/setup-buildx-action@v1
+      uses: docker-practice/actions-setup-docker@1.0.8
+
+    - name: install dependencies
+      run: |
+        # enable buildkit
+        DOCKER_BUILDKIT=1
 
     - name: install dependencies
       run: |
