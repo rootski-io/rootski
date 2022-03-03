@@ -36,13 +36,23 @@ jobs:
 
     # cache the python environment for faster dependency installation
     # it's important to use env.pythonLocation to get the current python version
+    - name: cache api environment
+      uses: actions/cache@v2
+      with:
+        path: rootski_api/${{ env.pythonLocation }}
+        key: ${{ env.pythonLocation }}-${{ hashFiles('rootski_api/setup.py') }}
+
+    # cache the python environment for faster dependency installation
+    # it's important to use env.pythonLocation to get the current python version
+    - name: cache root environment
     - uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
         key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}
 
     # cache the python environment for faster pre-commit
-    - uses: actions/cache@v2
+    - name: cache pre-commit
+      uses: actions/cache@v2
       with:
         path: ~/.cache/pre-commit
         key: ~/.cache/pre-commit-${{ hashFiles('makefile') }}
