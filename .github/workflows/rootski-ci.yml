@@ -63,11 +63,6 @@ jobs:
 
     - name: install dependencies
       run: |
-        # enable buildkit
-        DOCKER_BUILDKIT=1
-
-    - name: install dependencies
-      run: |
         # install global python dependencies
         make install
 
