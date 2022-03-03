@@ -45,7 +45,7 @@ jobs:
     # cache the python environment for faster dependency installation
     # it's important to use env.pythonLocation to get the current python version
     - name: cache root environment
-    - uses: actions/cache@v2
+      uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
         key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}
