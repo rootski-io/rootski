@@ -4,9 +4,7 @@ FROM python:3.9.6-slim-buster
 RUN apt-get update && apt-get -y install git make
 # RUN apt-get -y install git
 WORKDIR /usr/src/rootski_api
-COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache \
-    pip install -r requirements.txt
+
 COPY . .
 # needs to be a git repository in order for "pip install ." type commands to work
 RUN git init \

@@ -61,6 +61,11 @@ jobs:
     - name: install docker
       uses: docker-practice/actions-setup-docker@1.0.8
 
+    - name: set up buildkit
+      run: |
+        export DOCKER_BUILDKIT=1
+        export COMPOSE_DOCKER_CLI_BUILD=1
+
     - name: install dependencies
       run: |
         # install global python dependencies

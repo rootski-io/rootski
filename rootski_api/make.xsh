@@ -104,6 +104,9 @@ def build_test_image():
     If you don't run this, 'full-test' and 'full-test-local' will build
     the image automatically anyway.
     """
+    # COPY requirements.txt .
+    # RUN --mount=type=cache,target=/root/.cache \
+    # pip install -r requirements.txt
     cd tests/resources \
 		&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 
