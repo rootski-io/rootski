@@ -40,7 +40,7 @@ jobs:
     - name: cache api environment
       uses: actions/cache@v2
       with:
-        path: ~/.cache/pip
+        path: ~/.pytest_cache
         key: ${{ env.pythonLocation }}-${{ hashFiles('rootski_api/setup.py') }}
 
     # cache the python environment for faster dependency installation
