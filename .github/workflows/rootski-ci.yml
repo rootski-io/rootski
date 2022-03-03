@@ -69,7 +69,6 @@ jobs:
         # install python dependencies specific to the backend code
         cd rootski_api
         make install
-        make install
 
         # install docker-compose because it is needed to run the tests
         make install-docker-compose
