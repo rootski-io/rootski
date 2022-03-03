@@ -3,10 +3,10 @@
 set -x
 
 # # act as the super user for this script
-# sudo su
+sudo su
 
 # log output of this script to console
-# exec > >(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
+exec > >(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
 
 # map python -> python2 (yum needs python2)
 unlink /usr/bin/python
