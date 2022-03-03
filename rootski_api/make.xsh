@@ -198,7 +198,7 @@ def full_test_ci():
     finally:
         # this block executes even if 'except' calls sys.exit()
         log("Spinning down docker-compose stack")
-        docker-compose down
+        # docker-compose down
 
 @makefile.target(tag="testing")
 def full_test():
