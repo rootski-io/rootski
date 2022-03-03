@@ -1,12 +1,10 @@
 from enum import Enum
 from pathlib import Path
 
-from jinja2 import Template
-
-from aws_cdk import core as cdk
 from aws_cdk import aws_lightsail as lightsail
-
+from aws_cdk import core as cdk
 from common.constants import TAGS
+from jinja2 import Template
 
 THIS_DIR = Path(__file__).parent
 RESOURCES_DIR = THIS_DIR / "resources"
@@ -160,6 +158,6 @@ class LightsailInstanceStack(cdk.Stack):
             scope=self,
             id=StackOutputs.lightsail_admin_username.value,
             value=instance.attr_user_name,
-            description="IP address of the rootski db Lightsail instance",
+            description="Admin username of the rootski db Lightsail instance",
             export_name=StackOutputs.lightsail_admin_username.value,
         )
