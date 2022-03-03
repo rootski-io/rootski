@@ -64,8 +64,8 @@ EOF
 cp /home/ec2-user/.zshrc /root/
 
 # install git-lfs (for the initial data CSV files to seed the database)
-curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | sudo bash
-yum install -y git-lfs
+# curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | sudo bash
+# yum install -y git-lfs
 
 # install docker-compose and make the binary executable
 curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
@@ -112,12 +112,12 @@ chmod 600 /home/ec2-user/.ssh/rootski.id_rsa
 '
 
 # add bitbucket.org to known_hosts
-ssh-keyscan -t rsa -H bitbucket.org | tail -n +1 > /home/ec2-user/.ssh/known_hosts
+ssh-keyscan -t rsa -H github.com | tail -n +1 > /home/ec2-user/.ssh/known_hosts
 
 # set the ssh config for bitbucket.org
-cat <<EOF > /home/ec2-user/.ssh/config
-Host bitbucket.org
-    HostName bitbucket.org
+cat << EOF > /home/ec2-user/.ssh/config
+Host github.com
+    HostName github.com
     User git
     StrictHostKeyChecking no
     UserKnownHostsFile /home/ec2-user/.ssh/known_hosts
@@ -128,25 +128,21 @@ EOF
 cd /home/ec2-user
 [[ -d /home/ec2-user/rootski ]] \
     || GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
-    git clone git@bitbucket.org:eriddoch1/rootski.git
+    git clone --depth 1 -b CU-2g3hb45_Deploy-backup-solution-to-the-lightsail-instance_Isaac-Robbins git@github.com:rootski-io/rootski.git
 
 # pull the latest code from the rootski repo
-cd /home/ec2-user/rootski
-git remote set-url origin git@bitbucket.org:eriddoch1/rootski.git # make sure we pull over ssh
-git stash
-GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
-    git pull origin
+# cd /home/ec2-user/rootski
+# git remote set-url origin git@bitbucket.org:eriddoch1/rootski.git # make sure we pull over ssh
+# git stash
+# GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
+#     git pull origin
 
-# pull the larger CSV files to seed the database; TODO - remove this in favor of restoring from S3 backup
-GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
-    git lfs pull
+
 
 # deploy docker stack
 make install
 make build-images
-make start-backend
-make await-db-healthy
-make seed-dev-db
+make start-database-stack
 
 # run this command to unmount the file system before shutting off the instance
 # cd ~ && umount efs # not a typo: command is umount
