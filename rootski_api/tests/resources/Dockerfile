@@ -2,7 +2,6 @@
 FROM python:3.9.6-slim-buster
 
 RUN apt-get update && apt-get -y install git make
-RUN apt-get update && apt-get -y install git make
 # RUN apt-get -y install git
 WORKDIR /usr/src/rootski_api
 COPY . .
@@ -12,5 +11,4 @@ RUN git init \
     && git config --global user.name "Banana man" \
     && git add version.txt \
     && git commit -m "initial commit"
-RUN make install
 RUN make install

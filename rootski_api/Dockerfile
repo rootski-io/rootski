@@ -24,6 +24,9 @@ FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 ARG ROOTSKI_EXTRAS=""
 
 WORKDIR /usr/src/rootski
+ADD ./requirements.txt /usr/src/rootski/requirements.txt
+RUN pip install -r requirements.txt
+ADD . /usr/src/rootski
 
 # install rootski dependencies
 COPY setup.cfg setup.py ./
