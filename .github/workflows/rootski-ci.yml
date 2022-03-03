@@ -34,11 +34,17 @@ jobs:
       with:
         python-version: "3.9"
 
-    # cache the python environment for faster ci builds
+    # cache the python environment for faster dependency installation
     - uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('makefile') }}
+        key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}
+    
+    # cache the python environment for faster pre-commit
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pre-commit
+        key: ~/.cache/pre-commit-${{ hashFiles('makefile') }}
 
     - name: install docker
       uses: docker-practice/actions-setup-docker@1.0.8
