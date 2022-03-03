@@ -22,11 +22,11 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 
 ARG ROOTSKI_EXTRAS=""
-#this may not be the file
+
 WORKDIR /usr/src/rootski
-COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache \
-    pip install -r requirements.txt
+ADD ./requirements.txt /usr/src/rootski/requirements.txt
+RUN pip install -r requirements.txt
+ADD . /usr/src/rootski
 
 # install rootski dependencies
 COPY setup.cfg setup.py ./
