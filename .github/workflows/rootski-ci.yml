@@ -39,7 +39,7 @@ jobs:
       with:
         path: ${{ env.pythonLocation }}
         key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}
-    
+
     # cache the python environment for faster pre-commit
     - uses: actions/cache@v2
       with:
