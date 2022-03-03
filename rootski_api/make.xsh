@@ -105,7 +105,7 @@ def build_test_image():
     the image automatically anyway.
     """
     cd tests/resources \
-		&& docker-compose build
+		&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 
 
 @makefile.target(tag="utils")
