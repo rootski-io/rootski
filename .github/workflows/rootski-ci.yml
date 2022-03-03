@@ -34,14 +34,16 @@ jobs:
       with:
         python-version: "3.9"
 
-    # cache the python environment for faster dependency installation
-    # it's important to use env.pythonLocation to get the current python version
-    # not sure this is working yet
-    - name: cache virtual environment
-      uses: actions/cache@v2
-      with:
-        path: ~/usr/local/lib/python3.9/site-packages
-        key: ${{ env.pythonLocation }}-${{ hashFiles('rootski_api/setup.py') }}
+    - name: install dependencies
+      run: |
+        # create a new python virtual environment
+        python -m venv ./venv/
+
+        # activate it
+        source ./venv/bin/activate
+
+        # install docker-compose because it is needed to run the tests
+        make install-docker-compose
 
     # cache the python environment for faster dependency installation
     # it's important to use env.pythonLocation to get the current python version
@@ -68,6 +70,7 @@ jobs:
 
         # install python dependencies specific to the backend code
         cd rootski_api
+        make install
         make install
 
         # install docker-compose because it is needed to run the tests
