@@ -40,7 +40,7 @@ jobs:
     - name: cache virtual environment
       uses: actions/cache@v2
       with:
-        path: /usr/local/lib/python3.9/site-packages
+        path: ~/.cache/pip
         key: ${{ env.pythonLocation }}-${{ hashFiles('rootski_api/setup.py') }}
 
     # cache the python environment for faster dependency installation
