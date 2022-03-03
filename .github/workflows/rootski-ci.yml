@@ -37,10 +37,10 @@ jobs:
     # cache the python environment for faster dependency installation
     # it's important to use env.pythonLocation to get the current python version
     # not sure this is working yet
-    - name: cache api environment
+    - name: cache virtual environment
       uses: actions/cache@v2
       with:
-        path: ~/.pytest_cache
+        path: ./.venv/
         key: ${{ env.pythonLocation }}-${{ hashFiles('rootski_api/setup.py') }}
 
     # cache the python environment for faster dependency installation
