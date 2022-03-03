@@ -13,6 +13,7 @@ services:
       - test.env
     volumes:
       - ../..:/usr/src/rootski_api
+      - $HOME/.cache/pip/:/root/.cache/pip
     depends_on:
       postgres:
         condition: service_healthy
