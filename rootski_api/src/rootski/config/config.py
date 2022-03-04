@@ -15,17 +15,17 @@ be prioritized in the following order:
     the environment variable equivalent will be ROOTSKI__NAME.
 """
 
+import json
 import os
 from enum import Enum
-import json
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
-from rootski.config.ssm import get_ssm_parameters_by_prefix
 
 import yaml
 from pydantic import AnyHttpUrl, BaseSettings, validator
 from pydantic.dataclasses import dataclass
 from pydantic.env_settings import SettingsSourceCallable
+from rootski.config.ssm import get_ssm_parameters_by_prefix
 
 ANON_USER = "anon@rootski.io"
 ENVIRON_PREFIX: str = "ROOTSKI__"
@@ -278,6 +278,11 @@ class Config(BaseSettings):
                 aws_parameter_store_settings_source,  # values from ssm parameter store
                 file_secret_settings,  # ???
             )
+
+    def __init__(self, **kwargs):
+        # The tests seem to fail without this empty __init__
+        # pylint: disable=useless-super-delegation
+        super().__init__(**kwargs)
 
 
 if __name__ == "__main__":

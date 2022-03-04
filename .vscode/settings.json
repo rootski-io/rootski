@@ -1,0 +1,13 @@
+{
+    "restructuredtext.confPath": "",
+    "autoDocstring.customTemplatePath": "./.vscode/rootski-python-docstring-template.mustache",
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": ["--rcfile=./linting/.pylintrc"],
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": ["--line-length=112"],
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--config==./linting/.flake8",
+        "--max-line-length=112"
+    ]
+}
