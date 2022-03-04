@@ -280,7 +280,8 @@ class Config(BaseSettings):
             )
 
     def __init__(self, **kwargs):
-        # set all of the settings values using ``customise_sources``
+        # The tests seem to fail without this empty __init__
+        # pylint: disable=useless-super-delegation
         super().__init__(**kwargs)
 
 
