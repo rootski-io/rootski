@@ -46,7 +46,7 @@
 
    * - :fa:`youtube` `YouTube Playlist <https://www.youtube.com/playlist?list=PLwF2z4Iu4rabmY7RbRNetjZprLfe8qWNz>`_
      - Training videos walking through the architecture, tools, and how to contribute to rootski.
-   * - :fa:`aws` `AWS console sign in<https://rootski.signin.aws.amazon.com/console>`_
+   * - :fa:`aws` `AWS console sign in <https://rootski.signin.aws.amazon.com/console>`_
      - .. code:: text
 
            https://rootski.signin.aws.amazon.com/console

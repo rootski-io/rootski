@@ -75,12 +75,6 @@ WORKDIR /rootski/docs
 COPY ./docs/requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
 
-
-# change to a new user because drawio-desktop raises an error when run as root
-RUN useradd -ms /bin/bash sphinx-user
-RUN chown -R sphinx-user:sphinx-user /rootski
-USER sphinx-user
-
 COPY ./docs/Makefile ./Makefile
 
 ENTRYPOINT ["make"]
