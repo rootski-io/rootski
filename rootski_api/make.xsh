@@ -8,7 +8,7 @@ from pathlib import Path
 from textwrap import dedent
 from glob import glob
 from copy import deepcopy
-
+Removing intermediate container
 
 # manually add ../make_utils/ to PYTHONPATH so we can import resources from make_utils
 THIS_DIR = Path(__file__).parent.absolute()
