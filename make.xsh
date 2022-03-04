@@ -168,9 +168,13 @@ def start_database_stack():
     regular inteval specified in the "docker-compose.yml" all of the tables in the
     databse.
     """
+    printenv
     export_dot_env_vars(env_file=DEV_ENV_FILE)
+    printenv
     export_rootski_profile_aws_creds()
+    printenv
     $POSTGRES_HOST = get_localhost()
+    printenv
     # Deletes any existing pgdata folder and reinitiates it.
     rm -rf infrastructure/containers/postgres/data/pgdata/
     docker network prune --force
