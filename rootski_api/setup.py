@@ -53,7 +53,7 @@ from setuptools import setup
 if __name__ == "__main__":
     setup(
         use_pyscaffold=True,
-        package_dir={"": "/usr/rootskipackages"}
+        package_dir={"": "~/rootskipackages"}
         # use_scm_version={
         #     "root": ".", # path to project root from "relative_to"
         #     "relative_to": __file__, # path to setup.py
