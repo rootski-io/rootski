@@ -57,20 +57,14 @@ jobs:
         path: ~/.cache/pre-commit
         key: ~/.cache/pre-commit-${{ hashFiles('makefile') }}
 
-    - name: gimme the location
-      run: |
-        printf ${{ env.pythonLocation }}
-
     - name: install docker
       uses: docker/setup-buildx-action@v1
 
-    - name: set up buildkit
-      run: |
-        export DOCKER_BUILDKIT=1
-        export COMPOSE_DOCKER_CLI_BUILD=1
-
     - name: install dependencies
       run: |
+        python -m venv ./.venv && . ./.venv/bin/activate
+        source ./venv/bin/activate
+
         # install global python dependencies
         make install
 
