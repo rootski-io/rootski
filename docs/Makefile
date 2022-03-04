@@ -32,6 +32,7 @@ build-image:
 
 # use the docker image to build the docs
 docs-docker:
+	mkdir -p $(BUILDDIR)/html
 	docker-compose up
 
 # use the docker image to
