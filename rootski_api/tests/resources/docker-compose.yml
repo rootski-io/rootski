@@ -13,7 +13,7 @@ services:
       - test.env
     volumes:
       - ../..:/usr/src/rootski_api
-      - $HOME/.cache/pip/:/usr/local/lib/python3.9/site-packages
+      - $HOME/opt/hostedtoolcache/Python/3.9.10/x64:/usr/local/lib/python3.9/site-packages
     depends_on:
       postgres:
         condition: service_healthy
