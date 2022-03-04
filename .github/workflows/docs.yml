@@ -46,18 +46,18 @@ jobs:
       - name: make RECENT_MERGED_BRANCH_NAME variable available
         uses: tonynguyenit18/github-action-custom-vars@v1
 
-      - name: install docker
-        uses: docker-practice/actions-setup-docker@1.0.8
+      # - name: install docker
+      #   uses: docker-practice/actions-setup-docker@1.0.8
 
-      - name: install dependencies
-        run: |
-          cd ./docs/
+      # - name: install dependencies
+      #   run: |
+      #     cd ./docs/
 
-          # install all python dependencies of the project
-          make build-image
+      #     # install all python dependencies of the project
+      #     make build-image
 
-          # build the docs and write to rootski/docs/build/html/
-          make docs-docker
+      #     # build the docs and write to rootski/docs/build/html/
+      #     make docs-docker
 
       - name: publish docs
         env:
@@ -65,7 +65,11 @@ jobs:
         run: |
           cd ./docs/
 
+          mkdir -p ./build/html/
+          echo "sphinx in the house! 🏚" >> ./build/html/index.html
+
           # invalidate the S3 cache to prepare to publish the new site
+          pip install boto3
           python aws_invalidate_stack.py \
               --s3-static-site-stack-name docs-s3-static-site--stack--cdk \
               --region us-east-1 \
