@@ -7,3 +7,4 @@ Backend API Reference
    :template: module-template.rst
 
    rootski_backend_cdk
+   s3_static_site

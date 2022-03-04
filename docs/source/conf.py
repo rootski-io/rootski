@@ -1,3 +1,6 @@
+"""Configuration file for sphinx."""
+# pylint: disable=invalid-name
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -11,6 +14,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import platform
 import sys
 from pathlib import Path
 
@@ -25,6 +29,7 @@ for _dir in [ROOTSKI_DIR]:
 # -- Project information -----------------------------------------------------
 
 project = "rootski"
+# pylint: disable=redefined-builtin
 copyright = "2022, rootski, L.L.C."
 author = "Eric Riddoch and the rootski contributors"
 
@@ -35,8 +40,8 @@ author = "Eric Riddoch and the rootski contributors"
 # extensions coming with Sphinx (named "sphinx.ext.*") or your custom
 # ones.
 extensions = [
-    # enable the `.. tab:: <tab name>` directive
-    "sphinx_inline_tabs",
+    # tabs, cards, grid system, fontawesome/octicon icons and more
+    "sphinx_panels",
     # places metadata in the <head> element on each page for social media
     "sphinxext.opengraph",
     # enable writing in markdown rather than reStructuredText
@@ -68,7 +73,23 @@ extensions = [
     "sphinxcontrib.drawio",
 ]
 
-drawio_binary_path = "/usr/local/bin/drawio"
+# fontawesome icons
+# html_css_files = ["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"]
+
+
+def is_mac_os():
+    """Return ``True`` if this script is being run on MacOS."""
+    system = platform.system().lower()
+
+    # is_windows = system == "windows"
+    # is_linux = system == "linux"
+    is_mac = system == "darwin"
+
+    return is_mac
+
+
+# drawio_binary_path = "/usr/local/bin/drawio"
+drawio_binary_path = "/Applications/draw.io.app/Contents/MacOS/draw.io" if is_mac_os() else "/opt/drawio/drawio"
 drawio_headless = "auto"
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
@@ -109,14 +130,14 @@ html_static_path = ["_static"]
 
 # -- External mapping --------------------------------------------------------
 python_version = ".".join(map(str, sys.version_info[0:2]))
-intersphinx_mapping = {
-    "sphinx": ("http://www.sphinx-doc.org/en/stable", None),
-    "python": ("https://docs.python.org/" + python_version, None),
-    "matplotlib": ("https://matplotlib.org", None),
-    "numpy": ("https://docs.scipy.org/doc/numpy", None),
-    "sklearn": ("https://scikit-learn.org/stable", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
-    "sqlalchemy": ("https://docs.sqlalchemy.org/en/stable/", None),
-    "aws_cdk": ("https://docs.aws.amazon.com/cdk/api/latest/python/", None),
-}
+# intersphinx_mapping = {
+#     "sphinx": ("http://www.sphinx-doc.org/en/stable", None),
+#     "python": ("https://docs.python.org/" + python_version, None),
+#     "matplotlib": ("https://matplotlib.org", None),
+#     "numpy": ("https://docs.scipy.org/doc/numpy", None),
+#     "sklearn": ("https://scikit-learn.org/stable", None),
+#     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+#     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
+#     "sqlalchemy": ("https://docs.sqlalchemy.org/en/stable/", None),
+#     "aws_cdk": ("https://docs.aws.amazon.com/cdk/api/latest/python/", None),
+# }

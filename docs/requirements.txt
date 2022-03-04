@@ -1,12 +1,11 @@
-
-#
-
 # rootski_api package with dependencies for "tests/" folder
 -e "../rootski_api[dev]"
 
 # aws cdk packages
 -e "../infrastructure/iac/aws-cdk/backend"  # package: rootski_backend_cdk
 -e "../infrastructure/iac/aws-cdk/cognito"
+
+# material ui theme for the sphinx site
 furo
 
 # extension: markdown with MyST instead of reStructuredText
@@ -18,8 +17,9 @@ sphinx-autobuild
 # extension: copy button on code blocks
 sphinx-copybutton
 
-# extension: .. tab:: directive
-sphinx-inline-tabs
+# extension: tabs, cards, grid system, fontawesome/octicon icons and more
+# https://sphinx-panels.readthedocs.io/en/sphinx-book-theme/#installation
+sphinx-panels
 
 # extension: embed .drawio diagram files into sphinx!
 sphinxcontrib-drawio
