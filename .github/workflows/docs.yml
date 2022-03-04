@@ -63,6 +63,8 @@ jobs:
         env:
           IS_PR: ${{ github.EVENT_NAME == 'pull_request' }}
         run: |
+          cd ./docs/
+
           # invalidate the S3 cache to prepare to publish the new site
           python aws_invalidate_stack.py \
               --s3-static-site-stack-name docs-s3-static-site--stack--cdk \
