@@ -58,6 +58,10 @@ jobs:
         path: ~/.cache/pre-commit
         key: ~/.cache/pre-commit-${{ hashFiles('makefile') }}
 
+    - name: gimme the location
+      run: |
+        printf ${{ env.pythonLocation }}
+
     - name: install docker
       uses: docker/setup-buildx-action@v1
 
