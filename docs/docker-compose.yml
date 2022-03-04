@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+
+  sphinx:
+    privileged: true
+    image: rootski/sphinx
+    build:
+      dockerfile: docs/Dockerfile
+      context: ..
+    ports:
+      - "4444:4444"
+    volumes:
+      - ..:/rootski

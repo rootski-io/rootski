@@ -68,15 +68,15 @@ repos:
     #       - id: isort
     #         args: ["--profile=black"]
 
-    - repo: https://github.com/psf/black
-      rev: 21.9b0
-      hooks:
-          # code formatter written by Facebook--it's like autopep8 and yapf, but probably the most popular
-          - id: black
-            args: ["--line-length=112"]
-          # black... but for jupyter notebooks! Why not?
-          - id: black-jupyter
-            args: ["--line-length=112"]
+    # - repo: https://github.com/psf/black
+    #   rev: 21.9b0
+    #   hooks:
+    #       # code formatter written by Facebook--it's like autopep8 and yapf, but probably the most popular
+    #       - id: black
+    #         args: ["--line-length=112"]
+    #       # black... but for jupyter notebooks! Why not?
+    #       - id: black-jupyter
+    #         args: ["--line-length=112"]
 
     # - repo: https://github.com/PyCQA/flake8
     #   rev: 3.9.2
@@ -131,6 +131,7 @@ repos:
             - -l 112
             - --verbose
           additional_dependencies:
+            - black==22.1.0
             - isort~=5.9
             - flake8~=4.0
             - pylint~=2.12

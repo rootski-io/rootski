@@ -23,4 +23,7 @@ disable=
     # pylint cannot "see" any 3rd party libraries imported by code in rootski.
     # TODO - once we move away from "darker", execute pylint as a "local pre-commit hook"
     # so that it runs in the same environment as the rest of our code.
-    import-error
+    import-error,
+
+    # most hand-written CDK classes (constructs/stacks) have no public methods
+    too-few-public-methods,
