@@ -28,6 +28,12 @@ install:
 	git lfs install
 
 
+# Install only the necessary dependencies for running the database on the lightsail instance
+install-lightsail:
+	# install python dependencies needed to execute various makefile targets
+	python -m pip install xonsh==0.10.1 rich bcrypt==3.2.0
+
+
 
 
 ####################
