@@ -102,6 +102,8 @@ makefile = Makefile(
 def build_images():
     """Build images needed for the backend."""
     export_dot_env_vars(env_file=DEV_ENV_FILE)
+    $POSTGRES_HOST = get_localhost()
+
     docker-compose build
 
     cd rootski_api
