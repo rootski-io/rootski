@@ -102,6 +102,7 @@ makefile = Makefile(
 def build_images():
     """Build images needed for the backend."""
     export_dot_env_vars(env_file=DEV_ENV_FILE)
+    export_rootski_profile_aws_creds()
     $POSTGRES_HOST = get_localhost()
 
     docker-compose build
