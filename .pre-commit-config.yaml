@@ -112,30 +112,30 @@ repos:
     #       # only include files in the rootski_frontend folder
     #       files: ^rootski_frontend/
 
-    # - repo: https://github.com/akaihola/darker
-    #   rev: 1.4.1
-    #   hooks:
-    #     # fail if black, pylint, flake8, isort, or pydocstyle find errors in the 'git --diff'
-    #     # between this branch and latest commit on 'trunk'; this is great because it does not require
-    #     # contributors to make changes to parts of the codebase they didn't change. Said otherwise:
-    #     # if you submit a PR, the build will only fail if the code *you* wrote/changed does not
-    #     # satisfy these quality check tools, but if there were already issues in the codebase before
-    #     # you got there, the build will still pass and your PR can go through.
-    #     - id: darker
-    #       args:
-    #         - --isort
-    #         # executes flake8 and pydocstyle (where pydocstyle is a flake8 plugin)
-    #         - -L flake8 --config=./linting/.flake8
-    #         - -L pylint --rcfile=./linting/.pylintrc
-    #         # line length for black
-    #         - -l 112
-    #         - --verbose
-    #       additional_dependencies:
-    #         - black==22.1.0
-    #         - isort~=5.9
-    #         - flake8~=4.0
-    #         - pylint~=2.12
-    #         - pydocstyle~=6.1
-    #         # pydocstyle plugin for flake8
-    #         - flake8-docstrings~=1.6
-    #       entry: darker --revision trunk
+    - repo: https://github.com/akaihola/darker
+      rev: 1.4.1
+      hooks:
+        # fail if black, pylint, flake8, isort, or pydocstyle find errors in the 'git --diff'
+        # between this branch and latest commit on 'trunk'; this is great because it does not require
+        # contributors to make changes to parts of the codebase they didn't change. Said otherwise:
+        # if you submit a PR, the build will only fail if the code *you* wrote/changed does not
+        # satisfy these quality check tools, but if there were already issues in the codebase before
+        # you got there, the build will still pass and your PR can go through.
+        - id: darker
+          args:
+            - --isort
+            # executes flake8 and pydocstyle (where pydocstyle is a flake8 plugin)
+            - -L flake8 --config=./linting/.flake8
+            - -L pylint --rcfile=./linting/.pylintrc
+            # line length for black
+            - -l 112
+            - --verbose
+          additional_dependencies:
+            - black==22.1.0
+            - isort~=5.9
+            - flake8~=4.0
+            - pylint~=2.12
+            - pydocstyle~=6.1
+            # pydocstyle plugin for flake8
+            - flake8-docstrings~=1.6
+          entry: darker --revision trunk

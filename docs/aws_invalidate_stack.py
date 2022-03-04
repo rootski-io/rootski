@@ -52,9 +52,7 @@ def parse_args() -> TArguments:
         makes it optional. Unless the ``default`` argument is set, it defaults
         to ``None``.
     """
-    parser = argparse.ArgumentParser(
-        description="Invalidate the CDN cache for an S3 static site."
-    )
+    parser = argparse.ArgumentParser(description="Invalidate the CDN cache for an S3 static site.")
     parser.add_argument(
         "--s3-static-site-stack-name",
         type=str,
@@ -80,29 +78,21 @@ def parse_args() -> TArguments:
     return args
 
 
-def invalidate_cache_from_stack(
-    stack_name: str, region: Optional[str] = None, profile: Optional[str] = None
-):
+def invalidate_cache_from_stack(stack_name: str, region: Optional[str] = None, profile: Optional[str] = None):
     """Invalidate the CloudFront distribution for an S3StaticSiteStack.
 
     :param stack_name: Name of the S3StaticSiteStack instance
     :param region: region the stack is deployed in
     :param profile: AWS profile to get credentials from if credentials file exists
     """
-    cloudformation_client: TCloudFormationClient = get_cloudformation_client(
-        region=region, profile=profile
-    )
-    cloudfront_client: TCloudFrontClient = get_cloudfront_client(
-        region=region, profile=profile
-    )
+    cloudformation_client: TCloudFormationClient = get_cloudformation_client(region=region, profile=profile)
+    cloudfront_client: TCloudFrontClient = get_cloudfront_client(region=region, profile=profile)
     cloudfront_distribution_id: str = get_cloudformation_stack_output(
         cf_client=cloudformation_client,
         stack_name=stack_name,
         output_key=CLOUDFRONT_ID__OUTPUT_KEY_IN_STATIC_SITE_STACK,
     )
-    print(
-        f'Invalidating CloudFront distrubition cache with id "{cloudfront_distribution_id}"'
-    )
+    print(f'Invalidating CloudFront distrubition cache with id "{cloudfront_distribution_id}"')
     invalidation_status: str = invalidate_cloudfront_distribution_cache(
         cloudfront_client=cloudfront_client, distribution_id=cloudfront_distribution_id
     )
@@ -131,9 +121,7 @@ def invalidate_cloudfront_distribution_cache(
     return invalidation_status
 
 
-def get_boto_session(
-    region: Optional[str] = None, profile: Optional[str] = None
-) -> boto3.session.Session:
+def get_boto_session(region: Optional[str] = None, profile: Optional[str] = None) -> boto3.session.Session:
     """Prepare a boto Session object to create clients with the desired credentials.
 
     If AWS credentials file does not exist, the profile will be ignored.
@@ -165,9 +153,7 @@ def get_cloudformation_client(
     return session.client("cloudformation")
 
 
-def get_cloudfront_client(
-    region: Optional[str] = None, profile: Optional[str] = None
-) -> TCloudFrontClient:
+def get_cloudfront_client(region: Optional[str] = None, profile: Optional[str] = None) -> TCloudFrontClient:
     """Prepare a client to perform CloudFront operations.
 
     :param region: default region for boto operations
@@ -178,9 +164,7 @@ def get_cloudfront_client(
     return session.client("cloudfront")
 
 
-def get_cloudformation_stack_output(
-    cf_client: TCloudFormationClient, stack_name: str, output_key: str
-) -> str:
+def get_cloudformation_stack_output(cf_client: TCloudFormationClient, stack_name: str, output_key: str) -> str:
     """Fetch a single stack output from a CloudFormation stack.
 
     :param cf_client: Client for CloudFormation operations
