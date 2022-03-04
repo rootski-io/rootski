@@ -2,7 +2,7 @@
 # location if this is a PR and to the production location otherwise.
 # When a PR is merged, the published docs from the review are cleaned up.
 
-name: build
+name: build-and-publish-docs
 
 on:
   push:
@@ -46,27 +46,24 @@ jobs:
       - name: make RECENT_MERGED_BRANCH_NAME variable available
         uses: tonynguyenit18/github-action-custom-vars@v1
 
-      # - name: install docker
-      #   uses: docker-practice/actions-setup-docker@1.0.8
+      - name: install docker
+        uses: docker-practice/actions-setup-docker@1.0.8
 
-      # - name: install dependencies
-      #   run: |
-      #     cd ./docs/
+      - name: install dependencies
+        run: |
+          cd ./docs/
 
-      #     # install all python dependencies of the project
-      #     make build-image
+          # install all python dependencies of the project
+          make build-image
 
-      #     # build the docs and write to rootski/docs/build/html/
-      #     make docs-docker
+          # build the docs and write to rootski/docs/build/html/
+          make docs-docker
 
       - name: publish docs
         env:
           IS_PR: ${{ github.EVENT_NAME == 'pull_request' }}
         run: |
           cd ./docs/
-
-          mkdir -p ./build/html/
-          echo "Hi everyone!!!" >> ./build/html/index.html
 
           # invalidate the S3 cache to prepare to publish the new site
           pip install boto3
@@ -91,6 +88,7 @@ jobs:
           fi
 
       - uses: actions-ecosystem/action-create-comment@v1
+        if: github.event_name == 'pull_request'
         with:
           github_token: ${{ secrets.github_token }}
           body: |
