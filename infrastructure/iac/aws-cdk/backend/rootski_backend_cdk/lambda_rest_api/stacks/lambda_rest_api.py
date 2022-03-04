@@ -1,35 +1,37 @@
+"""Stack defining an API Gateway mapping to a Lambda function with the FastAPI app."""
+
 from enum import Enum
 from pathlib import Path
 
-from aws_cdk import core as cdk
-from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_apigateway as api_gateway
 from aws_cdk import aws_certificatemanager as certificatemanager
+from aws_cdk import aws_iam as iam
+from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_route53 as route53
 from aws_cdk import aws_route53_targets as route53_targets
-from aws_cdk import aws_iam as iam
 from aws_cdk import aws_s3 as s3
-
+from aws_cdk import core as cdk
 
 API_SUBDOMAIN = "api.rootski.io"
 
 THIS_DIR = Path(__file__).parent
 # ROOTSKI_LAMBDA_CODE_DIR = THIS_DIR / "resources"
-ROOTSKI_LAMBDA_CODE_DIR = THIS_DIR / "../../../../../../rootski_api"
+ROOTSKI_LAMBDA_CODE_DIR = THIS_DIR / "../../../../../../../rootski_api"
 
 # Must be the same version as in the fast api root path
 ROOTSKI_API_VERSION = "v1"
 
 
 class StackOutputs(str, Enum):
+    """Stack output keys for the :py:class:`RootskiLambdaRestApiStack`."""
+
+    # pylint: disable=invalid-name
     api_gateway_url = "ApiGatewayUrl"
     subdomain = "ApiSubdomain"
 
 
 class RootskiLambdaRestApiStack(cdk.Stack):
-    """
-    A Lightsail instance with a static IP used to host the backend database.
-    """
+    """An API Gateway mapping to a Lambda function with the backend code inside."""
 
     def __init__(
         self,
@@ -37,7 +39,6 @@ class RootskiLambdaRestApiStack(cdk.Stack):
         construct_id: str,
         **kwargs,
     ):
-        """ """
         super().__init__(scope, construct_id, **kwargs)
 
         fast_api_function: lambda_.Function = self.make_fast_api_function()
@@ -65,7 +66,7 @@ class RootskiLambdaRestApiStack(cdk.Stack):
             id="Rootski-IO-API-Gateway-A-Record",
             zone=route53.HostedZone.from_lookup(
                 self,
-                id=f"Rootski-IO-API-Gateway-HostedZone",
+                id="Rootski-IO-API-Gateway-HostedZone",
                 domain_name="rootski.io",
             ),
             target=route53.RecordTarget.from_alias(route53_targets.ApiGateway(lambda_rest_api)),
@@ -90,7 +91,10 @@ class RootskiLambdaRestApiStack(cdk.Stack):
 
     def make_fast_api_function(self) -> lambda_.Function:
         """
-        To prepare the python depencies for the lambda function, this stack will essentially run the following command:
+        Create a lambda function with the FastAPI app.
+
+        To prepare the python depencies for the lambda function, this stack
+        will essentially run the following command:
 
         .. code:: bash
 
@@ -138,8 +142,6 @@ class RootskiLambdaRestApiStack(cdk.Stack):
                     command=[
                         "bash",
                         "-c",
-                        # TODO: delete boto3 from the installed deps since it's included in the lambda runtime;
-                        # TODO: remove the API's dependency on pandas/numpy to drastically cut back the lambda size.
                         "mkdir -p /asset-output"
                         + "&& pip install -r ./aws-lambda/requirements.txt -t /asset-output"
                         + "&& pip install . -t /asset-output"

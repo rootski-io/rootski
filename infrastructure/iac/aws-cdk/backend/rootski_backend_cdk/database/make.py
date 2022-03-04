@@ -1,26 +1,34 @@
-import os
-from typing import Dict, List, Literal
+"""
+Script to deploy three CDK apps needed to form the backend.
 
+The 3 stacks have very particular inputs and outputs that must
+be orchestrated.
+"""
+
+import os
 from dataclasses import dataclass
 from pathlib import Path
-
+from subprocess import PIPE, STDOUT, Popen
+from typing import Dict, List, Literal
 
 from rootski_backend_cdk.common.constants import StackNames
 from rootski_backend_cdk.common.outputs import get_stack_outputs
 from rootski_backend_cdk.common.secrets import get_secret_by_id
-
-from subprocess import Popen, PIPE, STDOUT
-
-from rootski_backend_cdk.lightsail_dependencies.stacks.db_backups_bucket_stack import (
+from rootski_backend_cdk.database.lightsail.stacks.lightsail_instance import (
+    ContextVars as LightsailInstanceContextVars,
+)
+from rootski_backend_cdk.database.lightsail.stacks.lightsail_instance import (
+    StackOutputs as LightsailStackOutputKeys,
+)
+from rootski_backend_cdk.database.lightsail_dependencies.stacks.db_backups_bucket_stack import (
     StackOutputs as DbBucketStackOutputKeys,
 )
-from rootski_backend_cdk.lightsail_dependencies.stacks.lightsail_iam_user_stack import (
+from rootski_backend_cdk.database.lightsail_dependencies.stacks.lightsail_iam_user_stack import (
     StackOutputs as IamUserStackOutputKeys,
 )
-from rootski_backend_cdk.lightsail.stacks.lightsail_instance import StackOutputs as LightsailStackOutputKeys
-
-from rootski_backend_cdk.lightsail.stacks.lightsail_instance import ContextVars as LightsailInstanceContextVars
-from rootski_backend_cdk.lightsail_subdomains.stacks.subdomains import ContextVars as SubdomainsContextVars
+from rootski_backend_cdk.database.lightsail_subdomains.stacks.subdomains import (
+    ContextVars as SubdomainsContextVars,
+)
 
 AWS_REGION = "us-west-2"
 
@@ -29,6 +37,8 @@ THIS_DIR = Path(__file__).parent
 
 @dataclass
 class Config:
+    """Constant values used during the deployment process."""
+
     # lightsail app
     lightsail_instance_outputs_fpath = THIS_DIR / "lightsail-outputs.json"
     lightsail_dependencies_stack_outputs_fpath = THIS_DIR / "lightsail-dependencies-outputs.json"
@@ -41,11 +51,17 @@ class Config:
 
 @dataclass
 class DbBucketStackOutputs:
+    """Output keys for the database-backups-bucket stack."""
+
     rootski_db_backups_s3_bucket_name: str
     rootski_db_backups_s3_bucket_arn: str
 
     @classmethod
     def from_cloudformation(cls, region: str):
+        """Fetch outputs from the database backups stack in the ``region``.
+
+        :param region: see the one-line description.
+        """
         outputs: dict = get_stack_outputs(stack_name=StackNames.db_backups_bucket, region=region)
 
         return cls(
@@ -60,11 +76,17 @@ class DbBucketStackOutputs:
 
 @dataclass
 class IamUserStackOutputs:
+    """Utility class to fetch outputs from an IamUserStack."""
+
     rootski_iam_user_secret_key_id: str
     rootski_iam_user_secret_key: str
 
     @classmethod
     def from_cloudformation(cls, region: str = AWS_REGION):
+        """Retrieve outputs for the deployed IamUserStack in the given ``region``.
+
+        :param region: See one-line summary.
+        """
         outputs: dict = get_stack_outputs(stack_name=StackNames.iam_user, region=region)
 
         # use the secret ARNs in the stack outputs to fetch the actual secrets from secrets manager
@@ -85,12 +107,18 @@ class IamUserStackOutputs:
 
 @dataclass
 class LightsailInstanceStackOutputs:
+    """Utility class to fetch outputs from a LightsailInstanceStack."""
+
     static_ip: str
     ssh_key_pair_name: str
     lightsail_admin_username: str
 
     @classmethod
     def from_cloudformation(cls, region: str = AWS_REGION):
+        """Fetch stack values from the stack deployed in the given region.
+
+        :param region: See one-line summary
+        """
         outputs: dict = get_stack_outputs(stack_name=StackNames.lightsail_instance, region=region)
 
         return cls(
@@ -111,12 +139,21 @@ def run_cdk_command(
     cdk_cmd: TCdkCommand,
     app_py_fpath: Path,
     context_vars: Dict[str, str],
-    stack_names: List[str] = ["'*'"],
+    stack_names: List[str] = None,
     region: str = AWS_REGION,
 ) -> int:
+    """Run ``cdk diff|deploy|destroy``.
+
+    :param cdk_cmd: subcommand of the AWS ``cdk`` command to run
+    :param app_py_fpath: location of ``app.py`` for the CDK app to act on
+    :param context_vars: key-value pairs that are used with ``note.try_get_context(key)`` calls
+    :param stack_names: list of stack names registered in ``app.py::app`` to deploy
+    :param region: AWS region to deploy the stacks to
+    :return: exit status code of the ``cdk <subcommand>``
     """
-    Run ``cdk diff|deploy|destroy``.
-    """
+    if not stack_names:
+        stack_names = ["'*'"]
+
     cmd = [
         "cdk",
         cdk_cmd,
@@ -130,15 +167,30 @@ def run_cdk_command(
     if cdk_cmd == "deploy":
         cmd.extend(["--require-approval", "never"])
 
-    for k, v in context_vars.items():
-        cmd.extend(["--context", f"{k}={v}"])
+    for k, val in context_vars.items():
+        cmd.extend(["--context", f"{k}={val}"])
     status_code = run_shell_cmd(cmd)
     return status_code
 
 
 def deploy_cdk_app(
-    app_py_fpath: Path, stack_names: List[str], context_vars: Dict[str, str] = dict(), region: str = AWS_REGION
+    app_py_fpath: Path,
+    stack_names: List[str],
+    context_vars: Dict[str, str] = None,
+    region: str = AWS_REGION,
 ):
+    """Run ``cdk deploy`` on a CDK app.
+
+    :param app_py_fpath: location of ``app.py`` for the CDK app to act on
+    :param context_vars: key-value pairs that are used with ``note.try_get_context(key)`` calls
+    :param stack_names: list of stack names registered in ``app.py::app`` to deploy
+    :param region: AWS region to deploy the stacks to
+
+    :raises Exception: if the exit status is non-zero
+    """
+    if not context_vars:
+        context_vars = {}
+
     status_code = run_cdk_command(
         cdk_cmd="deploy",
         app_py_fpath=app_py_fpath,
@@ -151,8 +203,21 @@ def deploy_cdk_app(
 
 
 def diff_cdk_app(
-    app_py_fpath: Path, stack_names: List[str], context_vars: Dict[str, str] = dict(), region: str = AWS_REGION
+    app_py_fpath: Path,
+    stack_names: List[str],
+    context_vars: Dict[str, str] = None,
+    region: str = AWS_REGION,
 ):
+    """Run ``cdk diff`` on a CDK app.
+
+    :param app_py_fpath: location of ``app.py`` for the CDK app to act on
+    :param context_vars: key-value pairs that are used with ``note.try_get_context(key)`` calls
+    :param stack_names: list of stack names registered in ``app.py::app`` to deploy
+    :param region: AWS region to deploy the stacks to
+    """
+    if not context_vars:
+        context_vars = {}
+
     run_cdk_command(
         cdk_cmd="diff",
         app_py_fpath=app_py_fpath,
@@ -163,18 +228,27 @@ def diff_cdk_app(
 
 
 def log_subprocess_output(pipe):
+    """Log the output of a subprocess real-time as it executes.
+
+    :param pipe: a subprocess output pipe.
+    """
     # b'\n'-separated lines
     for line in iter(pipe.readline, b""):
         print(line.decode().strip(), sep="")
 
 
 def run_shell_cmd(cmd: List[str]) -> int:
+    """Execute a bash command as a subprocess.
+
+    :param cmd: Command as a list of arguments
+    :return: exit status code of the command
+    """
     env_vars = dict(os.environ) | {"SYSTEMD": "1"}
-    process = Popen(cmd, stdout=PIPE, stderr=STDOUT, env=env_vars)
-    with process.stdout:
-        log_subprocess_output(process.stdout)
-    exit_code = process.wait()  # 0 means success
-    return exit_code
+    with Popen(cmd, stdout=PIPE, stderr=STDOUT, env=env_vars) as process:
+        with process.stdout:
+            log_subprocess_output(process.stdout)
+        exit_code = process.wait()  # 0 means success
+        return exit_code
 
 
 ################
@@ -183,7 +257,7 @@ def run_shell_cmd(cmd: List[str]) -> int:
 
 
 def main():
-
+    """Deploy each of the three apps needed for the rootski database."""
     os.environ["AWS_PROFILE"] = "rootski"
 
     # create DB backup S3 bucket and IAM user

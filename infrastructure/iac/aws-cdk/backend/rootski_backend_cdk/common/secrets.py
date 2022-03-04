@@ -1,10 +1,14 @@
+"""Functions for reading secrets from AWS secrets manager."""
+
 from typing import Any, Dict, Optional
+
 import boto3
-from rootski_backend_cdk.common.outputs import get_stack_outputs
 
 
 def get_secret_response_by_secret_id(secret_id: str, region: Optional[str] = None) -> Dict[str, Any]:
     """
+    Send a GET secret request with boto3 and return the response.
+
     :param secret_id: the secret ID or ARN of the secret to retrieve
 
     :returns: object of the form
@@ -38,21 +42,11 @@ def get_secret_response_by_secret_id(secret_id: str, region: Optional[str] = Non
 
 
 def get_secret_by_id(secret_id: str, region: Optional[str] = None) -> str:
+    """Fetch an AWS secrets manager secret by its ID.
+
+    :param secret_id: ID of the secret to fetch
+    :param region: AWS region to where the secret should exist
+    """
     response = get_secret_response_by_secret_id(secret_id=secret_id, region=region)
     secret = response["SecretString"]
-    return secret
-
-
-def get_secret_by_arn_in_stack_output(
-    stack_name: str, secret_arn_output_key: str, region: Optional[str] = None
-) -> str:
-    """
-    :param stack_name: name of a CFN stack with an output containing a secret ID
-    :param secret_id_output_key: an output key (export name) for the stack whose value is a secret ID
-
-    :returns: the secret pointed to by the stack output
-    """
-    stack_outputs: Dict[str, str] = get_stack_outputs(stack_name=stack_name, region=region)
-    secret_arn: str = stack_outputs[secret_arn_output_key]
-    secret: str = get_secret_by_id(secret_arn=secret_arn, region=region)
     return secret

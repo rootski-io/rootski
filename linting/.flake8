@@ -16,3 +16,6 @@ ignore=
 
     # line too long; black catches this
     E501,
+
+    # line break before binary operator; black causes violations of this
+    W503,

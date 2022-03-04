@@ -1,11 +1,11 @@
+"""Stack containing a lightsail instance and a static IP address."""
+
 from enum import Enum
 from pathlib import Path
 
-from jinja2 import Template
-
-from aws_cdk import core as cdk
 from aws_cdk import aws_lightsail as lightsail
-
+from aws_cdk import core as cdk
+from jinja2 import Template
 from rootski_backend_cdk.common.constants import TAGS
 
 THIS_DIR = Path(__file__).parent
@@ -14,12 +14,18 @@ USER_DATA_TEMPLATE_FPATH = RESOURCES_DIR / "user-data.template.sh"
 
 
 class StackOutputs(str, Enum):
+    """Output keys for the lightsail stack."""
+
+    # pylint: disable=invalid-name
     static_ip = "StaticIp"
     ssh_key_pair_name = "SshKeyPairName"
     lightsail_admin_username = "LightsailAdminUsername"
 
 
 class ContextVars(str, Enum):
+    """Context vars for the lightsail stack that must be passed in as CLI arguments."""
+
+    # pylint: disable=invalid-name
     iam_access_key_id = "iam_access_key_id"
     iam_access_key = "iam_access_key"
 
@@ -41,9 +47,7 @@ def render_user_data_script(iam_access_key_id: str, iam_access_key: str) -> str:
 
 
 class LightsailInstanceStack(cdk.Stack):
-    """
-    A Lightsail instance with a static IP used to host the backend database.
-    """
+    """A Lightsail instance with a static IP used to host the backend database."""
 
     def __init__(
         self,
@@ -54,7 +58,10 @@ class LightsailInstanceStack(cdk.Stack):
         **kwargs,
     ):
         """
-        :param iam_access_key_id: key_id with programmatic access that will be present in the user-data.sh script
+        Instantiate a LightsailInstanceStack.
+
+        :param iam_access_key_id: key_id with programmatic access that will be
+                                  present in the user-data.sh script
         :param iam_access_key: same as above but the actual key
 
         The IAM key and key id are used to access the S3 bucket where database backups are kept.

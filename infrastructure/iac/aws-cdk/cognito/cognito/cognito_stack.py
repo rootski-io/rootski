@@ -8,8 +8,8 @@ https://github.com/talkncloud/aws/blob/main/cognito-federation/lib/cognito-feder
 from pathlib import Path
 from typing import Dict
 
+import aws_cdk.aws_ssm as ssm
 import yaml
-
 # For consistency with other languages, `cdk` is the preferred import name for
 # the CDK's core module.  The following line also imports it as `core` for use
 # with examples from the CDK Developer's Guide, which are in the process of
@@ -23,8 +23,6 @@ from aws_cdk.aws_cognito import (
     PasswordPolicy,
 )
 from aws_cdk.core import CfnOutput, Stack
-import aws_cdk.aws_ssm as ssm
-
 
 THIS_DIR = Path(__file__).parent
 ROOTSKI_OAUTH_PROVIDERS_FPATH = THIS_DIR / "rootski-oauth-providers.yml"
@@ -127,7 +125,10 @@ class CognitoStack(Stack):
                 "COGNITO",
                 google_identity_provider.provider_name,
             ],
-            explicit_auth_flows=["ALLOW_ADMIN_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"],
+            explicit_auth_flows=[
+                "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+                "ALLOW_REFRESH_TOKEN_AUTH",
+            ],
             allowed_o_auth_flows=["code"],
             allowed_o_auth_scopes=allowed_o_auth_scopes,
             allowed_o_auth_flows_user_pool_client=True,

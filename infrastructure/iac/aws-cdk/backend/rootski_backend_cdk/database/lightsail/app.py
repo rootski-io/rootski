@@ -1,5 +1,5 @@
 """
-App defining an API Gateway and Lambda Function with a FastAPI app.
+App that creates a lightsail instance and static IP address mapping to it.
 
 .. note::
 
@@ -14,7 +14,7 @@ App defining an API Gateway and Lambda Function with a FastAPI app.
 """
 
 from aws_cdk import core as cdk
-from rootski_backend_cdk.lambda_rest_api.stacks.lambda_rest_api import RootskiLambdaRestApiStack
+from rootski_backend_cdk.database.lightsail.stacks.lightsail_instance import ContextVars, LightsailInstanceStack
 
 if __name__ == "__main__":
     app = cdk.App()
@@ -24,10 +24,11 @@ if __name__ == "__main__":
         region="us-west-2",
     )
 
-    RootskiLambdaRestApiStack(
+    lightsail_stack = LightsailInstanceStack(
         app,
-        "Rootski-Lambda-REST-API-Stack",
-        env=environment,
+        "Rootski-Database-Stack-cdk",
+        iam_access_key_id=app.node.try_get_context(ContextVars.iam_access_key_id.value),
+        iam_access_key=app.node.try_get_context(ContextVars.iam_access_key.value),
     )
 
     app.synth()

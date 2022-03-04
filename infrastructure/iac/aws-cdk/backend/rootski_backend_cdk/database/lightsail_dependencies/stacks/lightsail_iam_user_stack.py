@@ -1,29 +1,34 @@
-from aws_cdk import core as cdk
+"""Stack defining an IAM user for the lightsail instance."""
+
+from enum import Enum
+
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_secretsmanager as secretsmanager
 from aws_cdk import aws_ssm as ssm
-
-from enum import Enum
-
+from aws_cdk import core as cdk
 
 ROOTSKI_PRIVATE_KEY_SSM_PARAMETER_KEY = "/rootski/ssh/private-key"
 
 
 class StackOutputs(str, Enum):
+    """Stack outputs for the :py:class:`LightsailIAMUserStack`."""
+
+    # pylint: disable=invalid-name
     rootski_iam_user_secret_key_id__secret_arn = "RootskiIAMUserSecretKeyIdSecretARN"
     rootski_iam_user_secret_key__secret_arn = "RootskiIAMUserSecretKeySecretARN"
 
 
 class LightsailIAMUserStack(cdk.Stack):
-    def __init__(self, scope: cdk.Construct, construct_id: str, rootski_db_bucket: s3.Bucket, **kwargs):
-        """
-        An IAM user to be used on the rootski lightsail instance.
+    """
+    An IAM user to be used on the rootski lightsail instance.
 
-        An IAM key pair is generated for the user and stored in secrets manager.
-        The key pair can be retrieved and placed in the ``/home/ec2-user/.aws/credentials``
-        file on the rootski lightsail instance.
-        """
+    An IAM key pair is generated for the user and stored in secrets manager.
+    The key pair can be retrieved and placed in the ``/home/ec2-user/.aws/credentials``
+    file on the rootski lightsail instance.
+    """
+
+    def __init__(self, scope: cdk.Construct, construct_id: str, rootski_db_bucket: s3.Bucket, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
         group = iam.Group(
