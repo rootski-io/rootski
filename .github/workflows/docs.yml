@@ -93,5 +93,5 @@ jobs:
       - uses: actions-ecosystem/action-create-comment@v1
         with:
           github_token: ${{ secrets.github_token }}
-          run: |
-            echo "The docs for the most recent build have been published here: ${{ env.DOCS_URL }}. Please verify that they render correctly."
+          body: |
+            The docs for the most recent build have been published here: ${{ env.DOCS_URL }}. Please verify that they render correctly.
