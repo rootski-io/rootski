@@ -62,7 +62,7 @@ jobs:
 
     - name: install dependencies
       run: |
-        python -m venv ./.venv && . ./.venv/bin/activate
+        python -m venv ./venv
         source ./venv/bin/activate
 
         # install global python dependencies
