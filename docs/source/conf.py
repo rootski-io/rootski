@@ -90,6 +90,7 @@ def is_mac_os():
 
 # drawio_binary_path = "/usr/local/bin/drawio"
 drawio_binary_path = "/Applications/draw.io.app/Contents/MacOS/draw.io" if is_mac_os() else "/opt/drawio/drawio"
+drawio_no_sandbox = not is_mac_os()
 drawio_headless = "auto"
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
