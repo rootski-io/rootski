@@ -1,0 +1,95 @@
+# Build the docs and publish them to S3. They are published to a review
+# location if this is a PR and to the production location otherwise.
+# When a PR is merged, the published docs from the review are cleaned up.
+
+name: build-and-publish-docs
+
+on:
+  push:
+    # triggered when commits enter these branches (on the GitHub remote server, not locally)
+    branches: [ trunk ]
+  pull_request:
+    # triggered when PRs are opened with these branches as targets
+    branches: [ trunk ]
+
+jobs:
+  build-and-publish-docs:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: checkout the branch
+        uses: actions/checkout@v2
+
+      - name: install python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: install the aws cli
+        id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          version: 2
+          verbose: false
+          arch: amd64
+
+      # get AWS credentials for publishing docs
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.CI__AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CI__AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: make RECENT_MERGED_BRANCH_NAME variable available
+        uses: tonynguyenit18/github-action-custom-vars@v1
+
+      - name: install docker
+        uses: docker-practice/actions-setup-docker@1.0.8
+
+      - name: install dependencies
+        run: |
+          cd ./docs/
+
+          # install all python dependencies of the project
+          make build-image
+
+          # build the docs and write to rootski/docs/build/html/
+          make docs-docker
+
+      - name: publish docs
+        env:
+          IS_PR: ${{ github.EVENT_NAME == 'pull_request' }}
+        run: |
+          cd ./docs/
+
+          # invalidate the S3 cache to prepare to publish the new site
+          pip install boto3
+          python aws_invalidate_stack.py \
+              --s3-static-site-stack-name docs-s3-static-site--stack--cdk \
+              --region us-east-1 \
+              --profile rootski
+
+          # publish the site for review if this is a PR, otherwise to production
+          if ${IS_PR}; then
+              BRANCH_NAME="${GITHUB_HEAD_REF}"
+              aws s3 sync ./build/html/ "s3://docs.rootski.io/review/${BRANCH_NAME}/" --acl public-read
+              # save the URL of the published docs for future steps
+              echo "DOCS_URL=https://docs.rootski.io/review/${BRANCH_NAME}" >> $GITHUB_ENV
+          else
+              echo "cleaning up review version of site from when PR was opened"
+              aws s3 rm s3://docs.rootski.io --recursive --exclude "*" --include "/review/${RECENT_MERGED_BRANCH_NAME}*"
+              echo "publishing the site to the production location S3"
+              aws s3 sync ./build/html/ "s3://docs.rootski.io/review/${RECENT_MERGED_BRANCH_NAME}/" --acl public-read
+              # save the URL of the published docs for future steps
+              echo "DOCS_URL=https://docs.rootski.io/" >> $GITHUB_ENV
+          fi
+
+      - uses: actions-ecosystem/action-create-comment@v1
+        if: github.event_name == 'pull_request'
+        with:
+          github_token: ${{ secrets.github_token }}
+          body: |
+            The docs for the most recent build have been published here: ${{ env.DOCS_URL }}. Please verify that they render correctly.

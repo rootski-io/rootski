@@ -68,8 +68,8 @@ repos:
       rev: 21.9b0
       hooks:
           # code formatter written by Facebook--it's like autopep8 and yapf, but probably the most popular
-          - id: black
-            args: ["--line-length=112"]
+          # - id: black
+          #   args: ["--line-length=112"]
           # black... but for jupyter notebooks! Why not?
           - id: black-jupyter
             args: ["--line-length=112"]

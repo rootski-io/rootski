@@ -21,7 +21,18 @@ onboard:
 # "onboard.sh" file.
 install:
 	# install python dependencies needed to execute various makefile targets
-	python -m pip install xonsh==0.10.1 rich pre-commit==2.15.0 bcrypt==3.2.0 dvc[s3]==2.9.4
+	python -m pip install \
+	    xonsh==0.10.1 \
+	    rich \
+	    pre-commit==2.15.0 \
+	    bcrypt==3.2.0 \
+	    dvc[s3]==2.9.4 \
+	    black==22.1.0 \
+	    isort~=5.9 \
+	    flake8~=4.0 \
+	    pylint~=2.12 \
+	    pydocstyle~=6.1 \
+	    flake8-docstrings~=1.6
 	# install pre-commit hooks to protect the quality of code committed by contributors
 	pre-commit install
 	# install git lfs for downloading rootski CSVs and other large files in the repo
@@ -75,12 +86,14 @@ start-backend-prod:
 	python -m xonsh make.xsh start-backend-prod
 
 
-# Wipes and restores the database from the most recent backup in S3
+# Use the "database-backup" service in the "docker-compose.yml" file drop, recreate,
+# and restore all of the tables from S3.
 restore-database:
 	python -m xonsh make.xsh restore-database
 
 
-# Creates a backup of the current database and uploads it to S3
+# Use the "database-backup" service in the "docker-compose.yml" file to backup
+# the database to S3.
 backup-database:
 	python -m xonsh make.xsh backup-database
 
@@ -92,12 +105,12 @@ start-database-stack:
 	python -m xonsh make.xsh start-database-stack
 
 
-# Use the "database-backup" service in the "docker-compose.yml" file to create,
-# restore from S3, and backup the database continually on the interval specified
-# in /docker-compose.yml
-# For use in Lightsail
-start-database-stack-lightsail:
-	python -m xonsh make.xsh start-database-stack-lightsail
+# Tears down the `rootski-database` docker-swarm stack and removes
+# ALL currently running docker containers.
+#
+# Use if you ran `run-database`.
+stop-database-stack:
+	python -m xonsh make.xsh stop-database-stack
 
 
 # runs the entire rootski app (backend and frontend)
@@ -123,20 +136,12 @@ seed-prod-db:
 	python -m xonsh make.xsh seed-prod-db
 
 
-# Tears down the "rootski" docker-swarm stack and removes
+# Tears down the `rootski` docker-swarm stack and removes
 # ALL currently running docker containers.
 #
-# Use if you ran "run".
+# Use if you ran `run`.
 stop:
 	python -m xonsh make.xsh stop
-
-
-# Tears down the "rootski-database" docker-swarm stack and removes
-# ALL currently running docker containers.
-#
-# Use if you ran "run".
-stop-database-stack:
-	python -m xonsh make.xsh stop-database-stack
 
 
 ##################

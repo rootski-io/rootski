@@ -13,7 +13,7 @@ setuptools.setup(
     author="rootski-io",
     package_dir={"": "cognito"},
     packages=setuptools.find_packages(where="cognito"),
-    install_requires=["aws-cdk.core==1.109.0", "aws-cdk.aws_cognito", "PyYAML"],
+    install_requires=["aws-cdk.core==1.146.0", "aws-cdk.aws_cognito", "PyYAML"],
     python_requires=">=3.6",
     classifiers=[
         "Development Status :: 4 - Beta",
