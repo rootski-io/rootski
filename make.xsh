@@ -191,7 +191,6 @@ def start_database_stack_lightsail():
     $POSTGRES_HOST__DB_BACKUP = $(curl http://checkip.amazonaws.com)
     # Deletes any existing pgdata folder and reinitiates it.
     rm -rf infrastructure/containers/postgres/data/pgdata/
-    docker network prune --force
     docker-compose up
 
 @makefile.target(tag="run services locally")
