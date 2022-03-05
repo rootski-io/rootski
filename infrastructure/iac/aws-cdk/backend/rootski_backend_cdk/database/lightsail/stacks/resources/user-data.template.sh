@@ -94,7 +94,7 @@ echo @(rootski_private_key) > /home/ec2-user/.ssh/rootski.id_rsa
 chmod 600 /home/ec2-user/.ssh/rootski.id_rsa
 '
 
-# add bitbucket.org to known_hosts
+# add github.com to known_hosts
 ssh-keyscan -t rsa -H github.com | tail -n +1 > /home/ec2-user/.ssh/known_hosts
 
 # set the ssh config for bitbucket.org
