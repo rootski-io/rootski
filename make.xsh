@@ -177,6 +177,22 @@ def start_database_stack():
     docker stack deploy --compose-file docker-compose.yml rootski-database
 
 @makefile.target(tag="run services locally")
+def start_database_stack_lightsail():
+    """
+    Use the "database-backup" service in the "docker-compose.yml" file to backup on a
+    regular inteval specified in the "docker-compose.yml" all of the tables in the
+    databse.
+    """
+    export_dot_env_vars(env_file=DEV_ENV_FILE)
+    export_rootski_profile_aws_creds()
+    $POSTGRES_HOST = get_localhost()
+    $POSTGRES_HOST__DB_BACKUP = $(curl http://checkip.amazonaws.com)
+    # Deletes any existing pgdata folder and reinitiates it.
+    rm -rf infrastructure/containers/postgres/data/pgdata/
+    docker swarm init
+    docker-compose up
+
+@makefile.target(tag="run services locally")
 def stop_database_stack():
     """
     Tears down the `rootski-database` docker-swarm stack and removes

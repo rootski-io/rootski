@@ -4,6 +4,7 @@ networks:
   backend:
     driver: overlay
     name: backend
+    attachable: true
   # traefik:
   #   driver: overlay
   #   name: traefik
