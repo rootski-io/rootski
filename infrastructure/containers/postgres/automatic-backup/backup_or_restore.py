@@ -313,7 +313,7 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
         the S3 bucket to restore from as an override for using the most recent backup
         , defaults to None
     """
-    # pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
+    pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
 
     # print("Dropping database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
     # drop_db_cmd = "dropdb --host={host} --port={port} --username={user} {db_name}".format(
