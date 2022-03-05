@@ -322,6 +322,7 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
         user=os.environ["POSTGRES_USER"],
         db_name=os.environ["POSTGRES_DB"],
     )
+    print(drop_db_cmd)
     run_shell_command(command=drop_db_cmd, env_vars=pg_env_vars)
 
     print("Creating empty database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
@@ -331,6 +332,7 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
         user=os.environ["POSTGRES_USER"],
         db_name=os.environ["POSTGRES_DB"],
     )
+    print(create_db_cmd)
     run_shell_command(command=create_db_cmd, env_vars=pg_env_vars)
 
     # find the most recent backup or verify the specify backup exists
@@ -353,6 +355,7 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
     restore_cmd = "gunzip --keep --stdout {backup_fpath} | psql --dbname {conn_string}".format(
         backup_fpath=backup_object_name_to_restore_from, conn_string=CONNECTION_STRING
     )
+    print(restore_cmd)
     run_shell_command(command=restore_cmd, env_vars=pg_env_vars)
 
     print("Successfully restored database from S3 backup")
