@@ -313,27 +313,27 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
         the S3 bucket to restore from as an override for using the most recent backup
         , defaults to None
     """
-    pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
+    # pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
 
-    print("Dropping database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
-    drop_db_cmd = "dropdb --host={host} --port={port} --username={user} {db_name}".format(
-        host=os.environ["POSTGRES_HOST"],
-        port=os.environ["POSTGRES_PORT"],
-        user=os.environ["POSTGRES_USER"],
-        db_name=os.environ["POSTGRES_DB"],
-    )
-    print(drop_db_cmd)
-    run_shell_command(command=drop_db_cmd, env_vars=pg_env_vars)
+    # print("Dropping database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
+    # drop_db_cmd = "dropdb --host={host} --port={port} --username={user} {db_name}".format(
+    #     host=os.environ["POSTGRES_HOST"],
+    #     port=os.environ["POSTGRES_PORT"],
+    #     user=os.environ["POSTGRES_USER"],
+    #     db_name=os.environ["POSTGRES_DB"],
+    # )
+    # print(drop_db_cmd)
+    # run_shell_command(command=drop_db_cmd, env_vars=pg_env_vars)
 
-    print("Creating empty database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
-    create_db_cmd = "createdb --host={host} --port={port} --username={user} {db_name}".format(
-        host=os.environ["POSTGRES_HOST"],
-        port=os.environ["POSTGRES_PORT"],
-        user=os.environ["POSTGRES_USER"],
-        db_name=os.environ["POSTGRES_DB"],
-    )
-    print(create_db_cmd)
-    run_shell_command(command=create_db_cmd, env_vars=pg_env_vars)
+    # print("Creating empty database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
+    # create_db_cmd = "createdb --host={host} --port={port} --username={user} {db_name}".format(
+    #     host=os.environ["POSTGRES_HOST"],
+    #     port=os.environ["POSTGRES_PORT"],
+    #     user=os.environ["POSTGRES_USER"],
+    #     db_name=os.environ["POSTGRES_DB"],
+    # )
+    # print(create_db_cmd)
+    # run_shell_command(command=create_db_cmd, env_vars=pg_env_vars)
 
     # find the most recent backup or verify the specify backup exists
     session = create_s3_session()
