@@ -10,7 +10,6 @@ from typing import Dict
 
 import aws_cdk.aws_ssm as ssm
 import yaml
-
 # For consistency with other languages, `cdk` is the preferred import name for
 # the CDK's core module.  The following line also imports it as `core` for use
 # with examples from the CDK Developer's Guide, which are in the process of
