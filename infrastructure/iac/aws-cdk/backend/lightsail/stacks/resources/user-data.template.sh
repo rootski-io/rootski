@@ -5,9 +5,6 @@ set -x
 # # act as the super user for this script
 sudo su
 
-# log output of this script to console
-# exec > >(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
-
 # map python -> python2 (yum needs python2)
 unlink /usr/bin/python
 ln -sfn /usr/bin/python2 /usr/bin/python
@@ -63,26 +60,12 @@ EOF
 # rm -f /root/.zshrc || echo "/root/.zshrc does not exist"
 cp /home/ec2-user/.zshrc /root/
 
-# install git-lfs (for the initial data CSV files to seed the database)
-# curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | sudo bash
-# yum install -y git-lfs
-
 # install docker-compose and make the binary executable
 curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
 chmod +x /usr/bin/docker-compose
 
 # start docker
 service docker start
-
-# mount the network file system where the rootski files are kept
-# yum install -y amazon-efs-utils
-# create the /efs directory if it doesn't exist
-# [[ -d /efs ]] || mkdir /efs
-# cd /efs
-
-# TODO - decide if we *do* want to mount the efs volume
-# mount -t efs "${ROOTSKI_FILE_SYSTEM_ID}":/ efs/ || echo "File system is already mounted";
-# mount -t efs "fs-97ec6392":/ efs/ || echo "File system is already mounted";
 
 # map python -> python3.7 (so that the makefile works; BUT this breaks yum)
 unlink /usr/bin/python
@@ -130,16 +113,18 @@ cd /home/ec2-user
     || GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
     git clone --depth 1 -b CU-2g3hb45_Deploy-backup-solution-to-the-lightsail-instance_Isaac-Robbins git@github.com:rootski-io/rootski.git
 
-# pull the latest code from the rootski repo
-# cd /home/ec2-user/rootski
-# git remote set-url origin git@bitbucket.org:eriddoch1/rootski.git # make sure we pull over ssh
-# git stash
-# GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
-#     git pull origin
-
-
-
 # deploy docker stack
+cd rootski
+
+# create directories that are mounted as volumes in the docker
+# containers but aren't in github
+sudo mkdir infrastructure/containers/postgres/data
+sudo mkdir infrastructure/containers/postgres/backups
+
+# install necessary dependencies, builds the docker images, and
+# runs the postgres and database-backup containers which creates
+# the database, restores it from the most recent S3 backup, and
+# sets the database to backup to S3 continually on an interval
 make install
 make build-images
 make start-database-stack
