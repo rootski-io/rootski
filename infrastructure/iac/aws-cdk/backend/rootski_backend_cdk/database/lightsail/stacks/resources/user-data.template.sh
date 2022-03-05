@@ -97,7 +97,7 @@ chmod 600 /home/ec2-user/.ssh/rootski.id_rsa
 # add github.com to known_hosts
 ssh-keyscan -t rsa -H github.com | tail -n +1 > /home/ec2-user/.ssh/known_hosts
 
-# set the ssh config for bitbucket.org
+# set the ssh config for github.com
 cat << EOF > /home/ec2-user/.ssh/config
 Host github.com
     HostName github.com
