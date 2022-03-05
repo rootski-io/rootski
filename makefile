@@ -85,10 +85,19 @@ backup-database:
 	python -m xonsh make.xsh backup-database
 
 
-# Use the "database-backup" service in the "docker-compose.yml" file to backup
-# the database continually on the interval specified in /docker-compose.yml
+# Use the "database-backup" service in the "docker-compose.yml" file to create,
+# restore from S3, and backup the database continually on the interval specified
+# in /docker-compose.yml
 start-database-stack:
 	python -m xonsh make.xsh start-database-stack
+
+
+# Use the "database-backup" service in the "docker-compose.yml" file to create,
+# restore from S3, and backup the database continually on the interval specified
+# in /docker-compose.yml
+# For use in Lightsail
+start-database-stack-lightsail:
+	python -m xonsh make.xsh start-database-stack-lightsail
 
 
 # runs the entire rootski app (backend and frontend)
