@@ -1,0 +1,15 @@
+/* Add :after icon to links to other pages */
+.external::after {
+    /*
+     * \00A0 is a "no break space" character that IS a space, but cannot be
+     * line-wrapped to a new line.
+     */
+    content: "\00A0[↪]";
+    /*
+     * Different fonts render unicode differently. By default, the "↪"
+     * shows up as an emoji which is quite ugly. The FastAPI docs use
+     * the Roboto font to achieve theirs. monospace works as well but it
+     * appears small on that case.
+     */
+    font-family: Roboto, Arial;
+}
