@@ -98,6 +98,24 @@ makefile = Makefile(
 # --- Subcommands --- #
 #######################
 
+@makefile.target(tag="all contributors")
+def install_all_contributors_cli():
+    """
+    Use "npm" to install the all-contributors-cli and initialize
+    the rootski/ folder as a node project.
+    """
+    npm install --include=dev --global all-contributors-cli
+
+
+@makefile.target(tag="all contributors")
+def generate_all_contributors_table():
+    """
+    Use the "all-contributors-cli" to generate the tables
+    that credit developers for contributions registered in
+    the "rootski/.all-contributorsrc" file.
+    """
+    npx all-contributors generate
+
 @makefile.target(tag="run services locally")
 def build_images():
     """Build images needed for the backend."""
