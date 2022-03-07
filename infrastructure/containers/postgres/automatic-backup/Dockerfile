@@ -16,6 +16,5 @@ WORKDIR /app
 
 COPY backup_or_restore.py ./backup_or_restore.py
 COPY scripts/restore-database-script.sh ./scripts/restore-database-script.sh
+COPY scripts/restore-dev-database-script.sh ./scripts/restore-dev-database-script.sh
 COPY scripts/wait-for-postgres-init.sh ./scripts/wait-for-postgres-init.sh
-
-ENTRYPOINT ["bash", "scripts/restore-database-script.sh"]
