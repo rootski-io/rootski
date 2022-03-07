@@ -1,5 +1,10 @@
 rootski_api/postgres
 
+# all-contributors CLI
+package-lock.json
+package.json
+node_modules/
+
 # CDK
 **/*cdk.out
 

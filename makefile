@@ -21,18 +21,7 @@ onboard:
 # "onboard.sh" file.
 install:
 	# install python dependencies needed to execute various makefile targets
-	python -m pip install \
-	    xonsh==0.10.1 \
-	    rich \
-	    pre-commit==2.15.0 \
-	    bcrypt==3.2.0 \
-	    dvc[s3]==2.9.4 \
-	    black==22.1.0 \
-	    isort~=5.9 \
-	    flake8~=4.0 \
-	    pylint~=2.12 \
-	    pydocstyle~=6.1 \
-	    flake8-docstrings~=1.6
+	python -m pip install xonsh==0.10.1 rich pre-commit==2.15.0 bcrypt==3.2.0 dvc[s3]==2.9.4
 	# install pre-commit hooks to protect the quality of code committed by contributors
 	pre-commit install
 	# install git lfs for downloading rootski CSVs and other large files in the repo
@@ -56,6 +45,23 @@ help:
 # the Makefile decorator.
 make:
 	python -m xonsh make.xsh make
+
+
+############################
+# --- ALL CONTRIBUTORS --- #
+############################
+
+# Use "npm" to install the all-contributors-cli and initialize
+# the rootski/ folder as a node project.
+install-all-contributors-cli:
+	python -m xonsh make.xsh install-all-contributors-cli
+
+
+# Use the "all-contributors-cli" to generate the tables
+# that credit developers for contributions registered in
+# the "rootski/.all-contributorsrc" file.
+generate-all-contributors-table:
+	python -m xonsh make.xsh generate-all-contributors-table
 
 
 ################################
