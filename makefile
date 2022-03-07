@@ -86,6 +86,13 @@ start-backend-prod:
 	python -m xonsh make.xsh start-backend-prod
 
 
+# Use the "database-backup" service in the "docker-compose.yml" file to create,
+# restore from S3, and backup the database continually on the interval specified
+# in /docker-compose.yml
+start-database-stack-lightsail:
+	python -m xonsh make.xsh start-database-stack-lightsail
+
+
 # Use the "database-backup" service in the "docker-compose.yml" file drop, recreate,
 # and restore all of the tables from S3.
 restore-database:
@@ -98,11 +105,23 @@ backup-database:
 	python -m xonsh make.xsh backup-database
 
 
+# Use the "database-backup" service in the "docker-compose.yml" file to backup
+# the database to S3.
+backup-database-on-interval:
+	python -m xonsh make.xsh backup-database-on-interval
+
+
 # Use the "database-backup" service in the "docker-compose.yml" file to create,
 # restore from S3, and backup the database continually on the interval specified
 # in /docker-compose.yml
-start-database-stack:
-	python -m xonsh make.xsh start-database-stack
+start-database-stack-dev:
+	python -m xonsh make.xsh start-database-stack-dev
+
+
+# Use the "database-backup" service in the "docker-compose.yml" file drop, recreate,
+# and restore all of the tables from S3.
+restore-database-dev:
+	python -m xonsh make.xsh restore-database-dev
 
 
 # Tears down the `rootski-database` docker-swarm stack and removes

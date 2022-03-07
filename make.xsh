@@ -140,14 +140,29 @@ def start_backend_prod():
     __start_backend(env_file=PROD_ENV_FILE)
 
 @makefile.target(tag="run services locally")
+def start_database_stack_lightsail():
+    """
+    Use the "database-backup" service in the "docker-compose.yml" file to backup on a
+    regular inteval specified in the "docker-compose.yml" all of the tables in the
+    databse.
+    """
+    export_dot_env_vars(env_file=PROD_ENV_FILE)
+    export_rootski_profile_aws_creds()
+    # Deletes any existing pgdata folder and reinitiates it.
+    rm -rf infrastructure/containers/postgres/data/pgdata/
+    docker swarm init || echo "docker swarm is already initialized :D"
+    docker stack deploy --compose-file docker-compose.yml rootski-database
+
+@makefile.target(tag="run services locally")
 def restore_database():
     """
     Use the "database-backup" service in the "docker-compose.yml" file drop, recreate,
-    and restore all of the tables from S3.
+    and restore all of the tables from S3. The restore-database-script ensures that there
+    is a valid database running before restoring from S3
     """
     database_backup_container_id = $(docker ps --quiet --filter name=database-backup)
     database_backup_container_id = database_backup_container_id.strip()
-    docker exec @(database_backup_container_id) python3 backup_or_restore.py restore-from-most-recent || \
+    docker exec @(database_backup_container_id) bash scripts/restore-database-script.sh || \
         echo "There is not a Postgres container currently running. Run `make start-database-stack` to start the database."
 
 @makefile.target(tag="run services locally")
@@ -162,35 +177,42 @@ def backup_database():
         echo "There is not a Postgres container currently running. Run `make start-database-stack` to start the database."
 
 @makefile.target(tag="run services locally")
-def start_database_stack():
+def backup_database_on_interval():
+    """
+    Use the "database-backup" service in the "docker-compose.yml" file to backup
+    the database to S3.
+    """
+    database_backup_container_id = $(docker ps --quiet --filter name=database-backup)
+    database_backup_container_id = database_backup_container_id.strip()
+    docker exec @(database_backup_container_id) python3 backup_or_restore.py backup-on-interval || \
+        echo "There is not a Postgres container currently running. Run `make start-database-stack` to start the database."
+
+@makefile.target(tag="run services locally")
+def start_database_stack_dev():
     """
     Use the "database-backup" service in the "docker-compose.yml" file to backup on a
     regular inteval specified in the "docker-compose.yml" all of the tables in the
     databse.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
-    export_rootski_profile_aws_creds()
-    $POSTGRES_HOST = get_localhost()
+    $AWS_ACCESS_KEY_ID = ""
+    $AWS_SECRET_ACCESS_KEY = ""
     # Deletes any existing pgdata folder and reinitiates it.
     rm -rf infrastructure/containers/postgres/data/pgdata/
     docker swarm init || echo "docker swarm is already initialized :D"
     docker stack deploy --compose-file docker-compose.yml rootski-database
 
 @makefile.target(tag="run services locally")
-def start_database_stack_lightsail():
+def restore_database_dev():
     """
-    Use the "database-backup" service in the "docker-compose.yml" file to backup on a
-    regular inteval specified in the "docker-compose.yml" all of the tables in the
-    databse.
+    Use the "database-backup" service in the "docker-compose.yml" file drop, recreate,
+    and restore all of the tables from S3. The restore-database-script ensures that there
+    is a valid database running before restoring from S3
     """
-    export_dot_env_vars(env_file=DEV_ENV_FILE)
-    export_rootski_profile_aws_creds()
-    $POSTGRES_HOST = get_localhost()
-    $POSTGRES_HOST__DB_BACKUP = $(curl http://checkip.amazonaws.com)
-    # Deletes any existing pgdata folder and reinitiates it.
-    rm -rf infrastructure/containers/postgres/data/pgdata/
-    docker swarm init
-    docker-compose up
+    database_backup_container_id = $(docker ps --quiet --filter name=database-backup)
+    database_backup_container_id = database_backup_container_id.strip()
+    docker exec @(database_backup_container_id) bash scripts/restore-dev-database-script.sh || \
+        echo "There is not a Postgres container currently running. Run `make start-database-stack` to start the database."
 
 @makefile.target(tag="run services locally")
 def stop_database_stack():
@@ -198,7 +220,7 @@ def stop_database_stack():
     Tears down the `rootski-database` docker-swarm stack and removes
     ALL currently running docker containers.
 
-    Use if you ran `run-database`.
+    Use if you ran `start-database-stack-dev`.
     """
     log("Removing the `rootski-database` docker swarm stack and ALL running docker containers")
     docker stack rm rootski-database
