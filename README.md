@@ -48,7 +48,7 @@ rootski is developed by volunteers! Emojis represent types of contributions, ([e
   <tr>
     <td align="center"><a href="https://github.com/ir3456"><img src="https://avatars.githubusercontent.com/u/25242220?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Isaac Robbins</b></sub></a><br /><a href="https://github.com/rootski-io/rootski/commits?author=ir3456" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/jabracadabrah"><img src="https://avatars.githubusercontent.com/u/59886656?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Josh Abrahamsen</b></sub></a><br /><a href="#infra-jabracadabrah" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-    <td align="center"><a href="https://github.com/phitoduck"><img src="https://avatars.githubusercontent.com/u/32227767?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Eric Riddoch</b></sub></a><br /><a href="#mentoring-phitoduck" title="Mentoring">🧑‍🏫</a></td>
+    <td align="center"><a href="https://github.com/phitoduck"><img src="https://avatars.githubusercontent.com/u/32227767?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Eric Riddoch</b></sub></a><br /><a href="#mentoring-phitoduck" title="Mentoring">🧑‍🏫</a> <a href="https://github.com/rootski-io/rootski/commits?author=phitoduck" title="Code">💻</a></td>
   </tr>
 </table>
 

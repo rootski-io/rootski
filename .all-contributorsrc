@@ -1,5 +1,6 @@
 {
   "files": [
+    "CONTRIBUTORS.md",
     "README.md"
   ],
   "imageSize": 100,
@@ -29,7 +30,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/32227767?v=4",
       "profile": "https://github.com/phitoduck",
       "contributions": [
-        "mentoring"
+        "mentoring",
+        "code"
       ]
     }
   ],
@@ -38,5 +40,6 @@
   "projectOwner": "rootski-io",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "skipCi": true
+  "skipCi": true,
+  "commitConvention": "none"
 }
