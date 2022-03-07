@@ -121,13 +121,21 @@ cd rootski
 sudo mkdir infrastructure/containers/postgres/data
 sudo mkdir infrastructure/containers/postgres/backups
 
-# install necessary dependencies, builds the docker images, and
-# runs the postgres and database-backup containers which creates
-# the database, restores it from the most recent S3 backup, and
-# sets the database to backup to S3 continually on an interval
+# install necessary dependencies
 make install
+
+# builds the docker images for the postgres and database-backup contaienrs
 make build-images
+
+# runs the postgres and database-backup containers in a swarm
 make start-database-stack
+
+# waits until the database is initialized and restores the database from
+# the most recent S3 backup
+make restore-database
+
+# sets the database to backup to S3 continually on an interval
+make backup-database-on-interval
 
 # run this command to unmount the file system before shutting off the instance
 # cd ~ && umount efs # not a typo: command is umount
