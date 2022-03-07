@@ -6,7 +6,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from textwrap import dedent
-from typing import List, Optional, Union
+from typing import List, Union
 
 import boto3
 from botocore.client import BaseClient
@@ -267,82 +267,19 @@ def get_most_recent_backup_object_name(session: boto3.session.Session) -> str:
     return most_recent_backup_fpath
 
 
-def get_backup_object_name_to_restore_from(
-    session: boto3.session.Session, backup_object_name__override: Optional[str]
-) -> str:
-    """Return the name of the S3 backup object to restore from.
+def restore_database_from_most_recent_s3_backup():
+    """Download the most recent S3 backup and restore the database from it.
 
-    If an override is passed in, the function verifies that the backup exists in
-    S3 or raises an error. Otherwise the function returns the name of the most
-    recent backup in S3.
-
-    :param session: the AWS session to be used to pulling a list of all of the objects
-        in the S3 bucket
-    :param backup_object_name__override: the name of a specific backup file in S3 to
-        restore from
-
-    :raises ClientError: if backup_object_name_to_restore_from__override is specified but
-        is not in the database, this error will be thrown
-
-    :return: the name of the S3 backup object to download and restore the database from
+    (1) find the most recent backup object in the S3 $BACKUP_BUCKET bucket
+    (2) download the most recent backup object
+    (3) call restore_database_from_backup() func to restore the database from the backup
     """
-    if backup_object_name__override is None:
-        # get the name of the most recent backup object in S3
-        backup_object_name_to_restore_from = get_most_recent_backup_object_name(session=session)
-    else:
-        # verify that the override backup exists
-        s3_bucket_objects = list_bucket_objects(session=session, backup_bucket_name=BACKUP_BUCKET)
-        if backup_object_name__override in s3_bucket_objects:
-            backup_object_name_to_restore_from = backup_object_name__override
-        else:
-            raise DatabaseBackupNotFoundError(
-                "No database backup was found in the {bucket_name} bucket with object name {backup_object_name}".format(
-                    bucket_name=BACKUP_BUCKET, backup_object_name=backup_object_name__override
-                )
-            )
-    return backup_object_name_to_restore_from
-
-
-def restore_database(backup_object_name_to_restore_from__override: Optional[str] = None):
-    """
-    (1) drop the database
-    (2) re-create it (but totally empty)
-    (3) If `backup_object_name_to_restore_from__override` is `None`, restore from the most recent backup in S3. Otherwise, restore from specified backup stored in S3.
-
-    :param backup_object_name_to_restore_from__override: the name of a specific backup
-        the S3 bucket to restore from as an override for using the most recent backup
-        , defaults to None
-    """
-    pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
-
-    # print("Dropping database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
-    # drop_db_cmd = "dropdb --host={host} --port={port} --username={user} {db_name}".format(
-    #     host=os.environ["POSTGRES_HOST"],
-    #     port=os.environ["POSTGRES_PORT"],
-    #     user=os.environ["POSTGRES_USER"],
-    #     db_name=os.environ["POSTGRES_DB"],
-    # )
-    # print(drop_db_cmd)
-    # run_shell_command(command=drop_db_cmd, env_vars=pg_env_vars)
-
-    # print("Creating empty database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
-    # create_db_cmd = "createdb --host={host} --port={port} --username={user} {db_name}".format(
-    #     host=os.environ["POSTGRES_HOST"],
-    #     port=os.environ["POSTGRES_PORT"],
-    #     user=os.environ["POSTGRES_USER"],
-    #     db_name=os.environ["POSTGRES_DB"],
-    # )
-    # print(create_db_cmd)
-    # run_shell_command(command=create_db_cmd, env_vars=pg_env_vars)
-
-    # find the most recent backup or verify the specify backup exists
+    # find the most recent backup
     session = create_s3_session()
-    backup_object_name_to_restore_from = get_backup_object_name_to_restore_from(
-        session=session, backup_object_name__override=backup_object_name_to_restore_from__override
-    )
+    backup_object_name_to_restore_from = get_most_recent_backup_object_name(session=session)
 
     # download the backup
-    print("Downloading backup file from S3")
+    print("Downloading backup object from S3")
     download_backup_object(
         session=session,
         backup_bucket_name=BACKUP_BUCKET,
@@ -350,16 +287,54 @@ def restore_database(backup_object_name_to_restore_from__override: Optional[str]
         backup_fpath=backup_object_name_to_restore_from,
     )
 
-    # restore the database from a backup
-    print("Restoring database from", backup_object_name_to_restore_from)
+    # restore the database from the backup
+    restore_database_from_backup(backup_to_restore_from_fpath=backup_object_name_to_restore_from)
+
+
+def restore_database_from_backup(backup_to_restore_from_fpath: str):
+    """Restore the database from a specified backup file.
+
+    (1) drop the database
+    (2) re-create it (but totally empty)
+    (3) restore the database from the `backup_to_restore_from_fpath` backup
+
+    :param backup_to_restore_from_fpath: the filepath to the .gz filtype backup to
+        restore from
+    """
+    # this allows running cli commands against the database without manually entering the password
+    pg_env_vars = {"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
+
+    # Drop any existing $POSTGRES_DB databse
+    print("Dropping database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
+    drop_db_cmd = "dropdb --host={host} --port={port} --username={user} {db_name}".format(
+        host=os.environ["POSTGRES_HOST"],
+        port=os.environ["POSTGRES_PORT"],
+        user=os.environ["POSTGRES_USER"],
+        db_name=os.environ["POSTGRES_DB"],
+    )
+    print(drop_db_cmd)
+    run_shell_command(command=drop_db_cmd, env_vars=pg_env_vars)
+
+    # Create a new and empty $POSTGRES_DB database to be restored
+    print("Creating empty database {db_name}".format(db_name=os.environ["POSTGRES_DB"]))
+    create_db_cmd = "createdb --host={host} --port={port} --username={user} {db_name}".format(
+        host=os.environ["POSTGRES_HOST"],
+        port=os.environ["POSTGRES_PORT"],
+        user=os.environ["POSTGRES_USER"],
+        db_name=os.environ["POSTGRES_DB"],
+    )
+    print(create_db_cmd)
+    run_shell_command(command=create_db_cmd, env_vars=pg_env_vars)
+
+    # Restore the $POSTGRES_DB from the specified backup file
+    print("Restoring database from", backup_to_restore_from_fpath)
     restore_cmd = "gunzip --keep --stdout {backup_fpath} | psql --dbname {conn_string}".format(
-        backup_fpath=backup_object_name_to_restore_from, conn_string=CONNECTION_STRING
+        backup_fpath=backup_to_restore_from_fpath, conn_string=CONNECTION_STRING
     )
     print(restore_cmd)
     run_shell_command(command=restore_cmd, env_vars=pg_env_vars)
 
-    print("Successfully restored database from S3 backup")
-
+    print("Successfully restored database")
 
 ######################
 # --- Entrypoint --- #
@@ -376,12 +351,10 @@ def main():
         backup_interval_seconds = parse_timedelta(time_str=BACKUP_INTERVAL).seconds
         backup_database_on_interval(seconds=backup_interval_seconds)
     elif sys.argv[1] == "restore-from-most-recent":
-        restore_database()
-    elif sys.argv[1] == "restore-from-backup":
-        s3_backup_object_name_to_restore_from__override = sys.argv[2]
-        restore_database(
-            backup_object_name_to_restore_from__override=s3_backup_object_name_to_restore_from__override
-        )
+        restore_database_from_most_recent_s3_backup()
+    elif sys.argv[1] == "restore-from-local-backup":
+        local_backup_to_restore_from_fpath = "../backups/rootski-db-dev-backup.sql.gz"
+        restore_database_from_backup(backup_to_restore_from_fpath=local_backup_to_restore_from_fpath)
 
     else:
         print(
@@ -393,6 +366,7 @@ def main():
 
         ENVIRONMENT VARIABLES:
 
+            BACKUP_BUCKET: the S3 bucket that contains the database backups
             BACKUP_DIR: the directory to store backups in
 
             BACKUP_INTERVAL: the interval to backup the database; can be numbered in
@@ -418,8 +392,9 @@ def main():
             restore-from-most-recent  -- Restore the database from the most recent backup in the
                                          BACKUP_DIR environment variable directory
 
-            restore-from-backup <backup filename> -- Restore the database from the specified backup file
-                                     <backup filename> should be one of the filenames in the BACKUP_DIR
+            restore-from-local-backup -- Restore the database from the backup located at
+                                         infrastructure/containers/postgres/backups/rootski-db-dev-backup.sql.gz.
+
         """
             )
         )
