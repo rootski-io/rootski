@@ -65,7 +65,7 @@ services:
       dockerfile: Dockerfile
     environment:
       BACKUP_BUCKET: rootski-database-backups
-      BACKUP_DIR: /backups
+      BACKUP_DIR: ../backups
       BACKUP_INTERVAL: 1h
       # AWS connection variables
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID?Variable not set}
