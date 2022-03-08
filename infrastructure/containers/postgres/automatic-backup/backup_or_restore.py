@@ -95,16 +95,16 @@ def make_backup_object_name_from_datetime() -> str:
     return datetime.now().strftime(FILENAME_DATETIME_FORMAT)
 
 
-def make_backup_fpath(object_name: str) -> Path:
+def make_backup_fpath(object_name: str) -> str:
     """Prepend the backup path to give a filepath for the object.
 
     :param object_name: the name of an object to which the BACKUP_DIR
         global variable should be prepended
 
-    :return: returns a :class:'Path' object that gives a filepath
+    :return: returns a filepath
         for the 'object_name' file in the BACKUP_DIR directory
     """
-    return BACKUP_DIR / object_name
+    return "../{backup_dir}/{object_name}".format(backup_dir=BACKUP_DIR, object_name=object_name)
 
 
 def create_s3_session() -> boto3.session.Session:
@@ -148,44 +148,56 @@ def upload_backup_to_s3(
         s3_client.upload_fileobj(Fileobj=file, Bucket=backup_bucket_name, Key=backup_object_name)
 
 
-def delete_local_backup_file(backup_fpath: Path):
+def delete_local_backup_file(backup_fpath: str):
     """Delete the local backup file once it has been uplaoded to S3.
 
     :param backup_fpath: the filepath to the file that will be deleted
     """
-    os.remove(str(backup_fpath))
+    os.remove(backup_fpath)
 
 
-def backup_database(backup_object_name: str):
-    """Create a local backup of the database, uploades it to S3, and delets the local backup.
+def backup_database(backup_object_fpath: str):
+    """Create a local backup of the database.
 
-    :param backup_object_name: the name to be used for the backup file
+    :param backup_object_fpath: the filepath to backup the database to
     """
-    # make sure the backup directory exists
-    db_backup_gzip_fpath = make_backup_fpath(object_name=backup_object_name)
-    db_backup_gzip_fpath.parent.mkdir(parents=True, exist_ok=True)
-
-    # backup the database
     print("Creating the backup")
 
     # run the backup command
     backup_cmd = "pg_dumpall --dbname {conn_string} | gzip --stdout > {backup_fpath}".format(
-        conn_string=CONNECTION_STRING, backup_fpath=db_backup_gzip_fpath
+        conn_string=CONNECTION_STRING, backup_fpath=backup_object_fpath
     )
     run_shell_command(command=backup_cmd, env_vars={"PGPASSWORD": os.environ["POSTGRES_PASSWORD"]})
 
+
+def upload_backup_to_s3_and_delete(backup_object_fpath: str, backup_object_name: str):
+    """Upload the local backup file to S3 and delete it.
+
+    :param backup_object_name: the name to be used for the backup file
+    """
     # upload the backup to S3
     print("Backing up the database as", backup_object_name, "to S3")
     s3_client = create_s3_client()  # s3_client: BaseClient = create_s3_client()
     upload_backup_to_s3(
         s3_client=s3_client,
-        backup_fpath=db_backup_gzip_fpath,
+        backup_fpath=backup_object_fpath,
         backup_bucket_name=BACKUP_BUCKET,
         backup_object_name=backup_object_name,
     )
 
     # delete local backup
-    delete_local_backup_file(backup_fpath=db_backup_gzip_fpath)
+    print("Backup uploaded to S3. Deleting local copy")
+    delete_local_backup_file(backup_fpath=backup_object_fpath)
+
+
+def backup_database_to_s3():
+    """Back up the database to S3 repeatedly on an interval."""
+    s3_backup_object_name = make_backup_object_name_from_datetime()
+    backup_object_to_upload_fpath = make_backup_fpath(object_name=s3_backup_object_name)
+    backup_database(backup_object_fpath=backup_object_to_upload_fpath)
+    upload_backup_to_s3_and_delete(
+        backup_object_fpath=backup_object_to_upload_fpath, backup_object_name=s3_backup_object_name
+    )
 
 
 def backup_database_on_interval(seconds: Union[int, float]):
@@ -201,8 +213,7 @@ def backup_database_on_interval(seconds: Union[int, float]):
     )
     while True:
         time.sleep(seconds)
-        s3_backup_object_name = make_backup_object_name_from_datetime()
-        backup_database(backup_object_name=s3_backup_object_name)
+        backup_database_to_s3()
 
 
 ###################
@@ -344,58 +355,70 @@ def restore_database_from_backup(backup_to_restore_from_fpath: str):
 def main():
     print("System args:", sys.argv)
     print("Running database-backup process with subcommand", sys.argv[1])
-    if sys.argv[1] == "backup":
-        s3_backup_object_name = make_backup_object_name_from_datetime()
-        backup_database(backup_object_name=s3_backup_object_name)
-    elif sys.argv[1] == "backup-on-interval":
+    if sys.argv[1] == "backup-database-to-s3":
+        backup_database_to_s3()
+    elif sys.argv[1] == "backup-database-to-s3-on-interval":
         backup_interval_seconds = parse_timedelta(time_str=BACKUP_INTERVAL).seconds
         backup_database_on_interval(seconds=backup_interval_seconds)
-    elif sys.argv[1] == "restore-from-most-recent":
+    elif sys.argv[1] == "restore-database-from-most-recent-s3-backup":
         restore_database_from_most_recent_s3_backup()
-    elif sys.argv[1] == "restore-from-local-backup":
+    elif sys.argv[1] == "backup-database-locally":
+        backup_fpath = "../backups/rootski-db-dev-backup.sql.gz"
+        backup_database(backup_object_fpath=backup_fpath)
+    elif sys.argv[1] == "restore-database-from-local-backup":
         local_backup_to_restore_from_fpath = "../backups/rootski-db-dev-backup.sql.gz"
         restore_database_from_backup(backup_to_restore_from_fpath=local_backup_to_restore_from_fpath)
-
     else:
         print(
             dedent(
                 """
-        USAGE:
+                USAGE:
 
-            python backup_or_restore.py <COMMAND> [ARGS...]
+                    python backup_or_restore.py <COMMAND> [ARGS...]
 
-        ENVIRONMENT VARIABLES:
+                ENVIRONMENT VARIABLES:
 
-            BACKUP_BUCKET: the S3 bucket that contains the database backups
-            BACKUP_DIR: the directory to store backups in
+                    BACKUP_BUCKET: the S3 bucket that contains the database backups
+                    BACKUP_DIR: the directory to store backups in
+                    BACKUP_INTERVAL: the interval to backup the database; can be numbered in
+                        any combination of hours, minutes, and seconds as long as
+                        they appear in that order (e.g. "1h30m", "70s", "2h15m")
 
-            BACKUP_INTERVAL: the interval to backup the database; can be numbered in
-                any combination of hours, minutes, and seconds as long as
-                they appear in that order (e.g. "1h30m", "70s", "2h15m")
+                    # connection details
+                    POSTGRES_USER: {postgres_user}
+                    POSTGRES_PASSWORD: {postgres_password}
+                    POSTGRES_HOST: {postgres_host}
+                    POSTGRES_PORT: {postgres_port}
+                    POSTGRES_DB: {postgres_db}
 
-            # connection details
-            POSTGRES_USER
-            POSTGRES_PASSWORD
-            POSTGRES_HOST
-            POSTGRES_PORT
-            POSTGRES_DB
+                COMMANDS:
 
-        COMMANDS:
+                    backup-database-to-s3
+                        -- Backup the database to the BACKUP_BUCKET S3 bucket
 
-            backup                    -- Backup the database to the BACKUP_DIR environment
-                                         variable directory
+                    backup-database-to-s3-on-interval
+                        -- Run an immortal process that backs up the database to S3
+                        every BACKUP_INTERVAL (backup behaviour is equivalent to
+                        the "backup-database-to-s3" subcommand)
 
-            backup-on-interval        -- Run an immortal process that backs up the database
-                                         every BACKUP_INTERVAL (backup behaviour is equivalent to
-                                         the "backup" subcommand)
+                    restore-database-from-most-recent-s3-backup
+                        -- Restore the database from the most recent
+                        backup in the BACKUP_BUCKET S3 bucket
 
-            restore-from-most-recent  -- Restore the database from the most recent backup in the
-                                         BACKUP_DIR environment variable directory
+                    backup-database-locally
+                        -- Backup the database to a local file
 
-            restore-from-local-backup -- Restore the database from the backup located at
-                                         infrastructure/containers/postgres/backups/rootski-db-dev-backup.sql.gz.
+                    restore-database-from-local-backup
+                        -- Restore the database from the backup located at
+                        infrastructure/containers/postgres/backups/rootski-db-dev-backup.sql.gz.
 
-        """
+                """.format(
+                    postgres_user=os.environ["POSTGRES_USER"],
+                    postgres_password=os.environ["POSTGRES_PASSWORD"],
+                    postgres_host=os.environ["POSTGRES_HOST"],
+                    postgres_port=os.environ["POSTGRES_PORT"],
+                    postgres_db=os.environ["POSTGRES_DB"],
+                )
             )
         )
 
