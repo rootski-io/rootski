@@ -67,9 +67,9 @@ services:
       BACKUP_BUCKET: rootski-database-backups
       BACKUP_DIR: ../backups
       BACKUP_INTERVAL: 1h
-      # AWS connection variables
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID?Variable not set}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY?Variable not set}
+      # AWS connection variables. Default to "" if the env vars are not set
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-""}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-""}
       # database connection variables
       # "postgres" is used as the host because it is the name of the service container
       # that is running the database. database-backup and postgres containers must be
