@@ -196,10 +196,12 @@ def start_database_stack_dev():
     """
     Start the "database-backup" and "postgres" service in a Docker swarm using
     the "docker-compose.yml" for local use without AWS credentails.
+
+    If you are running into errors, you may need to run `make build-images`
+    to build the docker images and then run `make stop-database-stack` and
+    try again.
     """
     export_dot_env_vars(env_file=DEV_ENV_FILE)
-    $AWS_ACCESS_KEY_ID = ""
-    $AWS_SECRET_ACCESS_KEY = ""
     # Deletes any existing pgdata folder and reinitiates it.
     rm -rf infrastructure/containers/postgres/data/pgdata/
     docker swarm init || echo "docker swarm is already initialized :D"
