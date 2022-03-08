@@ -13,5 +13,5 @@ echo "Running /scripts/wait-for-postgres-init.sh"
 bash scripts/wait-for-postgres-init.sh
 
 # Restores the database from the latest S3 backup
-echo "Running python3 -m backup_or_restore.py restore-from-most-recent"
-python3 backup_or_restore.py restore-from-most-recent
+echo "Running python3 -m backup_or_restore.py restore-database-from-most-recent-s3-backup"
+python3 backup_or_restore.py restore-database-from-most-recent-s3-backup
