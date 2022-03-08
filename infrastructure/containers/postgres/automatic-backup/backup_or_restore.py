@@ -101,8 +101,8 @@ def make_backup_fpath(object_name: str) -> str:
     :param object_name: the name of an object to which the BACKUP_DIR
         global variable should be prepended
 
-    :return: returns a filepath
-        for the 'object_name' file in the BACKUP_DIR directory
+    :return: returns a filepath for the 'object_name' file in the
+        BACKUP_DIR directory
     """
     return "../{backup_dir}/{object_name}".format(backup_dir=BACKUP_DIR, object_name=object_name)
 
@@ -151,13 +151,13 @@ def upload_backup_to_s3(
 def delete_local_backup_file(backup_fpath: str):
     """Delete the local backup file once it has been uplaoded to S3.
 
-    :param backup_fpath: the filepath to the file that will be deleted
+    :param backup_fpath: the filepath to the backup that will be deleted
     """
     os.remove(backup_fpath)
 
 
 def backup_database(backup_object_fpath: str):
-    """Create a local backup of the database.
+    """Create a local backup of the database that can be uploaded to S3 or kept locally.
 
     :param backup_object_fpath: the filepath to backup the database to
     """
@@ -173,7 +173,8 @@ def backup_database(backup_object_fpath: str):
 def upload_backup_to_s3_and_delete(backup_object_fpath: str, backup_object_name: str):
     """Upload the local backup file to S3 and delete it.
 
-    :param backup_object_name: the name to be used for the backup file
+    :param backup_object_fpath: the filepath to the local copy of the backup to upload to S3
+    :param backup_object_name: the name to be used for the backup file in S3
     """
     # upload the backup to S3
     print("Backing up the database as", backup_object_name, "to S3")
@@ -281,7 +282,7 @@ def get_most_recent_backup_object_name(session: boto3.session.Session) -> str:
 def restore_database_from_most_recent_s3_backup():
     """Download the most recent S3 backup and restore the database from it.
 
-    (1) find the most recent backup object in the S3 $BACKUP_BUCKET bucket
+    (1) find the most recent backup object in the S3 BACKUP_BUCKET bucket
     (2) download the most recent backup object
     (3) call restore_database_from_backup() func to restore the database from the backup
     """
