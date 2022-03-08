@@ -132,10 +132,10 @@ make start-database-stack
 
 # waits until the database is initialized and restores the database from
 # the most recent S3 backup
-make restore-database
+make restore-database-from-most-recent-s3-backup
 
 # sets the database to backup to S3 continually on an interval
-make backup-database-on-interval
+make backup-database-to-s3-on-interval
 
 # run this command to unmount the file system before shutting off the instance
 # cd ~ && umount efs # not a typo: command is umount
