@@ -15,6 +15,6 @@ RUN python3 -m pip install boto3 xonsh
 WORKDIR /app
 
 COPY backup_or_restore.py ./backup_or_restore.py
-
-ENTRYPOINT ["python3", "-m", "xonsh", "backup_or_restore.py"]
-CMD ["backup-on-interval"]
+COPY scripts/restore-database-script.sh ./scripts/restore-database-script.sh
+COPY scripts/restore-dev-database-script.sh ./scripts/restore-dev-database-script.sh
+COPY scripts/wait-for-postgres-init.sh ./scripts/wait-for-postgres-init.sh

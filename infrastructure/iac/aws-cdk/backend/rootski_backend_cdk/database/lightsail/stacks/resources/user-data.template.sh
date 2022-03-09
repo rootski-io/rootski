@@ -3,10 +3,7 @@
 set -x
 
 # # act as the super user for this script
-# sudo su
-
-# log output of this script to console
-# exec > >(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
+sudo su
 
 # map python -> python2 (yum needs python2)
 unlink /usr/bin/python
@@ -63,26 +60,12 @@ EOF
 # rm -f /root/.zshrc || echo "/root/.zshrc does not exist"
 cp /home/ec2-user/.zshrc /root/
 
-# install git-lfs (for the initial data CSV files to seed the database)
-curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | sudo bash
-yum install -y git-lfs
-
 # install docker-compose and make the binary executable
 curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose
 chmod +x /usr/bin/docker-compose
 
 # start docker
 service docker start
-
-# mount the network file system where the rootski files are kept
-# yum install -y amazon-efs-utils
-# create the /efs directory if it doesn't exist
-# [[ -d /efs ]] || mkdir /efs
-# cd /efs
-
-# TODO - decide if we *do* want to mount the efs volume
-# mount -t efs "${ROOTSKI_FILE_SYSTEM_ID}":/ efs/ || echo "File system is already mounted";
-# mount -t efs "fs-97ec6392":/ efs/ || echo "File system is already mounted";
 
 # map python -> python3.7 (so that the makefile works; BUT this breaks yum)
 unlink /usr/bin/python
@@ -111,13 +94,13 @@ echo @(rootski_private_key) > /home/ec2-user/.ssh/rootski.id_rsa
 chmod 600 /home/ec2-user/.ssh/rootski.id_rsa
 '
 
-# add bitbucket.org to known_hosts
-ssh-keyscan -t rsa -H bitbucket.org | tail -n +1 > /home/ec2-user/.ssh/known_hosts
+# add github.com to known_hosts
+ssh-keyscan -t rsa -H github.com | tail -n +1 > /home/ec2-user/.ssh/known_hosts
 
-# set the ssh config for bitbucket.org
-cat <<EOF > /home/ec2-user/.ssh/config
-Host bitbucket.org
-    HostName bitbucket.org
+# set the ssh config for github.com
+cat << EOF > /home/ec2-user/.ssh/config
+Host github.com
+    HostName github.com
     User git
     StrictHostKeyChecking no
     UserKnownHostsFile /home/ec2-user/.ssh/known_hosts
@@ -128,25 +111,31 @@ EOF
 cd /home/ec2-user
 [[ -d /home/ec2-user/rootski ]] \
     || GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
-    git clone git@bitbucket.org:eriddoch1/rootski.git
-
-# pull the latest code from the rootski repo
-cd /home/ec2-user/rootski
-git remote set-url origin git@bitbucket.org:eriddoch1/rootski.git # make sure we pull over ssh
-git stash
-GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
-    git pull origin
-
-# pull the larger CSV files to seed the database; TODO - remove this in favor of restoring from S3 backup
-GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
-    git lfs pull
+    git clone --depth 1 git@github.com:rootski-io/rootski.git
 
 # deploy docker stack
-make install
+cd rootski
+
+# create directories that are mounted as volumes in the docker
+# containers but aren't in github
+sudo mkdir infrastructure/containers/postgres/data
+sudo mkdir infrastructure/containers/postgres/backups
+
+# install necessary dependencies
+make install-lightsail
+
+# builds the docker images for the postgres and database-backup contaienrs
 make build-images
-make start-backend
-make await-db-healthy
-make seed-dev-db
+
+# runs the postgres and database-backup containers in a swarm
+make start-database-stack
+
+# waits until the database is initialized and restores the database from
+# the most recent S3 backup
+make restore-database-from-most-recent-s3-backup
+
+# sets the database to backup to S3 continually on an interval
+make backup-database-to-s3-on-interval
 
 # run this command to unmount the file system before shutting off the instance
 # cd ~ && umount efs # not a typo: command is umount

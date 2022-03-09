@@ -167,6 +167,6 @@ class LightsailInstanceStack(cdk.Stack):
             scope=self,
             id=StackOutputs.lightsail_admin_username.value,
             value=instance.attr_user_name,
-            description="IP address of the rootski db Lightsail instance",
+            description="Admin username of the rootski db Lightsail instance",
             export_name=StackOutputs.lightsail_admin_username.value,
         )

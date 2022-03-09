@@ -28,6 +28,12 @@ install:
 	git lfs install
 
 
+# Install only the necessary dependencies for running the database on the lightsail instance
+install-lightsail:
+	# install python dependencies needed to execute various makefile targets
+	python -m pip install xonsh==0.10.1 rich bcrypt==3.2.0
+
+
 
 
 ####################
@@ -86,29 +92,63 @@ start-backend-prod:
 	python -m xonsh make.xsh start-backend-prod
 
 
-# Use the "database-backup" service in the "docker-compose.yml" file drop, recreate,
-# and restore all of the tables from S3.
-restore-database:
-	python -m xonsh make.xsh restore-database
+# Start the "database-backup" and "postgres" service in a Docker swarm using
+# the "docker-compose.yml" for use in spinning up the prod database on the
+# lightsail instance or for testing S3 backup and restore functions
+start-database-stack-lightsail:
+	python -m xonsh make.xsh start-database-stack-lightsail
 
 
-# Use the "database-backup" service in the "docker-compose.yml" file to backup
-# the database to S3.
-backup-database:
-	python -m xonsh make.xsh backup-database
+# Restore the currently running "postgres" container from the most recent S3
+# backup bucket by running the `backup_or_restore.py` file with the
+# `restore-database-from-most-recent-s3-backup` argument on the running
+# "database-backup" container
+restore-database-from-s3:
+	python -m xonsh make.xsh restore-database-from-s3
 
 
-# Use the "database-backup" service in the "docker-compose.yml" file to backup on a
-# regular inteval specified in the "docker-compose.yml" all of the tables in the
-# databse.
-start-database-stack:
-	python -m xonsh make.xsh start-database-stack
+# Backup the currently running "postgres" container to the S3 backup bucket
+# by running the `backup_or_restore.py` file with the `backup-database-to-s3`
+# argument on the running "database-backup" container
+backup-database-to-s3:
+	python -m xonsh make.xsh backup-database-to-s3
+
+
+# Backup the currently running "postgres" container on an immortal interval
+# to the S3 backup bucket by running the `backup_or_restore.py` file with
+# the `backup-database-to-s3-on-interval` argument on the running
+# "database-backup" container
+backup-database-to-s3-on-interval:
+	python -m xonsh make.xsh backup-database-to-s3-on-interval
+
+
+# Start the "database-backup" and "postgres" service in a Docker swarm using
+# the "docker-compose.yml" for local use without AWS credentails
+start-database-stack-dev:
+	python -m xonsh make.xsh start-database-stack-dev
+
+
+# Restore the currently running "postgres" container from the
+# "infrastructure/containers/postgres/backups/rootski-db-dev-backup.sql.gz"
+# backup file by running the `backup_or_restore.py` file with the
+# `restore-database-from-local-backup` argument on the running
+# "database-backup" container
+restore-database-dev:
+	python -m xonsh make.xsh restore-database-dev
+
+
+# Backup the currently running "postgres" container to
+# "infrastructure/containers/postgres/backups/rootski-db-dev-backup.sql.gz"
+# by running the `backup_or_restore.py` file with the
+# `backup-database-locally` argument on the running "database-backup" container
+backup-database-dev:
+	python -m xonsh make.xsh backup-database-dev
 
 
 # Tears down the `rootski-database` docker-swarm stack and removes
 # ALL currently running docker containers.
-#
-# Use if you ran `run-database`.
+# Use if you ran `make start-database-stack-lightsail` or
+# `makd start-database-stack-dev`
 stop-database-stack:
 	python -m xonsh make.xsh stop-database-stack
 
