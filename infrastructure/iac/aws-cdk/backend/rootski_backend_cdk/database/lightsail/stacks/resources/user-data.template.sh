@@ -111,7 +111,7 @@ EOF
 cd /home/ec2-user
 [[ -d /home/ec2-user/rootski ]] \
     || GIT_SSH_COMMAND='ssh -F /home/ec2-user/.ssh/config' \
-    git clone --depth 1 -b CU-2g3hb45_Deploy-backup-solution-to-the-lightsail-instance_Isaac-Robbins git@github.com:rootski-io/rootski.git
+    git clone --depth 1 git@github.com:rootski-io/rootski.git
 
 # deploy docker stack
 cd rootski
