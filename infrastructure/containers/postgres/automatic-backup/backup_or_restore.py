@@ -4,7 +4,6 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timedelta
-from pathlib import Path
 from textwrap import dedent
 from typing import List, Union
 
@@ -20,7 +19,7 @@ AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
 AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
 # Backup specific variables
 BACKUP_BUCKET = os.environ["BACKUP_BUCKET"]
-BACKUP_DIR = Path(os.environ["BACKUP_DIR"])
+BACKUP_DIR = os.environ["BACKUP_DIR"]
 BACKUP_INTERVAL = os.environ["BACKUP_INTERVAL"]
 # Postgres connection string
 CONNECTION_STRING = "postgresql://{username}:{password}@{host}:{port}/{database}".format(
@@ -104,7 +103,7 @@ def make_backup_fpath(object_name: str) -> str:
     :return: returns a filepath for the 'object_name' file in the
         BACKUP_DIR directory
     """
-    return "../{backup_dir}/{object_name}".format(backup_dir=BACKUP_DIR, object_name=object_name)
+    return "{backup_dir}/{object_name}".format(backup_dir=BACKUP_DIR, object_name=object_name)
 
 
 def create_s3_session() -> boto3.session.Session:
@@ -133,7 +132,7 @@ def create_s3_client() -> BaseClient:
 
 def upload_backup_to_s3(
     s3_client: BaseClient,
-    backup_fpath: Path,
+    backup_fpath: str,
     backup_bucket_name: str,
     backup_object_name: str,
 ):
@@ -144,7 +143,7 @@ def upload_backup_to_s3(
     :param backup_bucket_name: the S3 bucket to upload the file to
     :param backup_object_name: the filename for the uploaded object in S3
     """
-    with open(str(backup_fpath), "rb") as file:
+    with open(backup_fpath, "rb") as file:
         s3_client.upload_fileobj(Fileobj=file, Bucket=backup_bucket_name, Key=backup_object_name)
 
 
@@ -324,7 +323,6 @@ def restore_database_from_backup(backup_to_restore_from_fpath: str):
         user=os.environ["POSTGRES_USER"],
         db_name=os.environ["POSTGRES_DB"],
     )
-    print(drop_db_cmd)
     run_shell_command(command=drop_db_cmd, env_vars=pg_env_vars)
 
     # Create a new and empty $POSTGRES_DB database to be restored
@@ -335,7 +333,6 @@ def restore_database_from_backup(backup_to_restore_from_fpath: str):
         user=os.environ["POSTGRES_USER"],
         db_name=os.environ["POSTGRES_DB"],
     )
-    print(create_db_cmd)
     run_shell_command(command=create_db_cmd, env_vars=pg_env_vars)
 
     # Restore the $POSTGRES_DB from the specified backup file
@@ -364,10 +361,10 @@ def main():
     elif sys.argv[1] == "restore-database-from-most-recent-s3-backup":
         restore_database_from_most_recent_s3_backup()
     elif sys.argv[1] == "backup-database-locally":
-        backup_fpath = "../backups/rootski-db-dev-backup.sql.gz"
+        backup_fpath = BACKUP_DIR + "/rootski-db-dev-backup.sql.gz"
         backup_database(backup_object_fpath=backup_fpath)
     elif sys.argv[1] == "restore-database-from-local-backup":
-        local_backup_to_restore_from_fpath = "../backups/rootski-db-dev-backup.sql.gz"
+        local_backup_to_restore_from_fpath = BACKUP_DIR + "/rootski-db-dev-backup.sql.gz"
         restore_database_from_backup(backup_to_restore_from_fpath=local_backup_to_restore_from_fpath)
     else:
         print(
