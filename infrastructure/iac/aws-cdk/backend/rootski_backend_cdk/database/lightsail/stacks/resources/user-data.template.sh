@@ -128,11 +128,11 @@ make install-lightsail
 make build-images
 
 # runs the postgres and database-backup containers in a swarm
-make start-database-stack
+make start-database-stack-lightsail
 
 # waits until the database is initialized and restores the database from
 # the most recent S3 backup
-make restore-database-from-most-recent-s3-backup
+make restore-database-from-s3
 
 # sets the database to backup to S3 continually on an interval
 make backup-database-to-s3-on-interval
