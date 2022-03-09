@@ -1,9 +1,8 @@
 import os
-import re
 import subprocess
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from textwrap import dedent
 from typing import List, Union
 
@@ -45,26 +44,23 @@ class InvalidBackupIntervalError(Exception):
     """Raised when the specified backup interval cannot be parsed onto a timedelta object."""
 
 
-def parse_timedelta(time_str: str) -> timedelta:
-    """Parse strings of the form "1d12h" or "1h30m" or "70s" into timedelta objects.
+def parse_time_str(time_str: str) -> int:
+    """Parse strings of the form "1d 12h" or "1h 30m" or "70s" into seconds.
 
-    :param time_str: the string to be parsed into a :class:timedelta object
+    :param time_str: the string to be parsed into seconds
 
-    :return: returns a :class:'timedelta' object from the string representation
+    :return: returns the time as the number of seconds
     """
-    time_str_regex_pattern = re.compile(
-        r"((?P<days>\d+?)d)?((?P<hours>\d+?)h)?((?P<minutes>\d+?)m)?((?P<seconds>\d+?)s)?"
-    )
+    seconds_per_unit = {"s": 1, "m": 60, "h": 3600, "d": 86400}
 
-    parts = time_str_regex_pattern.match(time_str)
-    if not parts:
-        raise InvalidBackupIntervalError("The specified backup interval cannot be parsed.")
-    parts = parts.groupdict()
-    time_params = {}
-    for name, param in parts.items():
-        if param:
-            time_params[name] = int(param)
-    return timedelta(**time_params)
+    try:
+        # Iterates over each part of the time_str and converts it to seconds
+        seconds = 0
+        for time_part in time_str.split():
+            seconds += int(time_part[:-1]) * seconds_per_unit[time_part[-1]]
+        return seconds
+    except Exception:
+        raise InvalidBackupIntervalError("The specified backup interval cannot be parsed.") from Exception
 
 
 def run_shell_command(command: str, env_vars: dict):
@@ -356,7 +352,7 @@ def main():
     if sys.argv[1] == "backup-database-to-s3":
         backup_database_to_s3()
     elif sys.argv[1] == "backup-database-to-s3-on-interval":
-        backup_interval_seconds = parse_timedelta(time_str=BACKUP_INTERVAL).seconds
+        backup_interval_seconds = parse_time_str(time_str=BACKUP_INTERVAL)
         backup_database_on_interval(seconds=backup_interval_seconds)
     elif sys.argv[1] == "restore-database-from-most-recent-s3-backup":
         restore_database_from_most_recent_s3_backup()
