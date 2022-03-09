@@ -127,8 +127,10 @@ make install-lightsail
 # builds the docker images for the postgres and database-backup contaienrs
 make build-images
 
-# runs the postgres and database-backup containers in a swarm
+# runs the postgres and database-backup containers in a swarm and sleeps
+# to give the containers time to start up
 make start-database-stack-lightsail
+sleep 5
 
 # waits until the database is initialized and restores the database from
 # the most recent S3 backup
