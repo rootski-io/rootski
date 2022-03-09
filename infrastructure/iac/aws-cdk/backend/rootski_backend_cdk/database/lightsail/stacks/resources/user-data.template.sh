@@ -122,7 +122,7 @@ sudo mkdir infrastructure/containers/postgres/data
 sudo mkdir infrastructure/containers/postgres/backups
 
 # install necessary dependencies
-make install
+make install-lightsail
 
 # builds the docker images for the postgres and database-backup contaienrs
 make build-images
