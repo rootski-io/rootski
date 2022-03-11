@@ -3,13 +3,13 @@
 ## Project Context
 
 The primary editor our team uses for development is VS Code. It's fine to use another editor as well.
-Eric often switches between PyCharm and VS Code for work depending on what he's working on.
+Eric often switches between PyCharm and VS Code for work depending on what he is working on.
 
 Specifically, we use VS Code for pair programming.
 
 VS Code is *awesome*, but there is definitely a learning curve to set it up.
 
-Go through the `🔥/⭐️ VS Code or PyCharm` section of in the `Developer Tools & Collaboration` page.
+Go through the `🔥/⭐️ VS Code or PyCharm` section of in the [Developer Tools & Collaboration](https://quickest-trail-808.notion.site/Developer-Tools-Collaboration-d195c1d6c0f14643b370a9ceff323e75) page.
 
 ## Project Requirements
 

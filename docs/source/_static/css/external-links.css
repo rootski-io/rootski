@@ -1,5 +1,5 @@
-/* Add :after icon to links to other pages */
-.external::after {
+/* Add :after icon to links to other pages, but NOT to images with :target: set */
+.external:not(.image-reference)::after {
     /*
      * \00A0 is a "no break space" character that IS a space, but cannot be
      * line-wrapped to a new line.

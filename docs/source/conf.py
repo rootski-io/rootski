@@ -20,12 +20,13 @@ from pathlib import Path
 from typing import Any, Dict
 
 THIS_DIR = Path(__file__).parent.resolve()
+
+# directories to generate API reference sections for
 ROOTSKI_DIR = (THIS_DIR / "../../rootski_api").resolve().absolute()
 AWS_CDK_IAC_DIR = (THIS_DIR / "../../infrastructure/iac/aws-cdk").resolve().absolute()
 
 for _dir in [ROOTSKI_DIR]:
     sys.path.insert(0, os.path.abspath(str(_dir)))
-
 
 # -- Project information -----------------------------------------------------
 
@@ -42,7 +43,7 @@ author = "Eric Riddoch and the rootski contributors"
 # ones.
 extensions = [
     # tabs, cards, grid system, fontawesome/octicon icons and more
-    # "sphinx_panels",
+    "sphinx_panels",
     # places metadata in the <head> element on each page for social media
     "sphinxext.opengraph",
     # enable writing in markdown rather than reStructuredText
@@ -69,6 +70,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
+    # "sphinx.ext.imgmath", # requires latex CLI
     "sphinx.ext.napoleon",
     # enable generating images from .drawio diagram files
     "sphinxcontrib.drawio",
@@ -78,7 +80,9 @@ extensions = [
 # html_css_files = ["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"]
 
 # paths relative to _static/
-html_css_files = ["css/external-links.css"]
+html_css_files = [
+    "css/external-links.css",
+]
 html_js_files = [
     "js/remove-readthedocs-versions.js",
 ]
@@ -126,6 +130,7 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 
 html_favicon = "favicon.ico"
+html_logo = "logo.svg"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -142,6 +147,7 @@ html_css_files += [
 
 html_theme_options: Dict[str, Any] = {
     # "announcement": "<em>Important</em> announcement!",
+    "sidebar_hide_name": True,
     "footer_icons": [
         {
             "name": "GitHub",

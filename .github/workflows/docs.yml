@@ -57,7 +57,7 @@ jobs:
           make build-image
 
           # build the docs and write to rootski/docs/build/html/
-          make docs-docker
+          make docs-docker-ci
 
       - name: publish docs
         env:
