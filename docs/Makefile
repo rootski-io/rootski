@@ -3,10 +3,14 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?= -W
+SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
-SOURCEDIR     = source
-BUILDDIR      = build
+
+#
+SOURCEDIR     = ./source/
+
+# location to write the generated HTML files and other assets
+BUILDDIR      = ./build/
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -14,17 +18,28 @@ help:
 
 .PHONY: help Makefile
 
-# after running 'make html' or 'make docs-docker', run this to
-# upload the docs to S3 and incalidate the CloudFront cache so that
-# users can access the new in the browser
-publish-to-s3:
+invalidate-s3-cache:
 	python aws_invalidate_stack.py \
 		--s3-static-site-stack-name docs-s3-static-site--stack--cdk \
 		--region us-east-1 \
 		--profile rootski
+
+# after running 'make html' or 'make docs-docker', run this to
+# upload the docs to S3 and incalidate the CloudFront cache so that
+# users can access the new in the browser
+publish-to-s3: invalidate-s3-cache
 	aws s3 sync ./build/html/ s3://docs.rootski.io/ --acl public-read --profile rootski
 	@echo "docs published to https://docs.rootski.io/"
 
+# publish docs to S3 to docs.rootski.io/review/<current-branch-name>/
+# this is an easy way to share the docs you're working on with other collaborators
+# before they are ready to deploy to the public-facing docs site.
+publish-to-s3-for-review: invalidate-s3-cache
+	aws s3 \
+		sync ./build/html/ "s3://docs.rootski.io/review/$$(git branch --show-current)/" \
+		--acl public-read \
+		--profile rootski
+	echo "[rootski] published docs to https://docs.rootski.io/review/$$(git branch --show-current)"
 
 # build a docker image with python dependencies for the entire project
 build-image:
@@ -35,6 +50,17 @@ docs-docker:
 	mkdir -p $(BUILDDIR)/html
 	mkdir -p $(BUILDDIR)/doctrees
 	docker-compose run --rm sphinx
+
+# use the docker image to build the docs; use special configurations
+# for building the docs in CI such as failing on any warnings
+docs-docker-ci:
+	mkdir -p $(BUILDDIR)/html
+	mkdir -p $(BUILDDIR)/doctrees
+	docker-compose run --rm sphinx docs-ci
+
+# build docs, but fail with warnings
+docs-ci:
+	@$(SPHINXBUILD) -W "$(SOURCEDIR)" "$(BUILDDIR)"
 
 # use the docker image to
 serve-docker:

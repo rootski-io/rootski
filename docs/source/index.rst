@@ -1,6 +1,11 @@
+.. _home:
+
 ==========================================================================
-The rootski Knowledge Base
+Knowledge Base
 ==========================================================================
+
+.. image:: /breakdown-window.svg
+  :alt: russian word broken into roots
 
 .. toctree::
   :hidden:
@@ -18,8 +23,6 @@ The rootski Knowledge Base
   Backend API Reference <rootski-api-reference>
   Infrastructure as Code Reference <iac-reference>
 
-.. .. image:: ./breakdown-window.svg
-..    :alt: russian word broken into roots
 
 .. repository badges
 .. raw:: html

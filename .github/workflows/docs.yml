@@ -49,7 +49,7 @@ jobs:
       - name: install docker
         uses: docker-practice/actions-setup-docker@1.0.8
 
-      - name: install dependencies
+      - name: install dependencies and build the docs
         run: |
           cd ./docs/
 
@@ -57,7 +57,7 @@ jobs:
           make build-image
 
           # build the docs and write to rootski/docs/build/html/
-          make docs-docker
+          make docs-docker-ci
 
       - name: publish docs
         env:
@@ -75,13 +75,14 @@ jobs:
           # publish the site for review if this is a PR, otherwise to production
           if ${IS_PR}; then
               BRANCH_NAME="${GITHUB_HEAD_REF}"
+              echo "[rootski] This is a PR to branch ${BRANCH_NAME}, pushing the docs to the review location..."
               aws s3 sync ./build/html/ "s3://docs.rootski.io/review/${BRANCH_NAME}/" --acl public-read
               # save the URL of the published docs for future steps
               echo "DOCS_URL=https://docs.rootski.io/review/${BRANCH_NAME}" >> $GITHUB_ENV
           else
-              echo "cleaning up review version of site from when PR was opened"
+              echo "[rootski] cleaning up review version of site from when PR was opened"
               aws s3 rm s3://docs.rootski.io --recursive --exclude "*" --include "/review/${RECENT_MERGED_BRANCH_NAME}*"
-              echo "publishing the site to the production location S3"
+              echo "[rootski] publishing the site to the production location S3"
               aws s3 sync ./build/html/ "s3://docs.rootski.io/review/${RECENT_MERGED_BRANCH_NAME}/" --acl public-read
               # save the URL of the published docs for future steps
               echo "DOCS_URL=https://docs.rootski.io/" >> $GITHUB_ENV
