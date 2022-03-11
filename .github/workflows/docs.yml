@@ -78,14 +78,14 @@ jobs:
               echo "[rootski] This is a PR to branch ${BRANCH_NAME}, pushing the docs to the review location..."
               aws s3 sync ./build/html/ "s3://docs.rootski.io/review/${BRANCH_NAME}/" --acl public-read
               # save the URL of the published docs for future steps
-              echo "[rootski] DOCS_URL=https://docs.rootski.io/review/${BRANCH_NAME}" >> $GITHUB_ENV
+              echo "DOCS_URL=https://docs.rootski.io/review/${BRANCH_NAME}" >> $GITHUB_ENV
           else
               echo "[rootski] cleaning up review version of site from when PR was opened"
               aws s3 rm s3://docs.rootski.io --recursive --exclude "*" --include "/review/${RECENT_MERGED_BRANCH_NAME}*"
               echo "[rootski] publishing the site to the production location S3"
               aws s3 sync ./build/html/ "s3://docs.rootski.io/review/${RECENT_MERGED_BRANCH_NAME}/" --acl public-read
               # save the URL of the published docs for future steps
-              echo "[rootski] DOCS_URL=https://docs.rootski.io/" >> $GITHUB_ENV
+              echo "DOCS_URL=https://docs.rootski.io/" >> $GITHUB_ENV
           fi
 
       - uses: actions-ecosystem/action-create-comment@v1

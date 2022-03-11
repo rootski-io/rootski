@@ -31,6 +31,15 @@ publish-to-s3: invalidate-s3-cache
 	aws s3 sync ./build/html/ s3://docs.rootski.io/ --acl public-read --profile rootski
 	@echo "docs published to https://docs.rootski.io/"
 
+# publish docs to S3 to docs.rootski.io/review/<current-branch-name>/
+# this is an easy way to share the docs you're working on with other collaborators
+# before they are ready to deploy to the public-facing docs site.
+publish-to-s3-for-review: invalidate-s3-cache
+	aws s3 \
+		sync ./build/html/ "s3://docs.rootski.io/review/$$(git branch --show-current)/" \
+		--acl public-read \
+		--profile rootski
+	echo "[rootski] published docs to https://docs.rootski.io/review/$$(git branch --show-current)"
 
 # build a docker image with python dependencies for the entire project
 build-image:
