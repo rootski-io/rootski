@@ -4,6 +4,12 @@
 Onboarding Guide
 ======================
 
+.. note::
+
+   🌙 The dropdowns on this page don't display well in dark mode.
+
+   You can switch to light mode by clicking on the "🌞" button at the top-right of the page.
+
 If you are considering contributing, welcome!!
 
 rootski is run like a tech startup, so the onboarding process feels similar
