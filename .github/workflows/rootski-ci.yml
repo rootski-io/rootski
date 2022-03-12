@@ -35,8 +35,10 @@ jobs:
         python-version: "3.9"
 
     # cache the python environment for faster dependency installation
-    # it's important to use env.pythonLocation to get the current python version
-    - name: cache root environment
+    # it's important to create a key based on files that will change dependencies
+    # any changes to the files to the python env or hashes of files listed will invalidate the cache
+    # when the cache is invalidated a new key will be created based on the new hashfiles and used for future runs
+    - name: cache dependencies
       uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
