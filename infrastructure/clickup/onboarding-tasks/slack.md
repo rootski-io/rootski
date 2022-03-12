@@ -2,9 +2,9 @@
 
 ## Project Context
 
-Send your email to Eric so he can send you an invite link to our Slack WorkSpace.
+Join Slack using the link on the homepage of the [knowledge base](https://docs.rootski.io/).
 
-The team is *really* cool. You should introduce yourself!
+The team is *really* cool. Please introduce yourself!
 
 ## Project Requirements
 

@@ -17,14 +17,16 @@ import os
 import platform
 import sys
 from pathlib import Path
+from typing import Any, Dict
 
 THIS_DIR = Path(__file__).parent.resolve()
+
+# directories to generate API reference sections for
 ROOTSKI_DIR = (THIS_DIR / "../../rootski_api").resolve().absolute()
 AWS_CDK_IAC_DIR = (THIS_DIR / "../../infrastructure/iac/aws-cdk").resolve().absolute()
 
 for _dir in [ROOTSKI_DIR]:
     sys.path.insert(0, os.path.abspath(str(_dir)))
-
 
 # -- Project information -----------------------------------------------------
 
@@ -68,6 +70,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
+    # "sphinx.ext.imgmath", # requires latex CLI
     "sphinx.ext.napoleon",
     # enable generating images from .drawio diagram files
     "sphinxcontrib.drawio",
@@ -75,6 +78,14 @@ extensions = [
 
 # fontawesome icons
 # html_css_files = ["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"]
+
+# paths relative to _static/
+html_css_files = [
+    "css/external-links.css",
+]
+html_js_files = [
+    "js/remove-readthedocs-versions.js",
+]
 
 
 def is_mac_os():
@@ -118,10 +129,65 @@ exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 
+html_favicon = "favicon.ico"
+html_logo = "logo.svg"
+
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
 html_theme = "furo"
+html_title = "Knowledge Base"
+language = "en"
+
+html_css_files += [
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/fontawesome.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/solid.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/brands.min.css",
+]
+
+html_theme_options: Dict[str, Any] = {
+    # "announcement": "<em>Important</em> announcement!",
+    "sidebar_hide_name": True,
+    "footer_icons": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/rootski-io/rootski",
+            "html": "",
+            "class": "fab fa-github fa-2x",
+        },
+        {
+            "name": "LinkedIn",
+            "url": "https://www.linkedin.com/company/rootski/",
+            "html": "",
+            "class": "fab fa-linkedin fa-2x",
+        },
+        {
+            "name": "YouTube Playlist",
+            "url": "https://www.youtube.com/playlist?list=PLwF2z4Iu4rabmY7RbRNetjZprLfe8qWNz",
+            "html": "",
+            "class": "fab fa-youtube fa-2x",
+        },
+        {
+            "name": "Slack",
+            "url": "https://join.slack.com/t/rootskiio/shared_invite/zt-13avx8j84-mocJVx5wFAGNf5wUuy07OA",
+            "html": "",
+            "class": "fab fa-slack fa-2x",
+        },
+    ]
+}
+
+# configure the "pencil" (edit in GitHub) button; we must pretend that
+# we use READTHEDOCS to do this, because the Furo theme only officially
+# supports ReadTheDocs+GitHub for this feature as of March 2022.
+html_context = {}
+html_context["READTHEDOCS"] = True
+html_context["current_version"] = "latest"
+html_context["conf_py_path"] = "/docs/source/"
+html_context["display_github"] = True
+html_context["github_user"] = "rootski-io"
+html_context["github_repo"] = "rootski"
+html_context["github_version"] = "trunk"
+html_context["slug"] = "rski"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
