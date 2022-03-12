@@ -40,7 +40,11 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}
+        key: ${{ env.pythonLocation }}-${{ hashFiles('${{ cognito }}', ${{ backend }}, ${{ api }}) }}
+      env:
+      - cognito='./infrastructure/iac/aws-cdk/cognito/setup.py'
+      - backend='./infrastructure/iac/aws-cdk/backend/setup.py'
+      - api='./rootski_api/setup.cfg'
 
     # cache the python environment for faster pre-commit
     - name: cache pre-commit
