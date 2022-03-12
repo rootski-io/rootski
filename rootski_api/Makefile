@@ -7,7 +7,7 @@
 # also install the rootski_api project
 install:
 	python -m pip install xonsh colorama pre-commit
-	python -m pip install -e .[dev]
+	python -m pip install -e .[dev] --user --upgrade
 
 
 

@@ -13,6 +13,8 @@ services:
       - test.env
     volumes:
       - ../..:/usr/src/rootski_api
+    environment:
+      PYTHONUSERBASE: /usr/src/rootski_api/dependencies
     depends_on:
       postgres:
         condition: service_healthy
