@@ -40,7 +40,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ env.pythonLocation }}-${{ hashFiles('**/aws-cdk/**/setup.py', '**/rootski_api/setup.py'}}
+        key: ${{ env.pythonLocation }}-${{ hashFiles('**/aws-cdk/**/setup.py', '**/rootski_api/setup.py')}}
 
     # cache the python environment for faster pre-commit
     - name: cache pre-commit
