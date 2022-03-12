@@ -8,6 +8,8 @@ Architecture & Tech Stack
     :format: svg
     :target: /_images/rootski-architecture.svg
 
+.. note:: 👆 Click this image to make it bigger.
+
 .. |secure| raw:: html
 
    <i class="fa-solid fa-lock" style="color: #03a9f4"></i>
