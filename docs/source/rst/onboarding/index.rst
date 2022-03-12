@@ -54,7 +54,7 @@ Why contribute?
    software is built.
 
    Many of the contributors make sacrifices offering their time and mentorship working
-   on this project. Please don't criticize our motives. We truly do want you do do
+   on this project. Please don't criticize our motives. We truly do want you to do
    what's best for you. This model for building a product was inspired by this
    `podcast interview with the creator of the Python discord channel
    <https://talkpython.fm/episodes/show/305/python-community-at-python-discord>`_.
