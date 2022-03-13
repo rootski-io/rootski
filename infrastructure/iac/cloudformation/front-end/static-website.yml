@@ -15,7 +15,7 @@ Parameters:
     AllowedPattern: (?!-)[a-zA-Z0-9-.]{1,63}(?<!-)
     ConstraintDescription: must be a valid DNS zone name.
   AcmCertificateArn:
-    Type: String
+    Type: AWS::ACM::Certificate::Arn
     Description: the Amazon Resource Name (ARN) of an AWS Certificate Manager (ACM) certificate.
     AllowedPattern: "arn:aws:acm:.*"
 
@@ -39,6 +39,7 @@ Mappings:
       S3HostedZoneId: Z31GFT0UA1I2HV
 
 Resources:
+
   WebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -59,7 +60,8 @@ Resources:
             Effect: Allow
             Principal: "*"
             Action: s3:GetObject
-            Resource: !Join ["", ["arn:aws:s3:::", !Ref "WebsiteBucket", /*]]
+            # Resource: !Join ["", ["arn:aws:s3:::", !Ref "WebsiteBucket", /*]]
+            Resource: !GetAtt ["WebsiteBucket", "Arn"]
 
   WebsiteCloudfront:
     Type: AWS::CloudFront::Distribution

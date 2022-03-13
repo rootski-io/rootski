@@ -1,0 +1,29 @@
+# to disable certain pylint warnings, use the following format:
+# pylint: disable=long-form-warning-code-1,long-form-warning-code-2,...
+# Use the long form like "line-too-long" as opposed to the short form of the same error "C0301"
+
+[MESSAGES CONTROL]
+
+disable=
+    # taken care of by black
+    line-too-long,
+
+    # we have a pre-commit hook that strips trailing whitespace
+    trailing-whitespace,
+
+    # pydocstyle catches this
+    missing-function-docstring,
+
+    # infrastructure/containers/postgres/automatic-backup/backup_or_restore.py
+    # currently runs on python 3.5.3 which does not support f-strings
+    consider-using-f-string,
+
+    # pylint is currently executed by the pre-commit framework which
+    # installs pylint in an isolated virtual environment--this means that
+    # pylint cannot "see" any 3rd party libraries imported by code in rootski.
+    # TODO - once we move away from "darker", execute pylint as a "local pre-commit hook"
+    # so that it runs in the same environment as the rest of our code.
+    import-error,
+
+    # most hand-written CDK classes (constructs/stacks) have no public methods
+    too-few-public-methods,

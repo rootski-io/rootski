@@ -11,8 +11,7 @@ def make__word_by_id__load_fn(db: AsyncSession):
     """
     Make a DataLoader load function for loading batches of words by their IDs.
 
-    :param db: The async SQLAlchemy ORM session used to fulfill batches
-        of :class:`schemas.Word`s from batches of word IDs.
+    :param db: The async SQLAlchemy ORM session used to fulfill batches of :class:`schemas.Word` s from batches of word IDs.
     """
 
     async def load_words_by_ids(word_ids: List[str]) -> List[schemas.Word]:

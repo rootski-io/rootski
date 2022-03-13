@@ -15,29 +15,50 @@ GitHub gist explaining how to make custom badges like these: https://github.com/
 sheilds.io homepage where color choices are documented: https://shields.io/
  -->
 [![Slack](https://img.shields.io/badge/chat-slack-purple.svg)](https://join.slack.com/t/rootskiio/shared_invite/zt-13avx8j84-mocJVx5wFAGNf5wUuy07OA)
-[![Notion](https://img.shields.io/badge/onboarding-knowledge%20base-blue.svg)](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc)
+[![sphinx](https://img.shields.io/badge/onboarding-knowledge%20base-blue.svg)](https://docs.rootski.io/)
 [![ClickUp](https://img.shields.io/badge/ticket%20board-ClickUp-ff69b4.svg)](https://sharing.clickup.com/l/h/4-30114956-1/80ea8d248c817f3)
 [![YouTube Playlist](https://img.shields.io/badge/YouTube-playlist-ff0000.svg)](https://www.youtube.com/playlist?list=PLwF2z4Iu4rabmY7RbRNetjZprLfe8qWNz)
 
-# 📣 Welcome to the Rootski codebase!
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
+# 📣 Welcome to the rootski codebase!
 
 This is the codebase for the application running at [rootski.io](https://www.rootski.io).
 
-> 🗒 Note: you can find detailed information about the [architecture/tech stack](https://quickest-trail-808.notion.site/Rootski-Architecture-9892c9f2159e4865a4438c163e235c41), onboarding/contributing, general full-stack development training resources and more on our [knowledge base](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc).
+> 🗒 Note: you can find detailed information about the [architecture/tech stack](https://docs.rootski.io/rst/architecture/index.html), onboarding/contributing, general full-stack development training resources and more on our [knowledge base](https://docs.rootski.io/).
 
-Rootski is a full-stack application for studying the Russian language by learning roots.
+rootski is a full-stack application for studying the Russian language by learning roots.
 
-Rootski uses an A.I. algorithm called a "transformer" to break Russian words into roots. Rootski enriches
+rootski uses an A.I. algorithm called a "transformer" to break Russian words into roots. rootski enriches
 the word breakdowns with data such as definitions, grammar information, related words, and examples
 and then displays this information to users for them to study.
 
 </br></br>
 
-## How is the Rootski project run? (Hint, click here to [get involved](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc) 😃)
+## How is the rootski project run? (Hint, click here to [get involved](https://docs.rootski.io/index.html) 😃)
 
-Rootski is developed by volunteers!
+rootski is developed by volunteers! Emojis represent types of contributions, ([emoji key](https://allcontributors.org/docs/en/emoji-key))
 
-Above all else, Rootski is a platform to learning and mentoring anyone with an interest in
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/ir3456"><img src="https://avatars.githubusercontent.com/u/25242220?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Isaac Robbins</b></sub></a><br /><a href="https://github.com/rootski-io/rootski/commits?author=ir3456" title="Code">💻</a> <a href="#infra-ir3456" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="https://github.com/jabracadabrah"><img src="https://avatars.githubusercontent.com/u/59886656?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Josh Abrahamsen</b></sub></a><br /><a href="#infra-jabracadabrah" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="https://github.com/phitoduck"><img src="https://avatars.githubusercontent.com/u/32227767?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Eric Riddoch</b></sub></a><br /><a href="#mentoring-phitoduck" title="Mentoring">🧑‍🏫</a> <a href="https://github.com/rootski-io/rootski/commits?author=phitoduck" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/rgard90"><img src="https://avatars.githubusercontent.com/u/39572434?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ryan Gardner</b></sub></a><br /><a href="#business-rgard90" title="Business development">💼</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+Above all else, rootski is a platform for learning and mentoring anyone with an interest in
 
 - frontend/backend development
 - developing data science models
@@ -50,38 +71,31 @@ Above all else, Rootski is a platform to learning and mentoring anyone with an i
 - building a SaaS product that handles real customer transactions (note, we're aware of GDPR and data privacy regulations and do not expose the subset of customer data that is sensitive to contributors)
 - running a business
 
-The best way to learn to write production-ready software is to... write production-ready software 🤣. If one of these describes you, you may really enjoy contributing some pieces to Rootski,
+The best way to learn to write production-ready software is to... write production-ready software 🤣. If one of these describes you, you may really enjoy contributing some pieces to rootski,
 
 - you are inexperienced at writing software, modeling, doing analytics, etc., but you would love to learn how it is done--ideally with the guidance of some really experienced, friendly mentors
 - you work in some area of tech for you day job and want to explore areas to keep growing, but you don't necessarily want to build an entire SaaS product yourself just to learn about a handful of sub-parts of that
 
 Engineers learn a lot by seeing examples of how things are built. The difficulty there is that
-you typically have to join a company to see the inside of a large SaaS product. Rootski is "built in the open"
+you typically have to join a company to see the inside of a large SaaS product. rootski is "built in the open"
 so that anyone interested in software or data science can see a fully working example of an SaaS/AI
 product built with industry best practices.
 
-If you're [willing to learn](https://www.linkedin.com/posts/eric-riddoch_im-willing-to-learn-candidates-for-ds-activity-6895803295609233408-dKmu), we'd love to have you on our team!
-
-We have training materials that can take you from whatever experience level you may be at and get you onboarded and contributing.
-
-To get started, head over to our [knowledge base](https://quickest-trail-808.notion.site/Rootski-Knowledge-Base-49bb8843b6424ada9f49c22151014cfc).
-
-> ⚠️ Disclaimer, please read! This is 100% "free labor" in the sense that Eric Riddoch owns the Rootski project. The value of contributing to rootski is really in getting to work on part of a real product, having mentorship, and experimenting with tools you don't use at your day job. Whether or not you're experienced, that "mentorship" looks exactly the way it would at a paid job: we're a bunch of non-experts working together, some of us knowing more about certain technologies than others. For Eric, this project truly is about learning/mentoring and he'd rather move really slowly so that people can learn rather than focus on exploiting people adding new features. Eric pays $20+/mo (sometimes $50) on this and earns nothing. If that ever changes, he will be clear about that. If anyone were to be paid to work on this, the project simply wouldn't be possible. Eric is happy if the work we're doing here does nothing more than give people career opportunities and help remove confusion about how "real" software is built. Many of the contributors make real sacrifices offering their time and mentorship working on this project. Please don't criticize our motives. We truly do want you do do what's best for you. Please *do* or please *don't* contribute based on what you think is best for your career and personal growth. This model for building a product was inspired by this [podcast interview with the creator of the Python discord channel](https://talkpython.fm/episodes/show/305/python-community-at-python-discord). Eric finds their intentions to be genuine. Please know that for over a year, Eric has "sunk" many evenings and weekends mentoring engineers and has seen no personal "return on investment" outside of relationships; he will gladly continue to do so, time permitting. Feel free to reach out to any of the "Contributors" or "Friends" to ask them about their experience.
+If you're [willing to learn](https://www.linkedin.com/posts/eric-riddoch_im-willing-to-learn-candidates-for-ds-activity-6895803295609233408-dKmu), we'd love to have you on our team! You can learn how to get started on our [knowledge base](https://www.rootski.io/).
 
 </br>
 
-## Contributors
+### Contributors who have onboarded and contributed features
 
-Onboarded and contributed features :D
-
-- [Eric Riddoch](ericriddoch.info) - Been working on Rootski for 3 years and counting!
+- [Eric Riddoch](https://ericriddoch.info) - Been working on rootski for 3 years and counting!
 - [Ryan Gardner](https://www.linkedin.com/in/gardner-ryan/) - Helping with all of the legal/business aspects and dabbling in development
-
-## Friends
-
-Completed a lot of the Rootski onboarding and chat with us in our [Slack workspace](https://join.slack.com/t/rootskiio/shared_invite/zt-13avx8j84-mocJVx5wFAGNf5wUuy07OA) about miscellanious code questions, careers, advice, etc.
-
 - [Isaac Robbins](https://www.linkedin.com/in/isaacrobbins/) - Learning and building experience in MLOps and DevOps!
+- [Josh Abrahamsen](https://www.linkedin.com/in/joshabrahamsen/) - Experienced in SDET/DevOps/Azure looking to gain experience in more languages and technologies.
+
+### Friends
+
+Completed a lot of the rootski onboarding and chat with us in our [Slack workspace](https://join.slack.com/t/rootskiio/shared_invite/zt-13avx8j84-mocJVx5wFAGNf5wUuy07OA) about miscellaneous code questions, careers, advice, etc.
+
 - [Colin Varney](https://www.linkedin.com/in/colin-varney-b7283135/) - Full-stack python guy. Is working his first full-time software job!
 - [Fazleem Baig](https://www.linkedin.com/in/fazleem-baig/) - MLOps guy. Quite experienced with Python and learning about AWS. Working for an AI startup in Canada.
 - [Ayse (Aysha) Arslan](https://www.linkedin.com/in/ayse-seyyide-arslan-5b1594137/) - Learning about all things MLOps. Working her first MLE/MLOps job!
@@ -90,18 +104,19 @@ Completed a lot of the Rootski onboarding and chat with us in our [Slack workspa
 - [Ben Doyle](https://www.linkedin.com/in/benjamin-doyle/) - Mixed work experience in NLP, full-stack development, and data analytics. Finishing undergrad at BYU in December 2022.
 
 
+</br></br></br></br></br>
 
-<!-- </br></br></br></br></br>
 
+<!--
 ## The Technical Stuff
 
-### How to deploy an entire Rootski environment from scratch
+### How to deploy an entire rootski environment from scratch
 
 Going through this, you'll notice that there are several one-time, manual steps. This is common even for teams
 with a heavily automated infrastructure-as-code workflow, particularly when it comes to the creation of users
 and storing of credentials.
 
-Once these steps are complete, all subsequent interactions with our Rootski infrastructure can be done
+Once these steps are complete, all subsequent interactions with our rootski infrastructure can be done
 using our infrastructure as code and other automation tools.
 
 #### 1. Create an AWS account and user
@@ -140,7 +155,7 @@ this "machine user" is now authorized to clone the rootski repository!
 
 #### 4. Purchase a domain name that happens to be `rootski.io`
 
-You know, the domain name `rootski.io` is hard coded in a few places throughout the Rootski infrastructure.
+You know, the domain name `rootski.io` is hard coded in a few places throughout the rootski infrastructure.
 It felt wasteful to parameterize this everywhere since... it's unlikely that we will ever change our domain name.
 
 If we ever have a need for this, we can revisit it :D

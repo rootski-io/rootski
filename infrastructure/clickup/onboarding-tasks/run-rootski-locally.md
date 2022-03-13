@@ -8,12 +8,14 @@ If you're a fairly experienced Python/docker developer, it should be no problem.
 
 If you are new to these things, that's okay. You'll just need to learn a bit.
 There is a page on the knowledge base called `Developer Tools & Collaboration`.
-There is a for each heading on that page, there is an onboarding task in ClickUp for you.
+For each heading on that page, there is an onboarding task in ClickUp for you.
 
-If it seems like too much to try to get Rootski running right now, that's okay. Go
+There is a checklist of tools to install and commands to run on the README here: https://github.com/rootski-io/rootski.
+
+If it seems like too much to try to get rootski running right now, that's okay. Go
 do some of the other onboarding cards and come back to this.
 
-See the `Get Rootski running on your local machine` heading on that page
+See the `Get rootski running on your local machine` heading on that page
 for resources on getting this done.
 
 ## Project Requirements

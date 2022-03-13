@@ -30,6 +30,23 @@ repos:
           # git-lfs rather than commiting them directly to the git history
           - id: check-added-large-files
             args: ["--maxkb=500"]
+
+            # HALT! Before you exclude a large file and commit it, forever
+            # bloating our repo size, did you:
+            # (1) use a CLI tool like imageoptim to compress them if they are images
+            # (2) think hard about whether using DVC or git-lfs is more appropriate
+            #     for the file--such as in the case of CSV files or other data
+            # This can be confusing. Reach out for help in our chat to help decide
+            # how to deal adding these large files you have :)
+            exclude: |
+              (?x)(
+                  ^docs/source/rst/architecture/rootski-architecture.drawio|
+                  ^docs/source/_static/old-architecture.jpeg|
+                  ^docs/source/rst/architecture/frontend/material-ui-course.png|
+                  ^docs/source/rst/architecture/frontend/frontend-screenshot.png|
+                  ^docs/source/rst/architecture/frontend/cognito-hosted-ui.png|
+                  ^docs/source/rst/architecture/frontend/stephen-grider-react-course.png
+              )
           # Sort requirements in requirements.txt files.
           - id: requirements-txt-fixer
           # Prevent addition of new git submodules.
@@ -68,15 +85,15 @@ repos:
     #       - id: isort
     #         args: ["--profile=black"]
 
-    - repo: https://github.com/psf/black
-      rev: 21.9b0
-      hooks:
-          # code formatter written by Facebook--it's like autopep8 and yapf, but probably the most popular
-          - id: black
-            args: ["--line-length=112"]
-          # black... but for jupyter notebooks! Why not?
-          - id: black-jupyter
-            args: ["--line-length=112"]
+    # - repo: https://github.com/psf/black
+    #   rev: 21.9b0
+    #   hooks:
+    #       # code formatter written by Facebook--it's like autopep8 and yapf, but probably the most popular
+    #       - id: black
+    #         args: ["--line-length=112"]
+    #       # black... but for jupyter notebooks! Why not?
+    #       - id: black-jupyter
+    #         args: ["--line-length=112"]
 
     # - repo: https://github.com/PyCQA/flake8
     #   rev: 3.9.2
@@ -104,11 +121,38 @@ repos:
                     --ignore-init-module-imports,
                 ]
 
+    # - repo: https://github.com/pre-commit/mirrors-prettier
+    #   rev: "" # Use the sha or tag you want to point at
+    #   hooks:
+    #     - id: prettier
+    #       args: ["--tab-width=2", "--write=src/**/*.ts{,x}"]
+    #       # only include files in the rootski_frontend folder
+    #       files: ^rootski_frontend/
 
-    - repo: https://github.com/pre-commit/mirrors-prettier
-      rev: "" # Use the sha or tag you want to point at
+    - repo: https://github.com/akaihola/darker
+      rev: 1.4.1
       hooks:
-        - id: prettier
-          args: ["--tab-width=2", "--write=src/**/*.ts{,x}"]
-          # only include files in the rootski_frontend folder
-          files: ^rootski_frontend/
+        # fail if black, pylint, flake8, isort, or pydocstyle find errors in the 'git --diff'
+        # between this branch and latest commit on 'trunk'; this is great because it does not require
+        # contributors to make changes to parts of the codebase they didn't change. Said otherwise:
+        # if you submit a PR, the build will only fail if the code *you* wrote/changed does not
+        # satisfy these quality check tools, but if there were already issues in the codebase before
+        # you got there, the build will still pass and your PR can go through.
+        - id: darker
+          args:
+            - --isort
+            # executes flake8 and pydocstyle (where pydocstyle is a flake8 plugin)
+            - -L flake8 --config=./linting/.flake8
+            - -L pylint --rcfile=./linting/.pylintrc
+            # line length for black
+            - -l 112
+            - --verbose
+          additional_dependencies:
+            - black==22.1.0
+            - isort~=5.9
+            - flake8~=4.0
+            - pylint~=2.12
+            - pydocstyle~=6.1
+            # pydocstyle plugin for flake8
+            - flake8-docstrings~=1.6
+          entry: darker --revision trunk

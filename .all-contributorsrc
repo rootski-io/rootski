@@ -1,0 +1,55 @@
+{
+  "files": [
+    "CONTRIBUTORS.md",
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "ir3456",
+      "name": "Isaac Robbins",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25242220?v=4",
+      "profile": "https://github.com/ir3456",
+      "contributions": [
+        "code",
+        "infra"
+      ]
+    },
+    {
+      "login": "jabracadabrah",
+      "name": "Josh Abrahamsen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/59886656?v=4",
+      "profile": "https://github.com/jabracadabrah",
+      "contributions": [
+        "infra"
+      ]
+    },
+    {
+      "login": "phitoduck",
+      "name": "Eric Riddoch",
+      "avatar_url": "https://avatars.githubusercontent.com/u/32227767?v=4",
+      "profile": "https://github.com/phitoduck",
+      "contributions": [
+        "mentoring",
+        "code"
+      ]
+    },
+    {
+      "login": "rgard90",
+      "name": "Ryan Gardner",
+      "avatar_url": "https://avatars.githubusercontent.com/u/39572434?v=4",
+      "profile": "https://github.com/rgard90",
+      "contributions": [
+        "business"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "rootski",
+  "projectOwner": "rootski-io",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true,
+  "commitConvention": "none"
+}

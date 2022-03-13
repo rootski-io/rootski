@@ -34,6 +34,23 @@ jobs:
       with:
         python-version: "3.9"
 
+    # cache the python environment for faster dependency installation
+    # it's important to create a key based on files that will change dependencies
+    # any changes to the files to the python env or hashes of files listed will invalidate the cache
+    # when the cache is invalidated a new key will be created based on the new hashfiles and used for future runs
+    - name: cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.pythonLocation }}
+        key: ${{ env.pythonLocation }}-${{ hashFiles('**/aws-cdk/**/setup.py', '**/rootski_api/setup.py')}}
+
+    # cache the python environment for faster pre-commit
+    - name: cache pre-commit
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pre-commit
+        key: ~/.cache/pre-commit-${{ hashFiles('makefile') }}
+
     - name: install docker
       uses: docker-practice/actions-setup-docker@1.0.8
 
@@ -48,6 +65,16 @@ jobs:
 
         # install docker-compose because it is needed to run the tests
         make install-docker-compose
+
+    - name: checkout trunk and current branches
+      run: |
+        # these steps are necessary for darker to compare diffs properly
+        # fetches all remote branches
+        git fetch
+        # creates a local branch of rootski remote default trunk branch
+        git checkout -b trunk origin/trunk || echo "trunk already exists"
+        # creates a local branch of the current running branch in pipeline
+        git checkout -b ${GITHUB_HEAD_REF} origin/${GITHUB_HEAD_REF} || echo "${GITHUB_HEAD_REF} already exists"
 
     - name: run tests and other code quality checks
       run: |

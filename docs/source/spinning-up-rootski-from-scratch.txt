@@ -1,0 +1,89 @@
+TODO: this file doesn't really belong in the README. It should go in its own
+document for admins trying to run rootski from scratch.
+
+.. .. code:: markdown
+
+..    <!--
+..    ## The Technical Stuff
+
+..    ### How to deploy an entire rootski environment from scratch
+
+..    Going through this, you'll notice that there are several one-time, manual steps. This is common even for teams
+..    with a heavily automated infrastructure-as-code workflow, particularly when it comes to the creation of users
+..    and storing of credentials.
+
+..    Once these steps are complete, all subsequent interactions with our rootski infrastructure can be done
+..    using our infrastructure as code and other automation tools.
+
+..    #### 1. Create an AWS account and user
+
+..    1. Create an IAM user with programmatic access
+..    2. Install the AWS CLI
+..    3. Run `aws configure --profile rootski` and copy the credentials from step (1). Set the region to `us-west-2`.
+
+..    > 🗒 Note: this IAM user will need sufficient permissions to create and access the infrastructure that will
+..    be discussed below. This includes creating several types of infrastructure using CloudFormation.
+
+..    #### 2. Create an SSH key pair
+
+..    1. In the AWS console, go to EC2 and create an SSH key pair named `rootski`.
+..    2. Download the key pair.
+..    3. Save the key pair somewhere you won't forget. If the pair isn't already named, I like to rename them and store them at `~/.ssh/rootski/rootski.id_rsa` (private key) and `~/.ssh/rootski/rootski.id_rsa.pub` (public key).
+..    4. Create a new GitHub account for a "Machine User". Copy/paste the contents of `rootski.id_rsa.pub` into any boxes you have to to make this work :D
+..    this "machine user" is now authorized to clone the rootski repository!
+
+..    #### 3. Create several parameters in AWS SSM Parameter Store
+
+..    | Parameter      | Description |
+..    | ----------- | ----------- |
+..    | `/rootski/ssh/private_key`      | The contents of the private key needed to clone the `rootski` repository.       |
+..    | `/rootski/prod/database_config`   | A stringified JSON object with database connection information (see below) |
+
+..    ```json
+..    {
+..        "postgres_user": "rootski-db-user",
+..        "postgres_password": "rootski-db-pass",
+..        "postgres_host": "database.rootski.io",
+..        "postgres_port": "5432",
+..        "postgres_db": "rootski-db-database-name"
+..    }
+..    ```
+
+..    #### 4. Purchase a domain name that happens to be `rootski.io`
+
+..    You know, the domain name `rootski.io` is hard coded in a few places throughout the rootski infrastructure.
+..    It felt wasteful to parameterize this everywhere since... it's unlikely that we will ever change our domain name.
+
+..    If we ever have a need for this, we can revisit it :D
+
+..    #### 5. Create an ACM TLS certificate verified with the DNS challenge for `*.rootski.io`
+
+..    You'll need to do this in the AWS console. This certificate will allow us to access `rootski.io`
+..    and all of its subdomains over HTTPS. You'll need the ARN of this certificate for a later step.
+
+..    #### 4. Create the rootski infrastructure
+
+..    Before running these commands, copy/paste the ARN of the `*.rootski.io` ACM certificate
+..    into the appropriate place in `infrastructure/iac/cloudformation/front-end/static-website.yml`.
+
+..    ```bash
+..    # create the S3 bucket and Route53 hosted zone for hosting the React application as a static site
+..    ...
+
+..    # create the AWS Cognito user pool
+..    ...
+
+..    # create the AWS Lightsail instance with the backend database (simultaneously deploys the database)
+..    ...
+
+..    # deploy the API Gateway and Lambda function
+..    ...
+..    ```
+
+..    #### 5. Deploy the frontend site
+
+..    ```bash
+..    make deploy-frontend
+..    ```
+
+..    DONE! -->

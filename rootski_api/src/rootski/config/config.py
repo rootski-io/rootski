@@ -15,26 +15,32 @@ be prioritized in the following order:
     the environment variable equivalent will be ROOTSKI__NAME.
 """
 
+import json
 import os
 from enum import Enum
-import json
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
-from rootski.config.ssm import get_ssm_parameters_by_prefix
 
 import yaml
 from pydantic import AnyHttpUrl, BaseSettings, validator
 from pydantic.dataclasses import dataclass
 from pydantic.env_settings import SettingsSourceCallable
+from rootski.config.ssm import get_ssm_parameters_by_prefix
 
 ANON_USER = "anon@rootski.io"
 ENVIRON_PREFIX: str = "ROOTSKI__"
 
 # default config values
+
+#: default port for the FastAPI server to listen on
 DEFAULT_PORT: int = 3333
+#: default host for the FastAPI server to listen on
 DEFAULT_HOST: str = "0.0.0.0"
+#: default domain for the API (used for CORS and may be for other things)
 DEFAULT_DOMAIN: str = "www.rootski.io"
+#: default http:// URL of the S3 bucket containing the static frontend files
 DEFAULT_S3_STATIC_SITE_DOMAIN = "http://io.rootski.www.s3-website-us-west-2.amazonaws.com"
+#: environment variable where the rootski API config file should be found
 YAML_CONFIG_PATH_ENV_VAR: str = f"{ENVIRON_PREFIX}CONFIG_FILE_PATH"
 
 # we expect this to be one of "dev" or "prod"
@@ -138,6 +144,26 @@ class LogLevel(str, Enum):
 
 @dataclass(frozen=True)
 class Config(BaseSettings):
+    """A configuration manager for the app.
+
+    Configuration values are discovered and kept in the following order of priority:
+
+    1. Init arguments (could be used to give CLI arguments highest priority)
+    2. Environment variables of the form ``<ENVIRON_PREFIX>UPPER_CASE_ATTRIBUTE``
+    3. Config yaml file, whose location is at ``<ENVIRON_PREFIX>CONFIG_FILE_PATH``
+    4. Default values set in this ``dataclass``
+
+    .. note::
+
+        When using environment variables, values should be JSON formatted strings.
+        For example, ``"link1,link2,link3"`` would fail for ``extra_allowed_cors_origins``,
+        but ``'["link1", "link2", "link3"]'`` would work.
+
+    .. note::
+
+        This ``__init__()`` method only exists so that there is a class-level
+        docstring in the sphinx documentation.
+    """
 
     log_level: LogLevel = LogLevel.INFO.value
 
@@ -254,27 +280,8 @@ class Config(BaseSettings):
             )
 
     def __init__(self, **kwargs):
-        """A configuration manager for the app.
-
-        Configuration values are discovered and kept in the following order of priority:
-
-        1. Init arguments (could be used to give CLI arguments highest priority)
-        2. Environment variables of the form ``<ENVIRON_PREFIX>UPPER_CASE_ATTRIBUTE``
-        3. Config yaml file, whose location is at ``<ENVIRON_PREFIX>CONFIG_FILE_PATH``
-        4. Default values set in this ``dataclass``
-
-        .. note::
-
-            When using environment variables, values should be JSON formatted strings.
-            For example, ``"link1,link2,link3"`` would fail for ``extra_allowed_cors_origins``,
-            but ``'["link1", "link2", "link3"]'`` would work.
-
-        .. note::
-
-            This ``__init__()`` method only exists so that there is a class-level
-            docstring in the sphinx documentation.
-        """
-        # set all of the settings values using ``customise_sources``
+        # The tests seem to fail without this empty __init__
+        # pylint: disable=useless-super-delegation
         super().__init__(**kwargs)
 
 

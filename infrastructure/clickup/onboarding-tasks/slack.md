@@ -2,9 +2,9 @@
 
 ## Project Context
 
-Send your email to Eric so he can send you an invite link to our Slack WorkSpace.
+Join Slack using the link on the homepage of the [knowledge base](https://docs.rootski.io/).
 
-The team is *really* cool. You should introduce yourself!
+The team is *really* cool. Please introduce yourself!
 
 ## Project Requirements
 
@@ -14,11 +14,12 @@ The team is *really* cool. You should introduce yourself!
 
    - Where are you from?
    - Where are you now?
-   - How long have you been coding/writing software/doing data science?
+   - How long have you been coding/writing software/doing data science/doing what you do?
    - Did you go to school or do any other type of training?
-   - Which part of Rootski is most exciting to you?
+   - Which parts of Rootski are exciting to you?
    - What are some of your career and life goals?
+   - How fast/slow would you like to onboard and contribute (roughly, it changes for all of us)
 
-3. In the "What I Do" section of your profile, enter your email address so we can see it when we hover over your name.
+3. In the "What I Do" section of your profile, enter your email address so we can see it when we hover over your name. It's best if this is the email you use for GitHub and ClickUp.
 
 4. Add a profile picture.

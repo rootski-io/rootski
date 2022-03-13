@@ -23,6 +23,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER?Variable not set}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
       POSTGRES_DB: ${POSTGRES_DB?Variable not set}
+      POSTGRES_PORT: ${POSTGRES_PORT?Variable not set}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - ${POSTGRES_PORT?Variable not set}:${POSTGRES_PORT?Variable not set}
@@ -63,9 +64,16 @@ services:
       context: ./infrastructure/containers/postgres/automatic-backup/
       dockerfile: Dockerfile
     environment:
+      BACKUP_BUCKET: rootski-database-backups
       BACKUP_DIR: /backups
-      BACKUP_INTERVAL: 1h
+      BACKUP_INTERVAL: 24h
+      # AWS connection variables. Default to "" if the env vars are not set
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-""}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-""}
       # database connection variables
+      # "postgres" is used as the host because it is the name of the service container
+      # that is running the database. database-backup and postgres containers must be
+      # running on the same network for this to work
       POSTGRES_HOST: postgres
       POSTGRES_PORT: ${POSTGRES_PORT?Variable not set}
       POSTGRES_DB: ${POSTGRES_DB?Variable not set}
@@ -74,6 +82,7 @@ services:
     volumes:
       - ./infrastructure/containers/postgres/backups:/backups
       - ./infrastructure/containers/postgres/automatic-backup/backup_or_restore.py:/app/backup_or_restore.py
+      - ./infrastructure/containers/postgres/automatic-backup/scripts:/app/scripts
     networks:
       - backend
     deploy:
