@@ -85,7 +85,7 @@ def update_users_json(clickup: ClickUp):
     members: List[User] = main_space.members
     users = {user["user"]["username"]: user for user in members}
     with open(USERS_JSON_FPATH, "w") as file:
-        json.dump(users, file)
+        json.dump(users, file, indent=4)
 
 
 def get_rootski_list(clickup: ClickUp) -> ClickupList:
