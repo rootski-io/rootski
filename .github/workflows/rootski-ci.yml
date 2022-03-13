@@ -41,7 +41,9 @@ jobs:
     - name: cache dependencies
       uses: actions/cache@v2
       with:
-        path: ${{ env.pythonLocation }}
+        path: |
+          ${{ env.pythonLocation }}
+          /tmp/.buildx-cache
         key: ${{ env.pythonLocation }}-${{ hashFiles('**/aws-cdk/**/setup.py', '**/rootski_api/setup.py')}}
 
     # cache the python environment for faster pre-commit
@@ -66,6 +68,17 @@ jobs:
         # install docker-compose because it is needed to run the tests
         make install-docker-compose
 
+    - name: Build production image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        builder: ${{ steps.buildx.outputs.name }}
+        file: ./rootski_api/tests/ci/Dockerfile
+        push: false
+        tags: api_build
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
+
     - name: checkout trunk and current branches
       run: |
         # these steps are necessary for darker to compare diffs properly
@@ -81,7 +94,7 @@ jobs:
         # check the code quality across the entire project (formatting, linting, static code checks)
         make check-code-quality-ci
 
-        # run the backend tests
+        # run the backend tests, commenting this out so we can have githubactions handle it for us
         cd rootski_api
         make full-test-ci
 
