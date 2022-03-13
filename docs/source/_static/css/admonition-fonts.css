@@ -1,0 +1,7 @@
+/*
+ * Make the font-size in admonitions (note, warning, tip, etc.)
+ * as large as the rest of the page.
+ */
+.admonition {
+    font-size: 16px;
+}

@@ -1,0 +1,24 @@
+/*
+ * This class makes anything borderless
+ */
+.borderless {
+  border: 0;
+}
+
+/*
+ * This makes all table cells (or other sub elements have no border
+ */
+.borderless * {
+    border: 0 !important;
+}
+
+/*
+ * Remove box-shadow from element
+ */
+.shadowless {
+  box-shadow: none !important;
+}
+
+.shadowless * {
+  box-shadow: none !important;
+}
