@@ -36,6 +36,7 @@ Knowledge Base
    <a href="https://codecov.io/gh/rootski-io/rootski">
       <img alt="codecov" src="https://codecov.io/gh/rootski-io/rootski/branch/trunk/graph/badge.svg?token=YZJ0UFXNU3">
    </a>
+   <img src="https://img.shields.io/github/stars/rootski-io?style=social"></img>
    <br />
    <br />
 
