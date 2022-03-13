@@ -103,9 +103,19 @@ def install_all_contributors_cli():
     """
     Use "npm" to install the all-contributors-cli and initialize
     the rootski/ folder as a node project.
+
+    The executable will be located at
+    "./node_modules/.bin/all-contributors"
     """
     npm install --include=dev --global all-contributors-cli
 
+
+@makefile.target(tag="all contributors")
+def credit_contributor():
+    """
+    Go through a wizard to add a contributor to ".all-contributorsrc"
+    """
+    ./node_modules/.bin/all-contributors add
 
 @makefile.target(tag="all contributors")
 def generate_all_contributors_table():

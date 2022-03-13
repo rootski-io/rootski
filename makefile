@@ -28,12 +28,6 @@ install:
 	git lfs install
 
 
-# Install only the necessary dependencies for running the database on the lightsail instance
-install-lightsail:
-	# install python dependencies needed to execute various makefile targets
-	python -m pip install xonsh==0.10.1 rich bcrypt==3.2.0
-
-
 
 
 ####################
@@ -59,8 +53,16 @@ make:
 
 # Use "npm" to install the all-contributors-cli and initialize
 # the rootski/ folder as a node project.
+#
+# The executable will be located at
+# "./node_modules/.bin/all-contributors"
 install-all-contributors-cli:
 	python -m xonsh make.xsh install-all-contributors-cli
+
+
+# Go through a wizard to add a contributor to ".all-contributorsrc"
+credit-contributor:
+	python -m xonsh make.xsh credit-contributor
 
 
 # Use the "all-contributors-cli" to generate the tables
@@ -94,7 +96,7 @@ start-backend-prod:
 
 # Start the "database-backup" and "postgres" service in a Docker swarm using
 # the "docker-compose.yml" for use in spinning up the prod database on the
-# lightsail instance or for testing S3 backup and restore functions
+# lightsail instance or for testing S3 backup and restore functions.
 start-database-stack-lightsail:
 	python -m xonsh make.xsh start-database-stack-lightsail
 
@@ -102,14 +104,14 @@ start-database-stack-lightsail:
 # Restore the currently running "postgres" container from the most recent S3
 # backup bucket by running the `backup_or_restore.py` file with the
 # `restore-database-from-most-recent-s3-backup` argument on the running
-# "database-backup" container
+# "database-backup" container.
 restore-database-from-s3:
 	python -m xonsh make.xsh restore-database-from-s3
 
 
 # Backup the currently running "postgres" container to the S3 backup bucket
 # by running the `backup_or_restore.py` file with the `backup-database-to-s3`
-# argument on the running "database-backup" container
+# argument on the running "database-backup" container.
 backup-database-to-s3:
 	python -m xonsh make.xsh backup-database-to-s3
 
@@ -117,13 +119,17 @@ backup-database-to-s3:
 # Backup the currently running "postgres" container on an immortal interval
 # to the S3 backup bucket by running the `backup_or_restore.py` file with
 # the `backup-database-to-s3-on-interval` argument on the running
-# "database-backup" container
+# "database-backup" container.
 backup-database-to-s3-on-interval:
 	python -m xonsh make.xsh backup-database-to-s3-on-interval
 
 
 # Start the "database-backup" and "postgres" service in a Docker swarm using
-# the "docker-compose.yml" for local use without AWS credentails
+# the "docker-compose.yml" for local use without AWS credentails.
+#
+# If you are running into errors, you may need to run `make build-images`
+# to build the docker images and then run `make stop-database-stack` and
+# try again.
 start-database-stack-dev:
 	python -m xonsh make.xsh start-database-stack-dev
 
@@ -132,7 +138,7 @@ start-database-stack-dev:
 # "infrastructure/containers/postgres/backups/rootski-db-dev-backup.sql.gz"
 # backup file by running the `backup_or_restore.py` file with the
 # `restore-database-from-local-backup` argument on the running
-# "database-backup" container
+# "database-backup" container.
 restore-database-dev:
 	python -m xonsh make.xsh restore-database-dev
 
@@ -140,7 +146,7 @@ restore-database-dev:
 # Backup the currently running "postgres" container to
 # "infrastructure/containers/postgres/backups/rootski-db-dev-backup.sql.gz"
 # by running the `backup_or_restore.py` file with the
-# `backup-database-locally` argument on the running "database-backup" container
+# `backup-database-locally` argument on the running "database-backup" container.
 backup-database-dev:
 	python -m xonsh make.xsh backup-database-dev
 
@@ -148,7 +154,7 @@ backup-database-dev:
 # Tears down the `rootski-database` docker-swarm stack and removes
 # ALL currently running docker containers.
 # Use if you ran `make start-database-stack-lightsail` or
-# `makd start-database-stack-dev`
+# `makd start-database-stack-dev`.
 stop-database-stack:
 	python -m xonsh make.xsh stop-database-stack
 
