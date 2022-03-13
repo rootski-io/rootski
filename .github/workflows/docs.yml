@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.pythonLocation }}
-          key: ${{ env.pythonLocation }}-${{ hashFiles('**/aws-cdk/**/setup.py', '**/rootski_api/setup.py', '**/docs/requirements.txt')}}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('**/aws-cdk/**/setup.py', '**/rootski_api/setup.cfg', '**/docs/requirements.txt')}}
 
       - name: install the aws cli
         id: install-aws-cli
