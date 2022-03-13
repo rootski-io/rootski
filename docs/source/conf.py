@@ -82,6 +82,8 @@ extensions = [
 # paths relative to _static/
 html_css_files = [
     "css/external-links.css",
+    "css/admonition-fonts.css",
+    "css/remove-formatting.css",
 ]
 html_js_files = [
     "js/remove-readthedocs-versions.js",

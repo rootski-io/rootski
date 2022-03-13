@@ -7,10 +7,10 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 
 #
-SOURCEDIR     = ./source/
+SOURCEDIR     = ./source
 
 # location to write the generated HTML files and other assets
-BUILDDIR      = ./build/
+BUILDDIR      = ./build
 
 # Put it first so that "make" without argument is like "make help".
 help:

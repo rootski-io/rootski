@@ -9,7 +9,7 @@ Knowledge Base
 
 .. toctree::
   :hidden:
-  :maxdepth: 1
+  :maxdepth: 2
 
   Home <self>
   Onboarding <rst/onboarding/index>
@@ -17,7 +17,6 @@ Knowledge Base
 
 .. toctree::
   :hidden:
-  :maxdepth: 1
   :caption: Explore the codebase!
 
   Backend API Reference <rootski-api-reference>
@@ -77,7 +76,8 @@ Helpful Links
    <i class="fab fa-linkedin fa-2x" style="color: #0077b5"></i>
 
 .. list-table::
-   :widths: 10 30 60
+   :widths: 10 25 65
+   :class: borderless shadowless
 
    * - |rootski|
      - `rootski.io <https://www.rootski.io/>`_
