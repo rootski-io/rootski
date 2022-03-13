@@ -73,7 +73,7 @@ jobs:
       with:
         context: .
         builder: ${{ steps.buildx.outputs.name }}
-        file: ./rootski_api/tests/resources/Dockerfile
+        file: ./rootski_api/tests/ci/Dockerfile
         push: false
         tags: api_build
         cache-from: type=local,src=/tmp/.buildx-cache
