@@ -4,6 +4,11 @@
 Architecture & Tech Stack
 ==========================
 
+.. toctree::
+   :hidden:
+
+   frontend/index
+
 .. drawio-image:: ./rootski-architecture.drawio
     :format: svg
     :target: /_images/rootski-architecture.svg
