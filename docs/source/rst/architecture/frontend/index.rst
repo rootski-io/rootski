@@ -238,10 +238,10 @@ Just because you know React does *not* mean you know how to write
 good-looking UIs that are responsive and pleasant to use.
 
 A course like this one is a good next step for someone who has learned
-React, but not a professional feeling UI.
+React, but hasn't a professional feeling UI before.
 
-If you stuck with this course to
-the end and put your own flair on it, this would be a fabulous personal project,
+If you stick with this course to
+the end and put your own flair on the project, this would be a fabulous personal project
 despite coming from an online tutorial.
 
 If you do not want to take this entire course, there are many good YouTube videos
