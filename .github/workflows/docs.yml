@@ -27,6 +27,16 @@ jobs:
         with:
           python-version: "3.9"
 
+      # cache the python environment for faster dependency installation
+      # it's important to create a key based on files that will change dependencies
+      # any changes to the files to the python env or hashes of files listed will invalidate the cache
+      # when the cache is invalidated a new key will be created based on the new hashfiles and used for future runs
+      - name: cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('**/aws-cdk/**/setup.py', '**/rootski_api/setup.cfg', '**/docs/requirements.txt')}}
+
       - name: install the aws cli
         id: install-aws-cli
         uses: unfor19/install-aws-cli-action@v1
