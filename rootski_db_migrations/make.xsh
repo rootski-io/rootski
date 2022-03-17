@@ -55,12 +55,12 @@ def create_migration_file():
     log("Enter a SHORT name describing the database migration (spaces are replaced with underscores):")
     migration_fname: str = input().strip().replace(" ", "_")
     new_revision_id: str = get_new_revision_id()
-
-    # env var: specify location of alembic config file for the alembic CLI
-    $ALEMBIC_CONFIG = str(THIS_DIR / "alembic.ini")
+    alembic_config_fpath: str = str(THIS_DIR / "alembic.ini")
 
     cd ./src \
-    && alembic revision \
+    && alembic \
+        --config @(alembic_config_fpath) \
+        revision \
         -m @(migration_fname) \
         --rev-id @(new_revision_id)
 
@@ -99,10 +99,29 @@ def run_all_migrations_from_current__dev():
 
 @makefile.target(tag="utils")
 def print_dev_alembic_env_vars():
-    """Print env var prefix for running alembic commands against the local dev database."""
+    """
+    Print env var prefix for running alembic commands against the local dev database.
+
+    The idea is that you could use the string printed to the console to execute
+    alembic commands against a local database like this:
+
+    .. code-block:: bash
+
+        cd rootski_api/migrations/src
+        POSTGRES_USER=rootski \\
+            POSTGRES_PASSWORD=pass \\
+            POSTGRES_HOST=localhost \\
+            POSTGRES_PORT=5432 \\
+            POSTGRES_DB=rootski_db \\
+            alembic --config ../alembic.ini <some subcommand> [ARGS]
+
+    .. code-block:: bash
+
+        POSTGRES_USER=rootski POSTGRES_PASSWORD=pass POSTGRES_HOST=localhost POSTGRES_PORT=5432 POSTGRES_DB=rootski_db alembic --config ../alembic.ini
+    """
     export_dot_env_vars(env_file=str(ROOTSKI_ROOT_DIR / DEV_ENV_FILE_NAME))
 
-    dev_env_vars: str = "POSTRES_USER={user} POSTGRES_PASSWORD={passwd} POSTGRES_HOST={host} POSTGRES_PORT={port} POSTGRES_DB={db}".format(
+    dev_env_vars: str = "POSTGRES_USER={user} POSTGRES_PASSWORD={passwd} POSTGRES_HOST={host} POSTGRES_PORT={port} POSTGRES_DB={db}".format(
         user=os.environ["POSTGRES_USER"],
         passwd=os.environ["POSTGRES_PASSWORD"],
         host="localhost",

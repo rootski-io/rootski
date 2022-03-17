@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 """start
 
 This is an empty revision. It's useful to start your database migration chain

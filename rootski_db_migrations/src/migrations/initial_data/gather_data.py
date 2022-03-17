@@ -1,5 +1,5 @@
 """
-Gather the russian data csv files and load them into database tables
+Gather the russian data csv files and load them into database tables.
 
 NOTE, some of the file paths here differ from those in the original
 rootski/data/master/gather_data.py to be more organized

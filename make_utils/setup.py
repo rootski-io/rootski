@@ -1,5 +1,6 @@
 """
 Setup file for the rootski package.
+
 Use setup.cfg to configure your project.
 
 This file was generated with PyScaffold 4.0.2.

@@ -1,6 +1,7 @@
 """Helper functions used when the "alembic" CLI is executed."""
 
 import os
+import sys
 from typing import Dict
 
 from alembic.environment import EnvironmentContext
@@ -28,7 +29,7 @@ def get_conn_string_from_env_vars(confirm_url_with_user=True):
     if confirm_url_with_user:
         answer = input(f"[rootski] Using connection string: {conn_string}. Do you want to continue? (y/n)")
         if answer != "y":
-            exit(1)
+            sys.exit(1)
 
     return conn_string
 

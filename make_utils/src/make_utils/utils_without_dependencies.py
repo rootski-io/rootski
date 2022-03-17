@@ -1,11 +1,18 @@
+"""Common utils needed in makefile targets that written in pure python."""
+
 import platform
 from textwrap import dedent
 
 
 def get_localhost():
+    """
+    Return the appropriate version of ``localhost`` to be used in Docker containers.
+
+    The value of ``localhost`` is determined by the OS of the host machine running
+    the docker containers.
+    """
     system = platform.system().lower()
 
-    is_windows = system == "windows"
     is_linux = system == "linux"
     is_mac = system == "darwin"
 
@@ -20,6 +27,8 @@ def get_localhost():
 
 def safe_format(template, **kwargs):
     """
+    Substitute occurences of ``${key}`` in the ``template`` string with its kwarg ``value``.
+
     The equivalent of str.format, but doesn't throw an error
     if you don't plug in a value for a {variable} section
     in a "{var1} ... {var2}" formatted string.
