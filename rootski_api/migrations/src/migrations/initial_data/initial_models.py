@@ -1,14 +1,23 @@
-from sqlalchemy import (
-    TIMESTAMP,
-    Column,
-    DateTime,
-    Enum,
-    ForeignKey,
-    PrimaryKeyConstraint,
-    String,
-    Text,
-    UniqueConstraint,
-)
+"""
+This file is only meant to be used for early database migration revisions.
+
+Here we define many SQLAlchemy models and uses them to create tables
+in the rootski database. All of the models are duplicated code. It is considered
+a bad practice to import SQLAlchemy models from the application code because that would:
+
+couple this migration, which represents the database schema and seed data as of
+March 15, 2022, to the the schema defined by the application SQLAlchemy models
+after that. In other words, if we edit the SQLAlchemy models in the FastAPI application
+(which we surely will), this migration would likely break, since it was written
+to support the data model of the rootski db on March 15, 2022.
+
+Another benefit to decoupling the models in alembic from the models in the application
+is that we could potentially stop using SQLAlchemy in alembic in favor raw SQL DDL
+statements. It doesn't matter how this migration script mutates the database state
+as long as it does so successfully.
+"""
+
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, PrimaryKeyConstraint, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import CreateTable
@@ -20,6 +29,8 @@ Base = declarative_base()
 
 
 class GenericToString:
+    """Mixin that adds basic magic methods to SQLAlchemy models."""
+
     def __repr__(self):
         return str(self.__dict__)
 
@@ -513,22 +524,3 @@ class DefinitionItem(Base, GenericToString):
     # many-to-one
     definition = relationship("Definition", uselist=False, foreign_keys=[definition_id])
     child = relationship("Definition", uselist=False, foreign_keys=[child_id])
-
-
-if __name__ == "__main__":
-    from rootski.services.database.non_orm.sql_client import SqlClient
-
-    russian_db = "/Users/eric/Desktop/rootski/data/russian/master/russian.db"
-    sql_client = SqlClient(
-        sql_dialect="sqlite",
-        driver_lib=None,
-        username=None,
-        password=None,
-        host=None,
-        port=None,
-        database=russian_db,
-        engine_kwargs=dict(),
-    )
-    session = sql_client.get_session()
-    # Base.metadata.bind = session
-    print(session.query(Word).limit(10).one())

@@ -1,24 +1,29 @@
 from logging.config import fileConfig
+from typing import Dict
 
 from alembic import context
-from migrations.utils import get_conn_string, get_environment
+from alembic.config import Config
+from alembic.environment import EnvironmentContext
+from migrations.utils.alembic_x_args import get_conn_string_from_env_vars, get_x_arguments
 from sqlalchemy import engine_from_config, pool
+
+# this variable is already set when env.py runs
+context: EnvironmentContext
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config: Config = context.config
 
-# get environment argument from the upgrade command x arguments e.g. "-x env=local"
-environment = get_environment(context)
+# parse "x-arguments" from alembic commands of the form "alembic -x custom_key=custom_val -x ... upgrade"
+x_args: Dict[str, str] = get_x_arguments(context)
 
 # get the connection string from this environment
-conn_string = get_conn_string(environment, db="rootski_db")
+conn_string: str = get_conn_string_from_env_vars()
 
 # override the alembic.ini->sqlalchemy.url config with the connection string
 config.set_main_option("sqlalchemy.url", conn_string)
 
 # Interpret the config file for Python logging.
-# This line sets up loggers basically.
 fileConfig(config.config_file_name)
 
 # add your model's MetaData object here

@@ -4,15 +4,16 @@ Revision ID: c312f8c10ddd
 Revises: 01edfd407a46
 Create Date: 2021-01-17 22:28:29.335445
 
-# """
+"""
+
 from alembic import op
 from migrations.initial_data.gather_data import load_base_tables
-
-from rootski_api.services.data_models import *
+from migrations.initial_data.initial_models import Base
+from sqlalchemy.engine import Connection
 
 # revision identifiers, used by Alembic.
-revision = "c312f8c10ddd"
-down_revision = "01edfd407a46"
+revision = "3"
+down_revision = "2"
 branch_labels = None
 depends_on = None
 
@@ -27,10 +28,8 @@ def upgrade():
             file.write(error_msg)
         raise e
 
-    # raise ValueError("Die!")
-
 
 def downgrade():
-    connection = op.get_bind()
+    connection: Connection = op.get_bind()
     Base.metadata.drop_all(bind=connection)
     Base.metadata.create_all(bind=connection)

@@ -1,5 +1,5 @@
-from textwrap import dedent
 import platform
+from textwrap import dedent
 
 
 def get_localhost():
