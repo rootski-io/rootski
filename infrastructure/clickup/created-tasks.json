@@ -1468,5 +1468,380 @@
         "title": "\ud83d\udd25 Learn Linux and bash",
         "user_id": 26378491,
         "username": "Joseph Drapeau"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 26364446,
+        "username": "Isaac Robbins"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 26364446,
+        "username": "Isaac Robbins"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 26364446,
+        "username": "Isaac Robbins"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 26375595,
+        "username": "Chris Alexiuk"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 26375595,
+        "username": "Chris Alexiuk"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 26375595,
+        "username": "Chris Alexiuk"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\u2b50 Understand the Rootksi Architecture",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Set up Python",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Add your availability to Google Calendar",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Set up Slack",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Set up Docker Desktop",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Run Rootski Locally",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\u2b50\ufe0f Get access to AWS",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Set up Z-Shell",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Set up VS Code",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\u2b50 Set up DBeaver",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Read the Onboarding page",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Linux and bash",
+        "user_id": 48260825,
+        "username": "null"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 26378490,
+        "username": "Rahul Ojha"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 26378490,
+        "username": "Rahul Ojha"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 26378490,
+        "username": "Rahul Ojha"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 26378491,
+        "username": "Joseph Drapeau"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 26378491,
+        "username": "Joseph Drapeau"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 26378491,
+        "username": "Joseph Drapeau"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 26378493,
+        "username": "Ramraj Sekar"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 26378493,
+        "username": "Ramraj Sekar"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 26378493,
+        "username": "Ramraj Sekar"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 26378495,
+        "username": "Niha"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 26378495,
+        "username": "Niha"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 26378495,
+        "username": "Niha"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 26378497,
+        "username": "Nikhil Gulwade"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 26378497,
+        "username": "Nikhil Gulwade"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 26378497,
+        "username": "Nikhil Gulwade"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 26378503,
+        "username": "Subhronil Bose"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 26378503,
+        "username": "Subhronil Bose"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 26378503,
+        "username": "Subhronil Bose"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 26379994,
+        "username": "Jared Garlick"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 26379994,
+        "username": "Jared Garlick"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 26379994,
+        "username": "Jared Garlick"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 30097352,
+        "username": "Eric Riddoch"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 30097352,
+        "username": "Eric Riddoch"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 30097352,
+        "username": "Eric Riddoch"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 30099296,
+        "username": "Ayse Arslan"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 30099296,
+        "username": "Ayse Arslan"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 30099296,
+        "username": "Ayse Arslan"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 30099297,
+        "username": "Colin Varney"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 30099297,
+        "username": "Colin Varney"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 30099297,
+        "username": "Colin Varney"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 30099298,
+        "username": "Fazleem"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 30099298,
+        "username": "Fazleem"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 30099298,
+        "username": "Fazleem"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 30099299,
+        "username": "Ryan G"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 30099299,
+        "username": "Ryan G"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 30099299,
+        "username": "Ryan G"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 30099300,
+        "username": "Sebastian Sanchez"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 30099300,
+        "username": "Sebastian Sanchez"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 30099300,
+        "username": "Sebastian Sanchez"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 48005486,
+        "username": "Yashwanth Kumar Pamidimukkala"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 48005486,
+        "username": "Yashwanth Kumar Pamidimukkala"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 48005486,
+        "username": "Yashwanth Kumar Pamidimukkala"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 48098689,
+        "username": "Ben Doyle"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 48098689,
+        "username": "Ben Doyle"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 48098689,
+        "username": "Ben Doyle"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 48215984,
+        "username": "Zachary Beach"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 48215984,
+        "username": "Zachary Beach"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 48215984,
+        "username": "Zachary Beach"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 48217406,
+        "username": "Josh Abrahamsen"
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 48217406,
+        "username": "Josh Abrahamsen"
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 48217406,
+        "username": "Josh Abrahamsen"
+    },
+    {
+        "title": "\ud83d\udd25 Learn Trunk-based Development",
+        "user_id": 55231243,
+        "username": "Aastha Khanna "
+    },
+    {
+        "title": "\ud83d\udd25 Set up GitHub",
+        "user_id": 55231243,
+        "username": "Aastha Khanna "
+    },
+    {
+        "title": "\ud83d\udd25 Get Access to ClickUp",
+        "user_id": 55231243,
+        "username": "Aastha Khanna "
     }
 ]
