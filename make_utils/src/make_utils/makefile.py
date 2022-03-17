@@ -291,6 +291,7 @@ class Makefile:
 
         makefile_contents = "\n\n".join([do_not_modify_warning, self.makefile_header, target_grouped_by_tag])
 
+        print(f'Creating makefile at path: "{self.makefile_fpath}"')
         with open(self.makefile_fpath, "w") as file:
             file.write(makefile_contents)
 

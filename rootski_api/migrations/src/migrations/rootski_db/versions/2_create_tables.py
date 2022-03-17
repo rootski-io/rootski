@@ -1,12 +1,20 @@
 """
 create_tables
 
+Use the version of the SQLAlchemy models in
+initial_data/ to create the tables and columns in the database
+as they should have been on March 13, 2022. Those SQLAlchemy models
+should not be modified for future migrations.
+
+Instead, add, rename, or remove only the exact columns/tables
+that a migration calls for.
+
 Revision ID: 2
 Revises: 1
 Create Date: 2020-10-17 12:36:10.641316
 """
 from alembic import op
-from initial_data.initial_models import Base
+from migrations.initial_data.initial_models import Base
 
 # revision identifiers, used by Alembic.
 revision = "2"

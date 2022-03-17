@@ -22,7 +22,7 @@ from typing import Any, List, Tuple
 
 import numpy as np
 import pandas as pd
-from initial_data.initial_models import (
+from migrations.initial_data.initial_models import (
     Base,
     Breakdown,
     BreakdownItem,

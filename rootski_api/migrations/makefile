@@ -1,13 +1,69 @@
-# install python dependencies needed to run the database migrations
+# WARNING! DO NOT MODIFY THIS FILE! It was generated automatically
+# from the make.xsh file.
+
+
+
+# install python dependencies needed to run database migrations;
+# creating/activating a Python virtual environment is recommended!
 install:
+	# install python dependencies needed to execute various makefile targets
+	python -m pip install -e "../../make_utils"
 	python -m pip install -e .
 
-# generate a new database revision file
-new-revision:
-	@echo "[rootski] Please enter a SHORT name for the revision (spaces will be replaced with underscores): "; \
-    read REVISION_NAME; \
-    echo "Creating a migration file with name: $$REVISION_NAME" \
-	\
-	&& alembic revision \
-		-m "$$REVISION_NAME" \
-		--rev-id $$(python -m migrations.utils.get_new_revision_id)
+
+
+
+####################
+# --- MAKEFILE --- #
+####################
+
+# Show a list of available Makefile targets AKA commands.
+#
+# Run this! The output is nice and colorful ✨ 🎨 ✨
+help:
+	python -m xonsh make.xsh help
+
+
+# Generate a makefile from the targets registered with this instance of
+# the Makefile decorator.
+make:
+	python -m xonsh make.xsh make
+
+
+###############################
+# --- CREATING MIGRATIONS --- #
+###############################
+
+# Use the 'alembic' CLI to create a blank '.py' file that can be used
+# to define logic for a change to the rootski database schema.
+#
+# [blue]Note[/blue]: you need to have 'alembic' and other dependencies
+# installed for this to run. Run 'make install' to install those 😉.
+create-migration-file:
+	python -m xonsh make.xsh create-migration-file
+
+
+##############################
+# --- RUNNING MIGRATIONS --- #
+##############################
+
+# Attempt to run all of the "alembic" migrations against a database
+# starting from whichever migration the database is currently on.
+#
+# You can find the current alembic revision that a database is on
+# by looking for an "alembic_version" table. If the table doesn't exist
+# in the database, no revisions have been run.
+#
+# The connection information for the database will be taken from
+# the "rootski/dev.env" file.
+run-all-migrations-from-current--dev:
+	python -m xonsh make.xsh run-all-migrations-from-current--dev
+
+
+#################
+# --- UTILS --- #
+#################
+
+# Print env var prefix for running alembic commands against the local dev database.
+print-dev-alembic-env-vars:
+	python -m xonsh make.xsh print-dev-alembic-env-vars

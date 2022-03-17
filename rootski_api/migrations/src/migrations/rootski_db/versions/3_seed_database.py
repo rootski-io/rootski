@@ -7,8 +7,8 @@ Create Date: 2021-01-17 22:28:29.335445
 """
 
 from alembic import op
-from initial_data.gather_data import load_base_tables
-from initial_data.initial_models import Base
+from migrations.initial_data.gather_data import load_base_tables
+from migrations.initial_data.initial_models import Base
 from sqlalchemy.engine import Connection
 
 # revision identifiers, used by Alembic.
