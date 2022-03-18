@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name
+# noqa: D400
 """${message}
 
 Revision ID: ${up_revision}

@@ -1,3 +1,27 @@
+"""
+This is a microframework for working with Makefiles and python.
+
+The idea here is that writing python code is easier to do well
+than writing bash scripts. The benefits of Python over bash or sh are:
+
+- Python has more robust typing.
+- Python has a more robust ecosystem of QA tools: linting, testing, formatting, etc.
+- Python editors have better autocompletion.
+- It is easier to package and distribute reusable Python modules.
+
+Makefiles use sh as the scripting language which is much less fully-featured
+than bash which has the above drawbacks when compared to Python. However,
+Makefiles have two compelling benefits:
+
+- Many developers are familiar with Makefiles and have ``cmake`` installed.
+- Makefiles have built-in autocompletion in the command line.
+
+This framework allows you to add register python functions as Makefile targets
+by adding a ``@makefile.target()`` decorator to python functions.
+
+When implemented, you can generate a Makefile that is a very thin wrapper
+around the python functions.
+"""
 import os
 import sys
 from collections import defaultdict
@@ -6,6 +30,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Callable, Dict, List, Optional
 
+# pylint: disable=redefined-builtin
 from rich import print
 from rich.panel import Panel
 
@@ -22,6 +47,7 @@ FILE_WARNING_HEADER = dedent(
 
 
 def comment_string(string: str):
+    """Prepend the ``#`` character to all lines to represent a comment."""
     result = dedent("\n".join(["# " + line.strip() for line in string.splitlines()]))
     return result
 
@@ -52,7 +78,7 @@ def generate_help_message_tag_section(tag: str, targets: List["Target"]):
     \t<tag text>
     \t\thelp command 1 ...
     \t\thelp command 2 ...
-    """
+    """  # noqa: D301
     # create a row in the help message for each target
     target_help_entries: str = "\n\n".join([make_help_entry_from_function(trg) for trg in targets])
 
@@ -72,6 +98,8 @@ def generate_help_message_tag_section(tag: str, targets: List["Target"]):
 
 @dataclass(frozen=True)
 class Target:
+    """Represents a makefile target that executes a certain callable function."""
+
     function: Callable
     alias: Optional[str] = None
 
@@ -95,6 +123,8 @@ class Makefile:
         makefile_fpath: Path = Path("Makefile"),
     ):
         """
+        Instantiate a Makefile object to be used to decorate python functions.
+
         :param makefile_script_fname: filename to use in the help message
             and refer to in the generated makefile targets. It could be a ``.py``
             or a ``.xsh`` script.
@@ -191,7 +221,7 @@ class Makefile:
 
     def target(self, tag: str = "", alias: Optional[str] = None):
         """
-        Decorator that registers python functions as a target.
+        Use this as a decorator to register a python function as a target.
 
         :param tag: Allows targets to be grouped by "tag" in the help message.
         :param alias: If set, uses the alias as the makefile target name instead
@@ -217,19 +247,25 @@ class Makefile:
 
     def __generate_makefile_target_text(self, target: Target) -> str:
         """
-        From a function like this:
+        Generate the text for the Makefile that calls the ``target`` using python.
 
-        def example_target:
-            "An example target."
-            ...
+        For example, from a function like this:
 
-        Return
+        .. code-block:: python
 
-        # An example target
-        example-target:
-            python -m xonsh <script_name> example-target # if .xsh
-            OR
-            python <script_name> example-target # if .py
+            def example_target:
+                "An example target."
+                ...
+
+        This would return:
+
+        .. code-block:: text
+
+            # An example target
+            example-target:
+                python -m xonsh <script_name> example-target # if .xsh
+                OR
+                python <script_name> example-target # if .py
         """
         # create a comment from the docstring
         docstring = target.function.__doc__
@@ -270,11 +306,8 @@ class Makefile:
         return section_heading + targets
 
     def generate_makefile(self):
-        """
-        Generate a makefile from the targets registered with this instance of
-        the Makefile decorator.
-        """
-
+        """Generate a makefile from the targets registered with this Makefile instance."""
+        # pylint: disable=pointless-string-statement
         """
         .. note:: this docstring is split in half because we don't want the
             arguments to show up in the "make" target when running "make help".
@@ -291,7 +324,8 @@ class Makefile:
 
         makefile_contents = "\n\n".join([do_not_modify_warning, self.makefile_header, target_grouped_by_tag])
 
-        with open(self.makefile_fpath, "w") as file:
+        print(f'Creating makefile at path: "{self.makefile_fpath}"')
+        with open(self.makefile_fpath, "w", encoding="utf-8") as file:
             file.write(makefile_contents)
 
     ######################################
@@ -326,17 +360,17 @@ if __name__ == "__main__":
         This is a target with a multi-line docstring.
 
         Very cool explanation. Oh yeah!
-        """
+        """  # noqa: D401
         ...
 
     @makefile.target(tag="basic")
     def target_three():
-        """A third target"""
+        """A third target."""  # noqa: D401
         ...
 
     @makefile.target(tag="basic")
     def some_target():
-        """This is a target."""
+        """This is a target."""  # noqa: D401
         ...
 
     # generate the makefile in the same folder as this file

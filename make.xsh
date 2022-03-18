@@ -11,10 +11,6 @@ import json
 from textwrap import dedent
 from glob import glob
 
-# manually add ./make_utils/ to PYTHONPATH so we can import from the make_utils module
-THIS_DIR = Path(__file__).parent.absolute()
-sys.path.insert(0, str(THIS_DIR))
-
 from make_utils.utils_without_dependencies import print_import_error_help_message, get_localhost
 
 try:
@@ -43,6 +39,8 @@ from make_utils.docker import (
 #####################
 # --- Constants --- #
 #####################
+
+THIS_DIR = Path(__file__).parent.resolve().absolute()
 
 # names of env files containing secrets for database, traefik, API, etc.
 DEV_ENV_FILE = "dev.env"
@@ -73,6 +71,8 @@ onboard:
 install:
 \t# install python dependencies needed to execute various makefile targets
 \tpython -m pip install xonsh==0.10.1 rich pre-commit==2.15.0 bcrypt==3.2.0 dvc[s3]==2.9.4
+\t# install python-makefile microframework
+\tpython -m pip install -e "./make_utils/"
 \t# install pre-commit hooks to protect the quality of code committed by contributors
 \tpre-commit install
 \t# install git lfs for downloading rootski CSVs and other large files in the repo
@@ -137,6 +137,9 @@ def build_images():
 
     cd rootski_api
     docker-compose build
+
+    # cd @(str(THIS_DIR))/rootski_db_migrations && make build-image
+    cd @(str(THIS_DIR))/rootski_db_migrations && make build-image
 
 
 @makefile.target(tag="run services locally")
@@ -481,8 +484,9 @@ def run():
 
 @makefile.target(tag="run services locally")
 def seed_dev_db():
-    """Wipe and seed the dev database running locally."""
-    wipe_and_seed_db(env_file=DEV_ENV_FILE),
+    """Seed the dev database running locally by running "alembic" migrations."""
+    cd ./rootski_db_migrations
+    make run-all-migrations-from-current--dev--docker
 
 @makefile.target(tag="run services locally")
 def seed_prod_db():
@@ -787,6 +791,8 @@ def print_dev_backend_startup_message():
         expand=False,
     )
     print(panel)
+
+
 
 
 def wipe_and_seed_db(env_file):

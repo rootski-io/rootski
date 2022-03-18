@@ -1,73 +1,143 @@
 """
-Gather the russian data csv files and load them into database tables
+Gather the russian data csv files and load them into database tables.
 
-NOTE, some of the file paths here differ from those in the original
-rootski/data/master/gather_data.py to be more organized
+This script relies on a few environment variables variables:
 
-This script using the following environment variables:
+.. code-block:: yaml
 
-DATA_DIR - absolute path to the data dir (useful if running in docker)
-POSTGRES_USER - the postgres user
-POSTGRES_PASSWORD - the postgres password
-POSTGRES_DB - the postgres database
-POSTGRES_HOST - the postgres host
-POSTGRES_PORT - the postgres port
+    DATA_DIR: absolute path to the data dir (useful if running in docker)
+    POSTGRES_USER: the postgres user
+    POSTGRES_PASSWORD: the postgres password
+    POSTGRES_DB: the postgres database
+    POSTGRES_HOST: the postgres host
+    POSTGRES_PORT: the postgres port
+
+.. note::
+
+    Hi there, Eric here. I am *so* sorry about the code quality in this file.
+    I wrote most of it years ago when
+
+    a. I hadn't learned as many good practices
+    b. I was moving fast trying to get the data just organized enough to start building the application
+
+    A few glaring problems here are:
+
+    - this file is long so it's hard to digest
+    - the pandas operations are hard to understand (this is usually the case)
+    - the docstrings use a format inconsistent with the rest of rootski (we've moved from Google format to Sphinx)
+    - magic numbers
+    - the comments and docstrings are vague
+    - there are very few type annotations
+
+    We'll incrementally refactor this file as it makes sense.
 """
 
 import os
 import sys
 import time
 from os.path import join
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
+import numpy as np
 import pandas as pd
-from rootski.services.database.models import (  # noqa: F401
-    Adjective,
-    Base,
+from migrations.initial_data.initial_models import (
     Breakdown,
     BreakdownItem,
-    Conjugation,
     Definition,
     DefinitionItem,
     Morpheme,
     MorphemeFamily,
     MorphemeFamilyMeaning,
-    Noun,
     Sentence,
     SentenceTranslation,
-    User,
     VerbPair,
     Word,
-    WordToSentence,
 )
-from rootski.services.database.non_orm.utils import collapse_df
-from sqlalchemy import create_engine, engine
+from migrations.utils.alembic_x_args import get_db_connection_string_from_env_vars
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
-
-# import folders_and_vocab_sets.folder_operations as ops
-# import sql as SQL_STATEMENTS
-# from sql import to_postgres
-
 
 # get the location of the csv files
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 DATA_DIR = join(THIS_DIR, "data") if not os.environ.get("DATA_DIR") else os.environ.get("DATA_DIR")
 
-# create sqlite database russian.db from the csv files
-# !rm ./russian.db
-postgres_digital_ocean = "postgresql://doadmin:zqgfi63yxjt6gd31@russian-app-db-do-user-7153716-0.db.ondigitalocean.com:25060/russian?sslmode=require"
-postgres_localhost = "postgresql://rootski:pass@localhost:5432/rootski_db"
-sqlite_db = "sqlite:////Users/eric/Desktop/rootski/data/russian/master/russian.db"
 
-AWS_SPOT_IP = "52.25.62.214"
-postgres_aws = f"postgresql://rootski:pass@{AWS_SPOT_IP}:5432/rootski_db"
+def get_group_data(
+    group_df: pd.DataFrame,
+    *group_cols,
+) -> Dict[str, pd.DataFrame]:
+    """
+    Convert a dataframe resulting from a ``df.groupby()`` call to a dict.
 
-# change this to select db
-db = postgres_localhost
+    The keys of the dict is the value defining the group.
+    """
+    first_row = group_df.iloc[0]
+    return {col: first_row[col] for col in group_cols}
 
 
-def collapse_deconstructions_df(df):
-    """Separate the deconstructions dataframe into 2 so that the join goes from
+def get_group_children(group_df, *child_cols, sort_col=None, ascending=True) -> Dict[str, pd.DataFrame]:
+    """Turn a dataframe resulting from ``df.groupby()`` into a dict."""
+    child_df: pd.DataFrame = group_df[list(child_cols)]
+    if sort_col is not None:
+        child_df.sort_values(sort_col, ascending=ascending, inplace=True)
+    child_rows = child_df.to_dict(orient="records")
+    return child_rows
+
+
+# pylint: disable=too-many-arguments, invalid-name, too-many-locals
+def collapse_df(
+    df: pd.DataFrame,
+    groupby_col,
+    group_cols,
+    child_cols,
+    child_name,
+    grp_sort_col=None,
+    grp_ascending=True,
+    ch_sort_col=None,
+    ch_ascending=True,
+):
+    """
+    Collapses results of two joined dataframes.
+
+    Args:
+        df (pd.DataFrame): dataframe to collapse
+        groupby_col (str): column name to group by and collapse
+        group_cols (list[str]): list of column names to keep at the group level
+        grp_sort_col (str): one of the group_cols, sort the group rows by this col
+        grp_ascending (bool): sort group cols in ascending order
+        child_cols (list[str]): list of columns to keep for each child in the child attribute
+        child_name (str): name of the child attribute
+        ch_sort_col (str): one of the child_cols, sorts children within group by this column
+    """
+    collapsed_rows = []
+
+    # solves JSON serialization problem by casting numpy types to python types
+    df = df.replace({np.nan: None})
+    df = df.astype(object)
+
+    groupby = df.groupby(groupby_col)
+    groups = list(groupby.groups.keys())
+
+    for group in groups:
+        group_df = groupby.get_group(group)
+        group_data = get_group_data(group_df, *group_cols)
+        group_children = get_group_children(group_df, *child_cols, sort_col=ch_sort_col, ascending=ch_ascending)
+        group_data[child_name] = group_children
+        collapsed_rows.append(group_data)
+
+    if grp_sort_col:
+        collapsed_rows = sorted(collapsed_rows, key=lambda row: row[grp_sort_col], reverse=not grp_ascending)
+
+    return collapsed_rows
+
+
+# pylint: disable=invalid-name
+def collapse_deconstructions_df(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Separate the deconstructions dataframe into 2.
+
+    The joins will look like this:
+
     word -> deconstructions (and then some python logic to get them in the right form)
     to
     word -> word_to_breakdown -> breakdowns
@@ -104,7 +174,10 @@ def collapse_deconstructions_df(df):
 
 
 def collapse_family_meanings_df(family_meanings: pd.DataFrame):
-    """The same morpheme family can have multiple meanings.
+    """Break the family meanings df into two dfs that can be joined.
+
+    The same morpheme family can have multiple meanings.
+
     However, we only have one csv: family_meanings, where the "primary_key" (family_id)
     is not unique: it repeats when there is more than one meaning.
 
@@ -131,34 +204,23 @@ def collapse_family_meanings_df(family_meanings: pd.DataFrame):
     return family_meanings, morpheme_families
 
 
-def load_base_tables(db: str = None, seeding_db: bool = True, connection=None, verbose=False):
+# pylint: disable=too-many-statements, too-many-locals
+def load_base_tables(
+    db_conn_url: Optional[str] = None,
+    engine_override: Optional[Engine] = None,
+    verbose: bool = False,
+    chunksize: int = 2**11,
+):
     """
-    Args:
-        db: connection string to a database
-        seeding_db: if True, drop/create tables before loading the database.
-            if False, assume the tables are already created.
-        connection: a sqlalchemy connection to the database, used if :db:
-            not provided
-    """
+    Load CSV files into the SQL database pointed to by ``db_conn_url``.
 
-    chunksize = 2 ** 11
-    method = "multi"  # write dataframes to non-sqlite databases
-    if db == sqlite_db:
-        chunksize = None  # write to sqlite all at once
-
-    # create vocab sets and folders table
-    # vocab_set_terms = pd.DataFrame(
-    #     columns=["vocab_set_id", "term_id", "term_type", "position"]
-    # )
-    # vocab_sets = pd.DataFrame(columns=["vocab_set_id", "name", "owner"])
-    # folder_contents = pd.DataFrame(columns=["folder_id", "child_id", "child_type"])
-    # folders = pd.DataFrame(columns=["folder_id", "name", "owner"])
-
+    :param db_conn_url: connection string for a postgres database
+    :param engine_override: used instead of using ``db_conn_url`` to create an engine.
+    :param verbose: print the SQL statements as they are emitted
+    :param chunksize: batch size of number of records to insert into the database
     """
-    Read in the many CSV files as dataframes
-    """
-    # frequencies = pd.read_csv(join(DATA_DIR, 'clean_frequencies.csv'))
-    # word_types = pd.read_csv(join(DATA_DIR, 'word_types.csv'))
+    if not db_conn_url and not engine_override:
+        raise ValueError("One of db_conn_url or engine_override must be set to seed the database.")
 
     #################
     # --- Words --- #
@@ -213,24 +275,23 @@ def load_base_tables(db: str = None, seeding_db: bool = True, connection=None, v
     merge = merge[merge.id.notnull()].drop_duplicates(["id", "family"])  # drop na on "id" column
     morpheme_families = merge[morpheme_families.columns]
 
-    """
-    At this point, the following SQL query:
+    # At this point, the following SQL query:
 
-    select (sort of *)
-    from morphemes
-    inner join morpheme_families on morphemes.family_id = morpheme_families.id
-    where morpheme_families.family is null or morpheme_families.level is null
+    # select (sort of *)
+    # from morphemes
+    # inner join morpheme_families on morphemes.family_id = morpheme_families.id
+    # where morpheme_families.family is null or morpheme_families.level is null
 
-    returns this
+    # returns this
 
-    morpheme_id morpheme    type    pos         family_id family level
-    2266	    ионный	    suffix	adjective	1425      NULL	 NULL
-    2496	    о	        link	any	        1426	  NULL	 NULL
-    2497	    е	        link	any	        1427	  NULL	 NULL
+    # morpheme_id morpheme    type    pos         family_id family level
+    # 2266	    ионный	    suffix	adjective	1425      NULL	 NULL
+    # 2496	    о	        link	any	        1426	  NULL	 NULL
+    # 2497	    е	        link	any	        1427	  NULL	 NULL
 
-    basically, for these 3 rows, the family and level are null. This causes
-    Errors in the API. We need to fix this:
-    """
+    # basically, for these 3 rows, the family and level are null. This causes
+    # Errors in the API. We need to fix this:
+
     morpheme_families.family = morpheme_families.family.fillna(merge.morpheme)
     morpheme_families.level = morpheme_families.level.fillna(value=6.0)
 
@@ -260,24 +321,12 @@ def load_base_tables(db: str = None, seeding_db: bool = True, connection=None, v
     # we're not using the definition examples because they are sparse
     # definition_examples = pd.read_csv(join(DATA_DIR, 'definition_examples.csv'))
 
-    """
-    Create the tables from SQLAlchemy definitions
-    """
-    engine = None
-    if db:
-        engine = create_engine(db, echo=verbose)
-    else:
-        if not connection:
-            raise ValueError("You must provide one of :db: or :connection: as an argument")
-        engine = connection
+    # Create the tables from SQLAlchemy definitions
+    engine = engine_override or create_engine(db_conn_url, echo=verbose)
 
-    if seeding_db:
-        Base.metadata.drop_all(bind=engine)
-        Base.metadata.create_all(bind=engine)
+    engine.execute("SELECT * FROM words")
 
-    """
-    Populate the created SQL tables from the dataframes
-    """
+    # Populate the created SQL tables from the dataframes
     to_sql_args = {
         "if_exists": "append",
         "con": engine,
@@ -304,12 +353,7 @@ def load_base_tables(db: str = None, seeding_db: bool = True, connection=None, v
     definitions.to_sql(name="definitions", **to_sql_args)
     definition_contents.to_sql(name="definition_contents", **to_sql_args)
     # we aren't using the definition_examples because the data was very sparse
-    ## definition_examples.to_sql(name='definition_examples', **to_sql_args)
-
-    ## vocab_sets.to_sql(if_exists="append", name='vocab_sets', con=engine, index=False, method=method, chunksize=chunksize)
-    ## vocab_set_terms.to_sql(if_exists="append", name='vocab_set_terms', con=engine, index=False, method=method, chunksize=chunksize)
-    ## folders.to_sql(if_exists="append", name='folders', con=engine, index=False, method=method, chunksize=chunksize)
-    ## folder_contents.to_sql(if_exists="append", name='folder_contents', con=engine, index=False, method=method, chunksize=chunksize)
+    # definition_examples.to_sql(name='definition_examples', **to_sql_args)
 
     # create indexes for faster querying (this way gets faster results than setting the
     # pd.DataFrame index and setting index=True in pd.to_sql(if_exists="replace", )
@@ -349,11 +393,10 @@ def load_base_tables(db: str = None, seeding_db: bool = True, connection=None, v
 #         conn.execute(sql)
 
 
-"""
-Logic for fixing autoincrement in our tables/pk columns after doing this bulk load
-"""
+#############################################
+# --- Fix for autoincrement in postgres --- #
+#############################################
 
-#
 # Inserts into the database were failing. I searched for hours and finally found this SO answer:
 # https://stackoverflow.com/questions/4448340/postgresql-duplicate-key-violates-unique-constraint
 #
@@ -367,7 +410,6 @@ Logic for fixing autoincrement in our tables/pk columns after doing this bulk lo
 # To fix this, we need to call the SETVAL() postgres function on all of our primary key columns
 # in all of our tables after doing a bulk load.
 #
-
 
 SET_VAL_QUERY = """
 select setval(
@@ -392,31 +434,51 @@ PRIMARY_KEY_TABLES_AND_COLUMNS = [
 ]
 
 
-def fix_pkey_for_table(table_name, pk_column, engine: engine):
+def fix_pkey_for_table(table_name, pk_column, engine: Engine):
+    """Set the autoincrement value to the correct number in a primary key column.
+
+    This fixes a problem where data loaded from a CSV into the postgres database
+    doesn't correctly update the autoincrementing primary key value. Result:
+    if we load primary keys 1, 2, and 3 and then insert a new row in the table,
+    postgres will try to insert 1 again. We need it to insert 4 in this scenario.
+
+    :param table_name: SQL table to fix the primary key column in
+    :param pk_column: Autoincrementing column in the table to fix
+    :param _engine: SQLAlchemy object to connect to the database
+    """
     print(f"Setting sequence for {table_name}")
     query = SET_VAL_QUERY.format(table_name=table_name, pk_column=pk_column)
     engine.execute(query)
 
 
 def fix_all_tables(
-    engine: engine,
-    table_pk_pairs: List[Tuple[Any, str]] = PRIMARY_KEY_TABLES_AND_COLUMNS,
+    engine: Engine,
+    table_pk_pairs: Optional[List[Tuple[Any, str]]] = None,
 ):
+    """Fix the autoincrement problem on all tables in ``table_pk_pairs``.
+
+    :param engine: for connecting to the database
+    :param table_pk_pairs: List of tuples where the first argument is a SQLAlchemy model class and the
+        second is a primary key column name whose autoincrement should be fixed.
+    """
+    table_pk_pairs: List[Tuple[Any, str]] = table_pk_pairs or PRIMARY_KEY_TABLES_AND_COLUMNS
     for table, pk_column in table_pk_pairs:
         fix_pkey_for_table(table.__tablename__, pk_column, engine)
 
 
 def seed_database(connection_string: str):
-    # build the connection string from environment variables
+    """Load several data from CSV files into a SQL database.
 
+    :param connection_string: URL for the database with credentials
+    """
     try:
-        load_base_tables(connection_string, seeding_db=True, verbose=True)
-        engine = create_engine(connection_string, echo=True)
+        load_base_tables(db_conn_url=connection_string, verbose=True)
+        engine: Engine = create_engine(connection_string, echo=True)
         fix_all_tables(engine=engine)
-    except Exception as e:
-        with open("error.log", "w") as file:
-            file.write(str(e))
-        raise e
+    except Exception as err:
+        with open("error.log", "w", encoding="utf-8") as file:
+            file.write(str(err))
+        raise err
 
     split_deconstructions_table_into_breakdown_and_word_to_breakdown_tables = False
     if split_deconstructions_table_into_breakdown_and_word_to_breakdown_tables:
@@ -427,10 +489,10 @@ def seed_database(connection_string: str):
 
 
 def is_database_seeded(connection_string: str, retries=10, retry_delay_seconds=3) -> bool:
-
+    """Return ``True`` if the data in this script has already been loaded into a database."""
     for i in range(retries):
         try:
-            engine = create_engine(connection_string)
+            engine: Engine = create_engine(connection_string)
             with Session(bind=engine) as session:
                 words: List[Word] = session.query(Word).limit(5).all()
                 print(f"Got words from the database: {words}")
@@ -438,38 +500,27 @@ def is_database_seeded(connection_string: str, retries=10, retry_delay_seconds=3
                 if len(words) == 5:
                     print("success")
                     return True
-        except Exception as e:
-            print(e)
+        # pylint: disable=broad-except
+        except Exception as err:
+            print(err)
             print(f"Retry {i}/{retries} failed to connect see if the database is seeded. Trying again.")
         time.sleep(retry_delay_seconds)
     return False
 
 
-def get_db_connection_string_from_env_vars() -> str:
-    from os import environ as e
-
-    db = "postgresql://{user}:{password}@{host}:{port}/{database}".format(
-        user=e["POSTGRES_USER"],
-        password=e["POSTGRES_PASSWORD"],
-        host=e["POSTGRES_HOST"],
-        port=e["POSTGRES_PORT"],
-        database=e["POSTGRES_DB"],
-    )
-    return db
-
-
 def main():
+    """Consume the CLI arguments and perform an operation against against a running database."""
     # read CLI arguments
     args = sys.argv
     arg = args[1]
 
     # get the db conenction string
-    conn_str = get_db_connection_string_from_env_vars()
+    db_connection_url: str = get_db_connection_string_from_env_vars(confirm_url_with_user=True)
 
     # run the specified subcommand
     command = {
-        "seed-db": lambda: seed_database(conn_str),
-        "is-db-seeded": lambda: is_database_seeded(conn_str),
+        "seed-db": lambda: seed_database(db_connection_url),
+        "is-db-seeded": lambda: is_database_seeded(db_connection_url),
     }[arg]
     command()
 

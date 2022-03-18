@@ -22,6 +22,8 @@ onboard:
 install:
 	# install python dependencies needed to execute various makefile targets
 	python -m pip install xonsh==0.10.1 rich pre-commit==2.15.0 bcrypt==3.2.0 dvc[s3]==2.9.4
+	# install python-makefile microframework
+	python -m pip install -e "./make_utils/"
 	# install pre-commit hooks to protect the quality of code committed by contributors
 	pre-commit install
 	# install git lfs for downloading rootski CSVs and other large files in the repo
@@ -41,8 +43,7 @@ help:
 	python -m xonsh make.xsh help
 
 
-# Generate a makefile from the targets registered with this instance of
-# the Makefile decorator.
+# Generate a makefile from the targets registered with this Makefile instance.
 make:
 	python -m xonsh make.xsh make
 
