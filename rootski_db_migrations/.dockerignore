@@ -1,0 +1,6 @@
+# virtual environments
+venv/
+./venv/
+
+# CSV files (these should be mounted into the container)
+**/*.csv
