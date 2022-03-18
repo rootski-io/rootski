@@ -10,7 +10,7 @@ Create Date: 2021-01-17 22:28:29.335445
 from alembic import op
 from migrations.initial_data.gather_data import load_base_tables
 from migrations.initial_data.initial_models import Base
-from sqlalchemy.engine import Connection
+from sqlalchemy.engine import Connection, Engine
 
 # revision identifiers, used by Alembic.
 revision = "3"
@@ -21,8 +21,9 @@ depends_on = None
 
 def upgrade():
     """Load all of the initial_data/ into the database."""
-    connection = op.get_bind()
-    load_base_tables(seeding_db=True, connection=connection)
+    connection: Connection = op.get_bind()
+    engine: Engine = connection.engine
+    load_base_tables(engine_override=engine, verbose=True)
 
 
 def downgrade():
