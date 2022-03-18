@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 """seed_database
 
 Revision ID: c312f8c10ddd
@@ -19,17 +20,13 @@ depends_on = None
 
 
 def upgrade():
-    try:
-        connection = op.get_bind()
-        load_base_tables(seeding_db=True, connection=connection)
-    except Exception as e:
-        error_msg = str(e)
-        with open("/Users/eric/Desktop/rootski/rootski/rootski_api/migrations/error.py", "w") as file:
-            file.write(error_msg)
-        raise e
+    """Load all of the initial_data/ into the database."""
+    connection = op.get_bind()
+    load_base_tables(seeding_db=True, connection=connection)
 
 
 def downgrade():
+    """Drop the tables associated with the initial data."""
     connection: Connection = op.get_bind()
     Base.metadata.drop_all(bind=connection)
     Base.metadata.create_all(bind=connection)

@@ -1,14 +1,6 @@
-from sqlalchemy import (
-    TIMESTAMP,
-    Column,
-    DateTime,
-    Enum,
-    ForeignKey,
-    PrimaryKeyConstraint,
-    String,
-    Text,
-    UniqueConstraint,
-)
+"""SQLAlchemy models, each of which represents a table in the rootski database."""
+
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, PrimaryKeyConstraint, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import CreateTable
@@ -20,6 +12,8 @@ Base = declarative_base()
 
 
 class GenericToString:
+    """Mixin for adding default magic methods to SQLAlchemy models."""
+
     def __repr__(self):
         return str(self.__dict__)
 
@@ -60,6 +54,8 @@ def print_ddl(table_class, connection_or_engine):
 
 
 class User(Base, GenericToString):
+    """Table to represent users."""
+
     __tablename__ = "users"
 
     # WARNING! We are using the user email as the primary key.
@@ -93,6 +89,8 @@ class User(Base, GenericToString):
 
 
 class Word(Base, GenericToString):
+    """Contains a row for each russian word searchable by rootski."""
+
     __tablename__ = "words"
 
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
@@ -143,6 +141,8 @@ class MorphemeFamily(Base, GenericToString):
 
 
 class MorphemeFamilyMeaning(Base, GenericToString):
+    """Definition of a family of morphemes."""
+
     __tablename__ = "morpheme_family_meanings"
 
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
@@ -154,6 +154,8 @@ class MorphemeFamilyMeaning(Base, GenericToString):
 
 
 class Morpheme(Base, GenericToString):
+    """Roots, prefixes, and suffixes that comprise Russian words."""
+
     __tablename__ = "morphemes"
 
     morpheme_id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
@@ -175,6 +177,12 @@ class Morpheme(Base, GenericToString):
 
 
 class Breakdown(Base, GenericToString):
+    """
+    An ordered collection of roots, prefixes, suffixes, or "null-morphemes".
+
+    The ordered collection must sum to the word.
+    """
+
     __tablename__ = "word_to_breakdowns"
 
     word_id = Column(Integer, ForeignKey("words.id"), nullable=False)
@@ -227,6 +235,8 @@ class Breakdown(Base, GenericToString):
 
 
 class BreakdownItem(Base, GenericToString):
+    """A reference to a root, prefix, or suffix as part of a word breakdown."""
+
     __tablename__ = "breakdowns"
     # __table_args__ = (
     #     # a morpheme should never be used twice in the same word (unless it is the NULL morpheme)
@@ -281,6 +291,8 @@ class BreakdownItem(Base, GenericToString):
 
 
 class Noun(Base, GenericToString):
+    """Grammatical information about nouns."""
+
     __tablename__ = "nouns"
 
     word_id = Column(Integer, ForeignKey("words.id"), nullable=False, primary_key=True)
@@ -322,6 +334,8 @@ class Noun(Base, GenericToString):
 
 
 class Adjective(Base, GenericToString):
+    """Grammatical information about adjectives."""
+
     __tablename__ = "adjectives"
 
     word_id = Column(Integer, ForeignKey("words.id"), nullable=False, primary_key=True)
@@ -336,6 +350,8 @@ class Adjective(Base, GenericToString):
 
 
 class Conjugation(Base, GenericToString):
+    """Grammatical information about verbs."""
+
     __tablename__ = "verbs"
 
     word_id = Column(Integer, ForeignKey("words.id"), nullable=False, primary_key=True)
@@ -374,6 +390,8 @@ class Conjugation(Base, GenericToString):
 
 
 class VerbPair(Base, GenericToString):
+    """Aspectual pairs of Russian verbs, one is imperfective the other is perfective."""
+
     # TODO, redo this so that the columns are "verb_id", "other_verb_id", so there will be
     # AT LEAST 2 * n rows in this table where n is the number of verbs
     __tablename__ = "verb_pairs"
@@ -400,6 +418,8 @@ class VerbPair(Base, GenericToString):
 
 
 class Sentence(Base, GenericToString):
+    """A sentence in the Russian language."""
+
     __tablename__ = "sentences"
 
     sentence_id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
@@ -410,6 +430,8 @@ class Sentence(Base, GenericToString):
 
 
 class SentenceTranslation(Base, GenericToString):
+    """An English translation for the sentence in the Russian language."""
+
     __tablename__ = "sentence_translations"
 
     translation_id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
@@ -425,7 +447,7 @@ class SentenceTranslation(Base, GenericToString):
 
 
 class WordToSentence(Base, GenericToString):
-    """Bridge table between words and sentences"""
+    """Association table between words and sentences."""
 
     __tablename__ = "word_to_sentence"
     __table_args__ = (
@@ -450,6 +472,8 @@ class WordToSentence(Base, GenericToString):
 
 class Definition(Base, GenericToString):
     """
+    Definitions of Russian words.
+
     There are 2 types of definition in this table: parent and child.
     Parent definitions have a null "definition" field. Parent definitions
     can be joined with the "definition_contents" table to access the child/sub definitions
@@ -488,7 +512,9 @@ class Definition(Base, GenericToString):
 
 class DefinitionItem(Base, GenericToString):
     """
-    This is a bridge table. Each row in this table represents either
+    Association table between definitions and definition items.
+
+    Each row in this table represents either
     a sub-definition or an example. The join to get a list of sub-definitions from
     a word looks like this:
 
@@ -513,22 +539,3 @@ class DefinitionItem(Base, GenericToString):
     # many-to-one
     definition = relationship("Definition", uselist=False, foreign_keys=[definition_id])
     child = relationship("Definition", uselist=False, foreign_keys=[child_id])
-
-
-if __name__ == "__main__":
-    from rootski.services.database.non_orm.sql_client import SqlClient
-
-    russian_db = "/Users/eric/Desktop/rootski/data/russian/master/russian.db"
-    sql_client = SqlClient(
-        sql_dialect="sqlite",
-        driver_lib=None,
-        username=None,
-        password=None,
-        host=None,
-        port=None,
-        database=russian_db,
-        engine_kwargs=dict(),
-    )
-    session = sql_client.get_session()
-    # Base.metadata.bind = session
-    print(session.query(Word).limit(10).one())

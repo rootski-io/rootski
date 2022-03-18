@@ -1,3 +1,15 @@
+# pylint: disable=invalid-name
+"""
+This script is a configuration file for ``alembic``.
+
+This script executes at the beginning of all ``alembic`` commands.
+Some reasons to modify this script include:
+
+- doing something with custom ``alembic`` arguments (x-arguments)
+- dynamically overriding values set in ``alembic.ini``
+- running any custom logic BEFORE migrations are executed
+- configuring values that can be accessed at migration time
+"""
 from logging.config import fileConfig
 from typing import Dict
 

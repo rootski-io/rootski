@@ -1,36 +1,59 @@
 """
-Utility functions written in pure python for:
+Utility functions for makefiles written in pure python.
+
+Some of the uses include:
 
 - logging
 - rendering templates where values are formatted ${LIKE_THIS}
 - raising Errors
-
 """
 
 import sys
 from textwrap import dedent
 
+# pylint: disable=redefined-builtin
 from rich import print
+
+from make_utils.utils_without_dependencies import safe_format
 
 
 class MakeXshError(Exception):
-    def __init__(self, msg, exit=True, **kwargs):
+    """
+    Custom exception that can halt program execution on init.
+
+    This is useful when running bash-like commands in .xsh scripts
+    which should halt the script execution if the command fails. For example,
+
+    .. code-block:: text
+
+        # should cause the .xsh program to exit with a useful message
+        cat non_existant_file.txt || @(MakeXshError("File does not exist!"))
+    """
+
+    def __init__(self, msg, _exit=True):
+        super().__init__(msg)
         log(f"Error: {msg}", mode="error")
-        if exit:
+        if _exit:
             sys.exit(1)
 
 
 def log(msg, mode="info"):
+    """
+    Write a colorized message to the console with a ``[rootski]`` prefix for utility scripts.
+
+    :param mode: determines the color of the log message
+    """
     color = {
         "info": "cyan",
         "error": "red",
     }[mode]
+    # pylint: disable=anomalous-backslash-in-string
     print(f"[green]\[rootski][/green] [{color}]{msg}[/{color}]")
 
 
 def render_template(template_fpath, values, outfile_path=None):
-    """Render a template file where the file has placeholders in the form of
-    ${variable_name} similar to a pytemplate
+    """
+    Render a template file where the file has placeholders in the form of ``${variable_name}``.
 
     Args:
         template_fpath (Path): file path to a text file name *.template.*;
@@ -44,7 +67,7 @@ def render_template(template_fpath, values, outfile_path=None):
         MakeXshError: if ".template" is not present in the file name
     """
     filename = template_fpath.name
-    if not ".template" in filename:
+    if ".template" not in filename:
         MakeXshError("File name must contain '.template'")
 
     file_warning_header = dedent(
