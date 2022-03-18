@@ -8,7 +8,7 @@ empty database.
 Revision ID: 6e442c999465
 Revises:
 Create Date: 2020-10-17 12:33:38.559290
-"""
+"""  # noqa: D400
 
 # revision identifiers, used by Alembic.
 revision = "1"
@@ -18,8 +18,8 @@ depends_on = None
 
 
 def upgrade():
-    pass
+    """Do nothing (intentionally)."""
 
 
 def downgrade():
-    pass
+    """Do nothing (intentionally)."""

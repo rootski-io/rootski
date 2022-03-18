@@ -13,7 +13,7 @@ that a migration calls for.
 Revision ID: 2
 Revises: 1
 Create Date: 2020-10-17 12:36:10.641316
-"""
+"""  # noqa: D400
 from alembic import op
 from migrations.initial_data.initial_models import Base
 
@@ -25,12 +25,12 @@ depends_on = None
 
 
 def upgrade():
-    # create all of the tables in data_models in the target db
+    """Create all of the tables in data_models in the target db."""
     connection = op.get_bind()
     Base.metadata.create_all(bind=connection)
 
 
 def downgrade():
-    # drop any of the tables in data_models that exist in the target db
+    """Drop any of the tables in data_models that exist in the target db."""
     connection = op.get_bind()
     Base.metadata.drop_all(bind=connection)

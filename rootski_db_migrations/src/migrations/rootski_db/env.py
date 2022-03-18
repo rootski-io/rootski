@@ -16,7 +16,7 @@ from typing import Dict
 from alembic import context
 from alembic.config import Config
 from alembic.environment import EnvironmentContext
-from migrations.utils.alembic_x_args import get_conn_string_from_env_vars, get_x_arguments
+from migrations.utils.alembic_x_args import get_db_connection_string_from_env_vars, get_x_arguments
 from sqlalchemy import engine_from_config, pool
 
 # this variable is already set when env.py runs
@@ -30,7 +30,7 @@ config: Config = context.config
 x_args: Dict[str, str] = get_x_arguments(context)
 
 # get the connection string from this environment
-conn_string: str = get_conn_string_from_env_vars()
+conn_string: str = get_db_connection_string_from_env_vars()
 
 # override the alembic.ini->sqlalchemy.url config with the connection string
 config.set_main_option("sqlalchemy.url", conn_string)

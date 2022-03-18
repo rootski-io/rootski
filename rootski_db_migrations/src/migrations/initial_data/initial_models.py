@@ -1,3 +1,4 @@
+# pylint: skip-file
 """
 This file is only meant to be used for early database migration revisions.
 
@@ -31,10 +32,12 @@ Base = declarative_base()
 class GenericToString:
     """Mixin for adding default magic methods to SQLAlchemy models."""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Return a string representing the object for print statements."""
         return str(self.__dict__)
 
     def __str__(self):
+        """Define the output of ``str()`` when used on an instance of this class."""
         return self.__repr__()
 
 
@@ -56,7 +59,7 @@ MORPHEME_TYPE_ENUM = Enum("prefix", "suffix", "root", "link", name="morpheme_typ
 
 
 def print_ddl(table_class, connection_or_engine):
-    """Print the CREATE TABLE DDL for the given table class
+    """Print the CREATE TABLE DDL for the given table class.
 
     Args:
         table_class: class inheriting from Base
@@ -136,11 +139,10 @@ class Word(Base, GenericToString):
 
 
 class MorphemeFamily(Base, GenericToString):
-    """This table is necessary because some families have multiple meanings"""
+    """This table is necessary because some families have multiple meanings."""
 
     __tablename__ = "morpheme_families"
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
-    # TODO make 'family' a @property calculated by SQLAlchemy, rather than an actual field in the database
     family = Column(
         String(256),
         nullable=True,
@@ -409,14 +411,7 @@ class Conjugation(Base, GenericToString):
 class VerbPair(Base, GenericToString):
     """Aspectual pairs of Russian verbs, one is imperfective the other is perfective."""
 
-    # TODO, redo this so that the columns are "verb_id", "other_verb_id", so there will be
-    # AT LEAST 2 * n rows in this table where n is the number of verbs
     __tablename__ = "verb_pairs"
-    # __table_args__ = (
-    #     # since this is an "Association" table, we set both of the foreign keys
-    #     # as the the compound-primary-key of this table
-    #     PrimaryKeyConstraint("imp_word_id", "pfv_word_id"),
-    # )
 
     _id = Column(
         Integer,

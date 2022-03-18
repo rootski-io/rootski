@@ -5,7 +5,7 @@ Revision ID: c312f8c10ddd
 Revises: 01edfd407a46
 Create Date: 2021-01-17 22:28:29.335445
 
-"""
+"""  # noqa: D400
 
 from alembic import op
 from migrations.initial_data.gather_data import load_base_tables

@@ -7,11 +7,11 @@ from typing import Dict
 from alembic.environment import EnvironmentContext
 
 
-def get_conn_string_from_env_vars(confirm_url_with_user=True):
+def get_db_connection_string_from_env_vars(confirm_url_with_user=True):
     """
-    Retrieves the connection string for the desired environment and region.
+    Retrieve the connection string for the desired environment and region.
 
-    :param get_conn_string_from_env_vars: if ``True`` ask user if they wish to continue
+    :param get_db_connection_string_from_env_vars: if ``True`` ask user if they wish to continue
         and exit with a nonzero status code they do not. This is useful for preventing
         any downstream operations against a database which would use the connection
         string provided by this function.
