@@ -40,7 +40,7 @@ from make_utils.docker import (
 # --- Constants --- #
 #####################
 
-THIS_DIR = Path(__file__).parent
+THIS_DIR = Path(__file__).parent.resolve().absolute()
 
 # names of env files containing secrets for database, traefik, API, etc.
 DEV_ENV_FILE = "dev.env"
@@ -137,6 +137,9 @@ def build_images():
 
     cd rootski_api
     docker-compose build
+
+    # cd @(str(THIS_DIR))/rootski_db_migrations && make build-image
+    cd @(str(THIS_DIR))/rootski_db_migrations && make build-image
 
 
 @makefile.target(tag="run services locally")
@@ -481,8 +484,9 @@ def run():
 
 @makefile.target(tag="run services locally")
 def seed_dev_db():
-    """Wipe and seed the dev database running locally."""
-    wipe_and_seed_db(env_file=DEV_ENV_FILE),
+    """Seed the dev database running locally by running "alembic" migrations."""
+    cd ./rootski_db_migrations
+    make run-all-migrations-from-current--dev--docker
 
 @makefile.target(tag="run services locally")
 def seed_prod_db():
@@ -787,6 +791,8 @@ def print_dev_backend_startup_message():
         expand=False,
     )
     print(panel)
+
+
 
 
 def wipe_and_seed_db(env_file):
