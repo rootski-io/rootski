@@ -17,7 +17,7 @@ This script relies on a few environment variables variables:
     Hi there, Eric here. I am *so* sorry about the code quality in this file.
     I wrote most of it years ago when
 
-    a. I hadn't learned about good practices
+    a. I hadn't learned as many good practices
     b. I was moving fast trying to get the data just organized enough to start building the application
 
     A few glaring problems here are:
@@ -41,7 +41,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from migrations.initial_data.initial_models import (
-    Base,
     Breakdown,
     BreakdownItem,
     Definition,
@@ -206,18 +205,22 @@ def collapse_family_meanings_df(family_meanings: pd.DataFrame):
 
 
 # pylint: disable=too-many-statements, too-many-locals
-def load_base_tables(db_conn_url: str = None, seeding_db: bool = True, connection=None, verbose=False):
+def load_base_tables(
+    db_conn_url: Optional[str] = None,
+    engine_override: Optional[Engine] = None,
+    verbose: bool = False,
+    chunksize: int = 2**11,
+):
     """
     Load CSV files into the SQL database pointed to by ``db_conn_url``.
 
-    Args:
-        db: connection string to a database
-        seeding_db: if True, drop/create tables before loading the database.
-            if False, assume the tables are already created.
-        connection: a sqlalchemy connection to the database, used if :db_conn_url:
-            not provided
+    :param db_conn_url: connection string for a postgres database
+    :param engine_override: used instead of using ``db_conn_url`` to create an engine.
+    :param verbose: print the SQL statements as they are emitted
+    :param chunksize: batch size of number of records to insert into the database
     """
-    chunksize = 2**11
+    if not db_conn_url and not engine_override:
+        raise ValueError("One of db_conn_url or engine_override must be set to seed the database.")
 
     #################
     # --- Words --- #
@@ -319,16 +322,9 @@ def load_base_tables(db_conn_url: str = None, seeding_db: bool = True, connectio
     # definition_examples = pd.read_csv(join(DATA_DIR, 'definition_examples.csv'))
 
     # Create the tables from SQLAlchemy definitions
-    engine: Engine = None
-    if db_conn_url:
-        engine = create_engine(db_conn_url, echo=verbose)
-    else:
-        if not connection:
-            raise ValueError("You must provide one of :db: or :connection: as an argument")
+    engine = engine_override or create_engine(db_conn_url, echo=verbose)
 
-    if seeding_db:
-        Base.metadata.drop_all(bind=engine)
-        Base.metadata.create_all(bind=engine)
+    engine.execute("SELECT * FROM words")
 
     # Populate the created SQL tables from the dataframes
     to_sql_args = {
@@ -476,7 +472,7 @@ def seed_database(connection_string: str):
     :param connection_string: URL for the database with credentials
     """
     try:
-        load_base_tables(connection_string, seeding_db=True, verbose=True)
+        load_base_tables(db_conn_url=connection_string, verbose=True)
         engine: Engine = create_engine(connection_string, echo=True)
         fix_all_tables(engine=engine)
     except Exception as err:
@@ -519,12 +515,12 @@ def main():
     arg = args[1]
 
     # get the db conenction string
-    conn_str = get_db_connection_string_from_env_vars(confirm_url_with_user=False)
+    db_connection_url: str = get_db_connection_string_from_env_vars(confirm_url_with_user=True)
 
     # run the specified subcommand
     command = {
-        "seed-db": lambda: seed_database(conn_str),
-        "is-db-seeded": lambda: is_database_seeded(conn_str),
+        "seed-db": lambda: seed_database(db_connection_url),
+        "is-db-seeded": lambda: is_database_seeded(db_connection_url),
     }[arg]
     command()
 
