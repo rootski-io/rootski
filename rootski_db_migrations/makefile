@@ -7,7 +7,7 @@
 # creating/activating a Python virtual environment is recommended!
 install:
 	# install python dependencies needed to execute various makefile targets
-	python -m pip install -e "../../make_utils"
+	python -m pip install -e "../make_utils"
 	python -m pip install -e .
 
 
@@ -24,8 +24,7 @@ help:
 	python -m xonsh make.xsh help
 
 
-# Generate a makefile from the targets registered with this instance of
-# the Makefile decorator.
+# Generate a makefile from the targets registered with this Makefile instance.
 make:
 	python -m xonsh make.xsh make
 
@@ -60,10 +59,37 @@ run-all-migrations-from-current--dev:
 	python -m xonsh make.xsh run-all-migrations-from-current--dev
 
 
+# Execute the database migrations using docker.
+run-all-migrations-from-current--dev--docker:
+	python -m xonsh make.xsh run-all-migrations-from-current--dev--docker
+
+
 #################
 # --- UTILS --- #
 #################
 
+# Build the docker image for running database migrations.
+build-image:
+	python -m xonsh make.xsh build-image
+
+
 # Print env var prefix for running alembic commands against the local dev database.
+#
+# The idea is that you could use the string printed to the console to execute
+# alembic commands against a local database like this:
+#
+# .. code-block:: bash
+#
+# cd rootski_api/migrations/src
+# POSTGRES_USER=rootski \
+# POSTGRES_PASSWORD=pass \
+# POSTGRES_HOST=localhost \
+# POSTGRES_PORT=5432 \
+# POSTGRES_DB=rootski_db \
+# alembic --config ../alembic.ini <some subcommand> [ARGS]
+#
+# .. code-block:: bash
+#
+# POSTGRES_USER=rootski POSTGRES_PASSWORD=pass POSTGRES_HOST=localhost POSTGRES_PORT=5432 POSTGRES_DB=rootski_db alembic --config ../alembic.ini
 print-dev-alembic-env-vars:
 	python -m xonsh make.xsh print-dev-alembic-env-vars

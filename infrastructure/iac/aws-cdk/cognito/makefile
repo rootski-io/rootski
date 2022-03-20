@@ -26,9 +26,6 @@ lint:
 	black src/rootski/ tests/ -l 112
 	isort src/rootski/ tests/
 	radon cc raw mi hal
-	# 	benpylint --path src/rootski/
-	# 	benpylint --path tests/
-
 
 # execute unit tests and generate coverage reports.
 # Note: Generating html outputs are optional, this line can be removed if build time is an issue.

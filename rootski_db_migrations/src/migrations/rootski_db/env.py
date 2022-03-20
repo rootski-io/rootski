@@ -10,14 +10,20 @@ Some reasons to modify this script include:
 - running any custom logic BEFORE migrations are executed
 - configuring values that can be accessed at migration time
 """
+import os
 from logging.config import fileConfig
 from typing import Dict
 
 from alembic import context
 from alembic.config import Config
 from alembic.environment import EnvironmentContext
-from migrations.utils.alembic_x_args import get_conn_string_from_env_vars, get_x_arguments
+from migrations.utils.alembic_x_args import get_db_connection_string_from_env_vars, get_x_arguments
 from sqlalchemy import engine_from_config, pool
+
+#: require that this env var be set explicity to "false" to skip verifying the database connection
+CONFIRM_CONNECTION_STRING_WITH_USER: bool = (
+    os.environ.get("CONFIRM_CONNECTION_STRING_WITH_USER", "false").lower() != "false"
+)
 
 # this variable is already set when env.py runs
 context: EnvironmentContext
@@ -30,7 +36,9 @@ config: Config = context.config
 x_args: Dict[str, str] = get_x_arguments(context)
 
 # get the connection string from this environment
-conn_string: str = get_conn_string_from_env_vars()
+conn_string: str = get_db_connection_string_from_env_vars(
+    confirm_url_with_user=CONFIRM_CONNECTION_STRING_WITH_USER
+)
 
 # override the alembic.ini->sqlalchemy.url config with the connection string
 config.set_main_option("sqlalchemy.url", conn_string)

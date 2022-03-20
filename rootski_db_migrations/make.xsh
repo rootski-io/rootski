@@ -6,6 +6,7 @@ import sys
 import os
 from pathlib import Path
 from textwrap import dedent
+from typing import Optional
 
 from make_utils.utils_without_dependencies import get_localhost
 
@@ -16,14 +17,12 @@ traceback.install()
 from make_utils.makefile import Makefile
 from make_utils.utils_with_dependencies import log, MakeXshError
 
-from migrations.utils.get_new_revision_id import get_new_revision_id
-
 
 # import appears invalid because xsh_utils.xsh ends in the ".xsh" extension
 from make_utils.xsh_utils import export_dot_env_vars
 
 THIS_DIR = Path(__file__).parent.resolve().absolute()
-ROOTSKI_ROOT_DIR = (THIS_DIR / "../../").resolve().absolute()
+ROOTSKI_ROOT_DIR = (THIS_DIR / "../").resolve().absolute()
 DEV_ENV_FILE_NAME = "dev.env"
 
 CUSTOM_MAKE_TEXT = dedent("""
@@ -31,7 +30,7 @@ CUSTOM_MAKE_TEXT = dedent("""
 # creating/activating a Python virtual environment is recommended!
 install:
 \t# install python dependencies needed to execute various makefile targets
-\tpython -m pip install -e "../../make_utils"
+\tpython -m pip install -e "../make_utils"
 \tpython -m pip install -e .
 """)
 
@@ -52,6 +51,8 @@ def create_migration_file():
     [blue]Note[/blue]: you need to have 'alembic' and other dependencies
         installed for this to run. Run 'make install' to install those 😉.
     """
+    from migrations.utils.get_new_revision_id import get_new_revision_id
+
     log("Enter a SHORT name describing the database migration (spaces are replaced with underscores):")
     migration_fname: str = input().strip().replace(" ", "_")
     new_revision_id: str = get_new_revision_id()
@@ -78,23 +79,51 @@ def run_all_migrations_from_current__dev():
     The connection information for the database will be taken from
     the "rootski/dev.env" file.
     """
+    localhost = "localhost"
+    run_all_alembic_migrations(
+        db_host=localhost,
+        env_file_fpath=ROOTSKI_ROOT_DIR / DEV_ENV_FILE_NAME
+    )
 
-    # export the env vars in rootski/dev.env
+
+@makefile.target(tag="utils")
+def build_image():
+    """Build the docker image for running database migrations."""
+    docker build -t rootski/database-migrations @(str(THIS_DIR))
+
+
+
+@makefile.target(tag="running migrations")
+def run_all_migrations_from_current__dev__docker():
+    """
+    Execute the database migrations using docker.
+    """
+    log("Using dev.env vars to connect to a local database")
     export_dot_env_vars(env_file=str(ROOTSKI_ROOT_DIR / DEV_ENV_FILE_NAME))
+    localhost: str = get_localhost()
 
-    import os
-    # export the correct version of localhost
-    host = "localhost"
-    $POSTGRES_HOST = host
-    os.environ["POSTGRES_HOST"] = host
+    log("Executing database migrations...")
+    docker run --rm -it \
+        -v @(str(THIS_DIR)):/migrations \
+        -e CONFIRM_CONNECTION_STRING_WITH_USER=true \
+        -e POSTGRES_USER=$POSTGRES_USER \
+        -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+        -e POSTGRES_DB=$POSTGRES_DB \
+        -e POSTGRES_PORT=$POSTGRES_PORT \
+        -e POSTGRES_HOST=@(localhost) \
+        rootski/database-migrations --config ../alembic.ini upgrade 2
 
-    # env var: specify location of alembic config file for the alembic CLI
-    $ALEMBIC_CONFIG = str(THIS_DIR / "alembic.ini")
-
-    # read connection string from environment variables and perform upgrade;
-    # see the env.py file for information about how this is happening
-    cd ./src \
-    && alembic upgrade head
+    # This is a hack-y fix. For some reason, alembic is hanging any time
+    # we migrate from a migration <= 2 to anything >= 3. So they are split here.
+    docker run --rm -it \
+        -v @(str(THIS_DIR)):/migrations \
+        -e CONFIRM_CONNECTION_STRING_WITH_USER=true \
+        -e POSTGRES_USER=$POSTGRES_USER \
+        -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+        -e POSTGRES_DB=$POSTGRES_DB \
+        -e POSTGRES_PORT=$POSTGRES_PORT \
+        -e POSTGRES_HOST=@(localhost) \
+        rootski/database-migrations --config ../alembic.ini upgrade head
 
 
 @makefile.target(tag="utils")
@@ -130,6 +159,25 @@ def print_dev_alembic_env_vars():
     )
     print(dev_env_vars)
 
+
+def run_all_alembic_migrations(db_host, env_file_fpath):
+
+    if not env_file_fpath:
+        env_file_fpath = ROOTSKI_ROOT_DIR / DEV_ENV_FILE_NAME
+
+    # export the env vars in rootski/dev.env
+    export_dot_env_vars(env_file=str(env_file_fpath))
+
+    # export the correct version of localhost
+    $POSTGRES_HOST = db_host
+    os.environ["POSTGRES_HOST"] = db_host
+
+    # read connection string from environment variables and perform upgrade;
+    # see the env.py file for information about how this is happening
+    cd ./src \
+    && alembic \
+        --config @(str(THIS_DIR / "alembic.ini")) \
+        upgrade head || MakeXshError("Failed to execute migrations")
 
 if __name__ == "__main__":
     makefile.run()

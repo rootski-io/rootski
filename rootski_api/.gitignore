@@ -145,9 +145,5 @@ cython_debug/
 # vscode
 # .vscode
 
-# ben-py-docs
-_docs
-docs-tmp
-
 # project
 .resources/*

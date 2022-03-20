@@ -10,7 +10,6 @@ This script finds the script with the latest revision number and prints
 the version number after that to the stdout. So if we have the following
 versions,
 
-
 .. code-block:: text
 
     versions/
@@ -36,6 +35,7 @@ def get_new_revision_id() -> str:
 
 
 def get_latest_revision_id() -> str:
+    """Return the ID of the most recent database revision file."""
     revision_fnames = get_revision_fnames()
     revision_ids: List[str] = [get_revision_id_from_revision_fname(rev_fname) for rev_fname in revision_fnames]
     revision_ids_as_ints: List[int] = [int(rev_id) for rev_id in revision_ids]
@@ -44,12 +44,17 @@ def get_latest_revision_id() -> str:
 
 
 def get_revision_fnames() -> List[str]:
+    """Return a list of all of the database revision ``.py`` file names."""
     migration_fpaths: List[Path] = MIGRATION_VERSIONS_DIR.glob("*.py")
     migration_fnames: List[str] = [f.name for f in migration_fpaths]
     return migration_fnames
 
 
 def get_revision_id_from_revision_fname(revision_fname: str) -> str:
+    """Parse the ID of an alembic revision ``.py`` file.
+
+    :param revision_fname: name the file (not the full file path)
+    """
     revision_id: str = revision_fname.split("_")[0]
     return revision_id
 

@@ -1,9 +1,4 @@
-"""
-Test units of the system that have no external dependencies.
-
-For BEN-DE, unit tests are limited to tests that do not cross the network barrier of the
-computer on which they are being executed.
-"""
+"""Test units of the system that have no external dependencies."""
 
 import sys
 from pathlib import Path
