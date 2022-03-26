@@ -208,7 +208,7 @@ if __name__ == "__main__":
     from torch import nn
     from torch.utils.data import DataLoader
 
-    from rootski_model.model.data import TESTING_DATA_PATH,\
+    from rootski_model.model.legacy_data import TESTING_DATA_PATH,\
         TRAINING_DATA_PATH, MorphemeDataset
 
     device = "cpu"

@@ -18,7 +18,7 @@ DROPOUT_RATIO = 0.1
 MAX_SRC_SEQUENCE_LENGTH = 40
 MAX_TRG_SEQUENCE_LENGTH = 40
 BATCH_SIZE = 10  # number of sequences to train on per optimization step
-
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 class PositionalEncoder(nn.Module):
     def __init__(self, d_model, max_seq_len, dropout=0.1):
@@ -48,13 +48,13 @@ class PositionalEncoder(nn.Module):
         self.d_model = d_model
 
         # prepare to construct the positional encoding matrix to add to word embeddings
-        pos_encoding = torch.zeros(max_seq_len, d_model)
+        pos_encoding = torch.zeros(max_seq_len, d_model).to(DEVICE)
 
         # [max_seq_len, 1] float matrix counting from 0 to max_seq_len - 1
-        position = torch.arange(0, max_seq_len, dtype=torch.float).unsqueeze(1)
+        position = torch.arange(0, max_seq_len, dtype=torch.float).unsqueeze(1).to(DEVICE)
 
         # construct a position matrix entries POS[i, j] = i * scaled_pos(j) as in the docstring
-        log_scale = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        log_scale = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)).to(DEVICE)
         log_scaled_positions = position * log_scale  # [max_seq_len, d_model]
 
         # apply sin to the even columns, and cos to the odd columns of POS
@@ -185,7 +185,7 @@ class Transformer(nn.Module):
         """
         # prepare to construct the padding mask
         batch_size, max_seq_len = sequences.shape
-        mask = torch.zeros(batch_size, max_seq_len, dtype=torch.float)
+        mask = torch.zeros(batch_size, max_seq_len, dtype=torch.float).to(DEVICE)
 
         # set the indices in the mask correspanding to <padding> tokens to -inf
         padding_indices = sequences == padding_idx
@@ -211,7 +211,7 @@ class Transformer(nn.Module):
         Returns:
             Tensor: see previous description
         """
-        mask = (torch.triu(torch.ones(size, size)) == 1).transpose(0, 1)
+        mask = (torch.triu(torch.ones(size, size)) == 1).transpose(0, 1).to(DEVICE)
         mask = mask.float().masked_fill(mask == 0, float("-inf")).masked_fill(mask == 1, float(0.0))
         return mask
 
@@ -238,10 +238,14 @@ class Transformer(nn.Module):
 
         # create padding masks from un-embedded src and trg sequences
         src_padding_mask = self.make_padding_mask(sequences=src, padding_idx=self.src_pad_idx)
+        src_padding_mask = torch.gt(src_padding_mask, 0)
         # print("src_padding_mask", src_padding_mask.size())
         trg_padding_mask = self.make_padding_mask(sequences=trg, padding_idx=self.trg_pad_idx)
+        trg_padding_mask = torch.gt(trg_padding_mask, 0)
+
         # print("trg_padding_mask", trg_padding_mask.size())
         trg_attn_mask = self.make_trg_mask(T)
+        trg_attn_mask = torch.gt(trg_attn_mask, 0)
         # print("trg_attn_mask", trg_attn_mask.size())
 
         # encode the source sequences
