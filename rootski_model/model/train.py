@@ -1,10 +1,11 @@
 import torch
-from data import PADDING_TOKEN, MorphemeDataset
 from inference import breakdown_russian_word
 from model import Transformer
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+
+from rootski_model.model.data import TESTING_DATA_PATH, TRAINING_DATA_PATH, MorphemeDataset
 
 # Training hyperparameters
 NUM_EPOCHS = 100
@@ -241,10 +242,11 @@ def do_validation_epoch(model, criterion, val_dataloader_iterator, num_batches, 
 if __name__ == "__main__":
 
     import torch
-    from data import TESTING_DATA_PATH, TRAINING_DATA_PATH, MorphemeDataset
     from torch import nn
     from torch.utils.data import DataLoader
     from train import train
+
+    DEVICE = "cuda" if torch.cuda.is_available else "cpu"
 
     # initialize the train/val datasets
     train_data = MorphemeDataset(data_file_path=TRAINING_DATA_PATH)
@@ -288,4 +290,5 @@ if __name__ == "__main__":
         batches_per_train_epoch=1,
         batches_per_val_epoch=1,
         max_batch_size=2048 // 2,
+        device=DEVICE,
     )

@@ -1,8 +1,9 @@
 import torch
-from data import MorphemeDataset
 from model import Transformer
 from torch import Tensor
 from torchtext.data import Field
+
+from rootski_model.model.data import MorphemeDataset
 
 
 def preprocess(word: str, vocab: Field) -> Tensor:

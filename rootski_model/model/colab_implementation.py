@@ -203,12 +203,13 @@ def validate(model, dataloader, show=10, device="cpu"):
 
 if __name__ == "__main__":
 
-    import torch
-    from data import TESTING_DATA_PATH, TRAINING_DATA_PATH, MorphemeDataset
     from inference import preprocess
     from model import *
     from torch import nn
     from torch.utils.data import DataLoader
+
+    from rootski_model.model.data import TESTING_DATA_PATH,\
+        TRAINING_DATA_PATH, MorphemeDataset
 
     device = "cpu"
 
