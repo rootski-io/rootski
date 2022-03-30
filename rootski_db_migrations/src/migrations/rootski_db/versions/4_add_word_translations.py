@@ -21,7 +21,7 @@ depends_on = None
 
 
 def upgrade():
-    # Create the column
+    """Add a ``translation`` column to the ``words table."""
     op.add_column(
         table_name="words",
         column=sa.Column(
