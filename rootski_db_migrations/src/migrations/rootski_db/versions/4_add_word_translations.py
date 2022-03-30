@@ -1,6 +1,7 @@
 # pylint: disable=invalid-name
 # noqa: D400
-"""add_translation_column_to_words_table
+"""
+Migration for adding a ``translation`` column and seed data into the ``words`` table.
 
 Revision ID: 4
 Revises: 3
