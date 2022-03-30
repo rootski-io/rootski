@@ -111,18 +111,6 @@ def run_all_migrations_from_current__dev__docker():
         -e POSTGRES_DB=$POSTGRES_DB \
         -e POSTGRES_PORT=$POSTGRES_PORT \
         -e POSTGRES_HOST=@(localhost) \
-        rootski/database-migrations --config ../alembic.ini upgrade 2
-
-    # This is a hack-y fix. For some reason, alembic is hanging any time
-    # we migrate from a migration <= 2 to anything >= 3. So they are split here.
-    docker run --rm -it \
-        -v @(str(THIS_DIR)):/migrations \
-        -e CONFIRM_CONNECTION_STRING_WITH_USER=true \
-        -e POSTGRES_USER=$POSTGRES_USER \
-        -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
-        -e POSTGRES_DB=$POSTGRES_DB \
-        -e POSTGRES_PORT=$POSTGRES_PORT \
-        -e POSTGRES_HOST=@(localhost) \
         rootski/database-migrations --config ../alembic.ini upgrade head
 
 
