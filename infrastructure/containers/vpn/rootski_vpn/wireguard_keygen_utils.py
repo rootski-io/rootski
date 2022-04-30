@@ -64,7 +64,7 @@ class KeyPair:
         return vpn_keypair_data
 
 
-def generate_n_keypairs(num_keys: int, num_reserved_keys: int = 10) -> List[VpnKeyPairData]:
+def generate_n_keypairs(number_of_keys: int, num_reserved_keys: int = 10) -> List[VpnKeyPairData]:
     """
     Generate ``num_keys`` wireguard keypairs.
 
@@ -74,7 +74,7 @@ def generate_n_keypairs(num_keys: int, num_reserved_keys: int = 10) -> List[VpnK
 
     :return: a list containing ``num_keys`` :py:class:`KeyPair` object
     """
-    if num_keys > MAX_ALLOWED_WIREGUARD_KEY_PAIRS:
+    if number_of_keys > MAX_ALLOWED_WIREGUARD_KEY_PAIRS:
         raise NumberOfKeysError("num_keys must be smaller than 254")
 
     # create key pairs for IP addresses reserved for rootski services
@@ -87,7 +87,7 @@ def generate_n_keypairs(num_keys: int, num_reserved_keys: int = 10) -> List[VpnK
 
     # create key pairs for IP addresses assignable to rootski contributors
     unreserved_key_pairs = [
-        KeyPair.generate().to_dict(ip_address=f"10.0.0.{i+1}") for i in range(num_reserved_keys, num_keys)
+        KeyPair.generate().to_dict(ip_address=f"10.0.0.{i+1}") for i in range(num_reserved_keys, number_of_keys)
     ]
     key_pairs = reserved_key_pairs + unreserved_key_pairs
 
