@@ -8,13 +8,14 @@ https://github.com/talkncloud/aws/blob/main/cognito-federation/lib/cognito-feder
 from pathlib import Path
 from typing import Dict
 
-import aws_cdk.aws_ssm as ssm
-import yaml
 # For consistency with other languages, `cdk` is the preferred import name for
 # the CDK's core module.  The following line also imports it as `core` for use
 # with examples from the CDK Developer's Guide, which are in the process of
 # being updated to use `cdk`.  You may delete this import if you don't need it.
-from aws_cdk import core as cdk
+import aws_cdk as cdk
+import aws_cdk.aws_ssm as ssm
+import yaml
+from aws_cdk import CfnOutput, Stack
 from aws_cdk.aws_cognito import (
     CfnUserPool,
     CfnUserPoolClient,
@@ -22,7 +23,7 @@ from aws_cdk.aws_cognito import (
     CfnUserPoolIdentityProvider,
     PasswordPolicy,
 )
-from aws_cdk.core import CfnOutput, Stack
+from constructs import Construct
 
 THIS_DIR = Path(__file__).parent
 ROOTSKI_OAUTH_PROVIDERS_FPATH = THIS_DIR / "rootski-oauth-providers.yml"
@@ -38,11 +39,11 @@ OAUTH_CONFIG: Dict[str, str] = load_oauth_config(ROOTSKI_OAUTH_PROVIDERS_FPATH)
 
 
 class CognitoStack(Stack):
-    def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # The code that defines your stack goes here
-        cognito_user_pool = CfnUserPool(
+        self.cognito_user_pool = CfnUserPool(
             self,
             id="RootskiUserPool",
             auto_verified_attributes=["email"],
@@ -93,7 +94,7 @@ class CognitoStack(Stack):
             id="RootskiGoogleIdentityProvider",
             provider_name="Google",
             provider_type="Google",
-            user_pool_id=cognito_user_pool.ref,
+            user_pool_id=self.cognito_user_pool.ref,
             attribute_mapping={"email": "email"},
             provider_details={
                 "client_id": OAUTH_CONFIG["google"]["client_id"],
@@ -103,7 +104,7 @@ class CognitoStack(Stack):
         )
         # prevent race condition where it says that the rootski user pool
         # doesn't have a Google provider type
-        google_identity_provider.add_depends_on(cognito_user_pool)
+        google_identity_provider.add_depends_on(self.cognito_user_pool)
 
         # redirect users here when they log in from the Cognito hosted ui
         callback_ur_ls = ["https://www.rootski.io", "http://localhost:3000"]
@@ -119,7 +120,7 @@ class CognitoStack(Stack):
             self,
             id="RootskiCognitoUserPoolClient",
             client_name="rootski-io-cognito-client",
-            user_pool_id=cognito_user_pool.ref,
+            user_pool_id=self.cognito_user_pool.ref,
             generate_secret=False,
             supported_identity_providers=[
                 "COGNITO",
@@ -142,7 +143,7 @@ class CognitoStack(Stack):
             self,
             id="RootskiUserPoolDomain",
             domain="rootski",
-            user_pool_id=cognito_user_pool.ref,
+            user_pool_id=self.cognito_user_pool.ref,
         )
 
         # create SSM parameters that the backend API and other sources can read
@@ -162,7 +163,7 @@ class CognitoStack(Stack):
                 self,
                 id=f"RootskiCognitoUserPoolId{env}",
                 parameter_name=f"/rootski/{env}/cognito/cognito_user_pool_id",
-                string_value=cognito_user_pool.ref,
+                string_value=self.cognito_user_pool.ref,
                 type=ssm.ParameterType.STRING,
             )
 
@@ -179,7 +180,7 @@ class CognitoStack(Stack):
         CfnOutput(
             scope=self,
             id="user-pool-id",
-            value=cognito_user_pool.ref,
+            value=self.cognito_user_pool.ref,
             description="ID of the cognito user pool",
             export_name="user-pool-id",
         )
