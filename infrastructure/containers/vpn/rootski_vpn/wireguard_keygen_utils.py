@@ -1,7 +1,10 @@
 """
-Generate a number of wireguard keys using the ``pywgkey`` library.
+Generate a number of wireguard key-pair data using the ``pywgkey`` library.
 
 See the docs: https://pywgkey.readthedocs.io/en/latest/
+We use the ``pywgkey`` library to generate wireguard keys for Rootski serverices and contributors,
+and put them into a VpnKeyPairData class. Then we will push our key-pair data to aws ssm using
+the file store_keys_on_aws.py
 """
 from __future__ import annotations
 

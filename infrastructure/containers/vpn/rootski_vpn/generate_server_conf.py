@@ -1,4 +1,10 @@
-"""Standalone shell script for generating the secrets and configuration file for the wireguard server."""
+"""
+Standalone shell script for generating the secrets and configuration file for the wireguard server.
+
+This script generates the necessary files (wg0.conf, server.key, and server.pub) to run a wireguard server
+on a lightsail instance. This file is used by wireguard_vpn.py in the
+rootski/infrastructure/iac/aws-cdk/backend/rootski_backend_cdk/lightsail_vpn folder.
+"""
 
 import json
 from pathlib import Path
@@ -34,7 +40,8 @@ def fetch_key_pairs_from_ssm(
     """
     Retrieve the deserialized VPN key-pair data from ssm.
 
-    :param key_pairs_ssm_prefix: The hierarchy for the parameter, which is the parameter name except for the last part of the parameter. See :py:func:`fetch_all_ssm_parameters_with_prefix`
+    :param key_pairs_ssm_prefix: The hierarchy for the parameter, which is the parameter name except for
+        the last part of the parameter. See :py:func:``fetch_all_ssm_parameters_with_prefix``
     :param aws_region: The AWS region where the key-pairs are stored in ssm
     :return: The deserialized VPN key-pair data from ssm. See footski_vpn.wireguard_keygen_utils
     """
@@ -154,7 +161,8 @@ def fetch_all_ssm_parameters_with_prefix(path_prefix: str, aws_region: str) -> L
     The aws parameters are retrieved using the boto3 SSM client, and the structure of the key_pair_parameters are found in the following URL.
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ssm.html#SSM.Client.get_parameters_by_path
 
-    :param path_prefix: The hierarchy for the parameter, which is the parameter name except for the last part of the parameter
+    :param path_prefix: The hierarchy for the parameter, which is the parameter name except for
+        the last part of the parameter
     :param aws_region: The aws region where the key-pair data is stored in ssm
     :return: The aws key-pair ssm paramters
     """
@@ -175,7 +183,8 @@ def deserialize_key_pair_ssm_parameters(key_pair_parameters: List[str]) -> List[
     """
     Deserialize the aws key-pair ssm parameters.
 
-    :param key_pair_parameters: The key-pair aws pararmeters. See :py:func:`fetch_all_ssm_parameters_with_prefix`
+    :param key_pair_parameters: The key-pair aws pararmeters.
+        See :py:func:``fetch_all_ssm_parameters_with_prefix``
     :return: The VPN key-pair data. See rootski_vpn.wireguard_keygen_utils.
     """
     deserialized_key_pairs: List[Dict[str, str]] = [

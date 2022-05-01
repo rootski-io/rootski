@@ -1,5 +1,11 @@
-#!python3
-"""Generates a number of keypairs and pushes them to AWS SSM."""
+"""
+Generates a number of key-pair data and push them to AWS SSM.
+
+This file will use the file wireguard_keygen_utils.py to generate the wireguard key-pair data
+that will be pushed to aws ssm. These wireguard key-pairs will be used to set up the wireguard
+vpn running on a lightsail instance. The keys created using this script will be used by
+generate_server_conf.py
+"""
 
 import json
 from typing import Dict, List
@@ -35,7 +41,6 @@ def store_key_pair_on_aws(key_pair_identifier: str, keypair_data: dict, ssm_clie
 
 def store_n_key_pairs_on_aws(number_of_keypairs: int):
     """Generate and store a number of keypairs on AWS SSM."""
-
     ssm_client = boto3.client("ssm", region_name="us-west-2")
 
     rootski_wireguard_keypair_data_objs: List[Dict[str, str]] = generate_n_keypairs(
