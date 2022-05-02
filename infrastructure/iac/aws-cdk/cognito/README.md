@@ -25,6 +25,7 @@ pip install -r requirements.txt
 AWS_DEFAULT_REGION="us-west-2" cdk deploy --profile personal
 ```
 
+
 **NOTE!!!** You need to hook this up with the front end. After running `cdk deploy ...`,
 you'll see several stack outputs. Copy/paste those into the correct JS variables in
 `rootski_frontend/src/aws-cognito/auth-utils.tsx`.

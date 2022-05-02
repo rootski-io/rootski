@@ -11,21 +11,13 @@ PROJECT_VERSION=$$(cat version.txt)
 # The [dev] spec tells setup to install extra dependencies needed for development work.
 install:
 	pip install -U pip
-	pip install -r requirements.txt
+	pip install -e .
 
 diff:
 	cdk diff --profile rootski
 
 deploy:
 	cdk deploy --profile rootski
-
-# Execute ben-py-lint against the source and test folders.
-# This will update code in place for applicable tools (black, isort, etc.)
-# Ben-py-lint behaves differently in test folders, consult it's documentation for more information.
-lint:
-	black src/rootski/ tests/ -l 112
-	isort src/rootski/ tests/
-	radon cc raw mi hal
 
 # execute unit tests and generate coverage reports.
 # Note: Generating html outputs are optional, this line can be removed if build time is an issue.

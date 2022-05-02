@@ -54,6 +54,16 @@ jobs:
     - name: install docker
       uses: docker-practice/actions-setup-docker@1.0.8
 
+    - name: run lambda handler tests
+      run: |
+        cd infrastructure/iac/aws-cdk/cognito/cognito/resources/jwks_ssm_custom_resource_lambda/
+        make install
+        make test
+
+    #############################
+    # --- Backend API Tests --- #
+    #############################
+
     - name: install dependencies
       run: |
         # install global python dependencies
