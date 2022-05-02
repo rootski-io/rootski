@@ -1,0 +1,10 @@
+{
+    "ActivationId": "147ef9a3-505f-44d5-9674-5a6eff2cd787",
+    "ActivationCode": "Yr51RYiVDkvuk54md/um"
+}
+
+export ACTIVATION_ID=147ef9a3-505f-44d5-9674-5a6eff2cd787
+export ACTIVATION_CODE=Yr51RYiVDkvuk54md/um
+export CLUSTER_NAME=Rootski-ML-ECS-Cluster-Stack-cdk-RootskiMLCluster9A1B8B9A-nuv1sRQksW2l
+export REGION=us-west-2
+sudo ./ecs-anywhere-install.sh --region $REGION --cluster $CLUSTER_NAME --activation-id $ACTIVATION_ID --activation-code $ACTIVATION_CODE
