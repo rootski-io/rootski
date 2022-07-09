@@ -9,13 +9,14 @@ Stack Architecture
 """
 
 
+import aws_cdk as cdk
 from aws_cdk import aws_certificatemanager as certificatemanaager
 from aws_cdk import aws_cloudfront as cloudfront
 from aws_cdk import aws_cloudfront_origins as cloudfront_origins
 from aws_cdk import aws_route53 as route53
 from aws_cdk import aws_route53_targets as route53_targets
 from aws_cdk import aws_s3 as s3
-from aws_cdk import core as cdk
+from constructs import Construct
 
 
 class S3StaticSiteStack(cdk.Stack):
@@ -37,7 +38,7 @@ class S3StaticSiteStack(cdk.Stack):
 
     def __init__(
         self,
-        scope: cdk.Construct,
+        scope: Construct,
         construct_id: str,
         domain_name: str,
         subdomain: str,

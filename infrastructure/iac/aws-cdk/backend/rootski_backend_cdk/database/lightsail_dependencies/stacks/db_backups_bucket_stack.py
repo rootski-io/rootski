@@ -2,8 +2,9 @@
 
 from enum import Enum
 
+import aws_cdk as cdk
 from aws_cdk import aws_s3 as s3
-from aws_cdk import core as cdk
+from constructs import Construct
 
 
 class StackOutputs(str, Enum):
@@ -17,7 +18,7 @@ class StackOutputs(str, Enum):
 class DatabaseBackupsBucketStack(cdk.Stack):
     """Stack with an S3 bucket for database backups."""
 
-    def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs):
+    def __init__(self, scope: Construct, construct_id: str, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
         self.bucket = s3.Bucket(

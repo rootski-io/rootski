@@ -3,7 +3,6 @@ import setuptools
 with open("README.md") as fp:
     long_description = fp.read()
 
-
 setuptools.setup(
     name="rootski_backend_cdk",
     version="0.0.1",
@@ -14,16 +13,8 @@ setuptools.setup(
     package_dir={"": "."},
     packages=setuptools.find_packages(include=["lightsail", "lightsail-dependencies"]),
     install_requires=[
-        # "cdk-constants",
-        "aws-cdk.core==1.146.0",
-        "aws-cdk.aws_cognito==1.146.0",
-        # alpha version of lightsail cdk package
-        "aws-cdk.aws_lightsail==1.146.0",
-        "aws-cdk.aws_secretsmanager==1.146.0",
-        "aws-cdk.aws_apigateway==1.146.0",
-        "aws_cdk.aws_lambda_python==1.146.0",
-        "aws-cdk.aws_route53_targets==1.146.0",
-        "aws-cdk.aws_cloudfront_origins==1.146.0",
+        "aws-cdk-lib==2.17.0",
+        "constructs>=10.0.0,<11.0.0",
         "boto3",
         "boto3-stubs",
         "PyYAML",

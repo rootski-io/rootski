@@ -1,6 +1,6 @@
 """App that maps several .rootski.io subdomains to the backend lightsail instance."""
 
-from aws_cdk import core as cdk
+import aws_cdk as cdk
 from rootski_backend_cdk.database.lightsail_subdomains.stacks.subdomains import ContextVars, Subdomains
 
 if __name__ == "__main__":

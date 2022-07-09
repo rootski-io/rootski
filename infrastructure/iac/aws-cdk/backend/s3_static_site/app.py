@@ -13,7 +13,7 @@ App creating a static site for the rootski docs.
     used for ContextVars (inputs) and Cloudformation Outputs (outputs).
 """
 
-from aws_cdk import core as cdk
+import aws_cdk as cdk
 from s3_static_site.s3_static_site_stack import S3StaticSiteStack
 
 app = cdk.App()
