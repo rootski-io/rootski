@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  batch-job:
+    image: rootski/test-batch-job
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+  

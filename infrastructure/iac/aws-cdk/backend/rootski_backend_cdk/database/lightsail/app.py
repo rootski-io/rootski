@@ -13,13 +13,13 @@ App that creates a lightsail instance and static IP address mapping to it.
     used for ContextVars (inputs) and Cloudformation Outputs (outputs).
 """
 
-from aws_cdk import core as cdk
+from aws_cdk import App, Environment
 from rootski_backend_cdk.database.lightsail.stacks.lightsail_instance import ContextVars, LightsailInstanceStack
 
 if __name__ == "__main__":
-    app = cdk.App()
+    app = App()
 
-    environment = cdk.Environment(
+    environment = Environment(
         account="091910621680",
         region="us-west-2",
     )

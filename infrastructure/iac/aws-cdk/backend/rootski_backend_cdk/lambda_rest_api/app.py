@@ -13,7 +13,7 @@ App defining an API Gateway and Lambda Function with a FastAPI app.
     used for ContextVars (inputs) and Cloudformation Outputs (outputs).
 """
 
-from aws_cdk import core as cdk
+import aws_cdk as cdk
 from rootski_backend_cdk.lambda_rest_api.stacks.lambda_rest_api import RootskiLambdaRestApiStack
 
 if __name__ == "__main__":

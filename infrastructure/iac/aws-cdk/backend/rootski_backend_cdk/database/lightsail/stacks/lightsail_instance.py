@@ -4,7 +4,8 @@ from enum import Enum
 from pathlib import Path
 
 from aws_cdk import aws_lightsail as lightsail
-from aws_cdk import core as cdk
+import aws_cdk as cdk
+from constructs import Construct
 from jinja2 import Template
 from rootski_backend_cdk.common.constants import TAGS
 
@@ -51,7 +52,7 @@ class LightsailInstanceStack(cdk.Stack):
 
     def __init__(
         self,
-        scope: cdk.Construct,
+        scope: Construct,
         construct_id: str,
         iam_access_key_id: str,
         iam_access_key: str,

@@ -10,7 +10,7 @@ from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_route53 as route53
 from aws_cdk import aws_route53_targets as route53_targets
 from aws_cdk import aws_s3 as s3
-from aws_cdk import core as cdk
+import aws_cdk as cdk
 
 API_SUBDOMAIN = "api.rootski.io"
 
