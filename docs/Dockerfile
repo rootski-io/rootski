@@ -37,7 +37,17 @@ ENV XVFB_OPTIONS ""
 # --- install NodeJS for the AWS CDK cli to use --- #
 #####################################################
 
-RUN apt-get update && apt-get install -y nodejs
+RUN apt-get update \
+    && apt-get upgrade \
+    && apt-get -y install curl dirmngr apt-transport-https lsb-release ca-certificates \
+    && curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install -y nodejs
+
+######################################################################
+# --- Install the Mermaid CLI to render Mermaid Diagrams as PNGs --- #
+######################################################################
+
+RUN npm install -g @mermaid-js/mermaid-cli
 
 
 #########################################################################
