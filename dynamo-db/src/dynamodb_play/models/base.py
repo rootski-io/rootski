@@ -4,7 +4,6 @@ from typing import Dict, Optional
 
 @dataclass(frozen=True, eq=True)
 class DynamoModel:
-
     @property
     def pk(self) -> str:
         """Return the partition key of the model."""
@@ -28,16 +27,18 @@ class DynamoModel:
     @property
     def keys(self) -> Dict[str, str]:
 
-        gsi1_keys: Dict[str, str] = {
-            "GSI1PK": self.gsi1pk,
-            "GSI1SK": self.gsi1sk
-        } if self.gsi1pk and self.gsi1sk else {}
+        gsi1_keys: Dict[str, str] = (
+            {"gsi1pk": self.gsi1pk, "gsi1sk": self.gsi1sk} if self.gsi1pk and self.gsi1sk else {}
+        )
 
         return {
-            "PK": self.pk,
-            "SK": self.sk,
+            "pk": self.pk,
+            "sk": self.sk,
             **gsi1_keys,
         }
 
-    def to_dict(self) -> dict:
+    def to_item(self) -> dict:
         raise NotImplementedError()
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} {self.__dict__}>"
