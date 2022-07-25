@@ -2,9 +2,10 @@
 
 from enum import Enum
 
+import aws_cdk as cdk
 from aws_cdk import aws_s3 as s3
 from constructs import Construct
-import aws_cdk as cdk
+
 
 class StackOutputs(str, Enum):
     """Stack output keys for a database backups stack."""

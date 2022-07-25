@@ -3,6 +3,7 @@
 from enum import Enum
 from pathlib import Path
 
+import aws_cdk as cdk
 from aws_cdk import aws_apigateway as api_gateway
 from aws_cdk import aws_certificatemanager as certificatemanager
 from aws_cdk import aws_iam as iam
@@ -10,7 +11,7 @@ from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_route53 as route53
 from aws_cdk import aws_route53_targets as route53_targets
 from aws_cdk import aws_s3 as s3
-import aws_cdk as cdk
+from constructs import Construct
 
 API_SUBDOMAIN = "api.rootski.io"
 
@@ -35,18 +36,20 @@ class RootskiLambdaRestApiStack(cdk.Stack):
 
     def __init__(
         self,
-        scope: cdk.Construct,
+        scope: Construct,
         construct_id: str,
         **kwargs,
     ):
         super().__init__(scope, construct_id, **kwargs)
 
-        fast_api_function: lambda_.Function = self.make_fast_api_function()
+        #: lambda function containing the rootski FastAPI application code
+        self.fast_api_function: lambda_.Function = self.make_fast_api_function()
 
-        lambda_rest_api = api_gateway.LambdaRestApi(
+        #: API Gateway that proxies all incoming requests to the fast_api_function
+        self.lambda_rest_api = api_gateway.LambdaRestApi(
             self,
             "Rootski-Lambda-REST-API",
-            handler=fast_api_function,
+            handler=self.fast_api_function,
             description="Proxy to the Rootski FastAPI backend 'lambda-lith'.",
             domain_name=api_gateway.DomainNameOptions(
                 certificate=certificatemanager.DnsValidatedCertificate(
@@ -61,7 +64,8 @@ class RootskiLambdaRestApiStack(cdk.Stack):
             ),
         )
 
-        route53.ARecord(
+        #: DNS rule routing the ``API_SUBDOMAIN`` to the rootski API Gateway
+        self.rootski_api_subdomain = route53.ARecord(
             self,
             id="Rootski-IO-API-Gateway-A-Record",
             zone=route53.HostedZone.from_lookup(
@@ -69,21 +73,27 @@ class RootskiLambdaRestApiStack(cdk.Stack):
                 id="Rootski-IO-API-Gateway-HostedZone",
                 domain_name="rootski.io",
             ),
-            target=route53.RecordTarget.from_alias(route53_targets.ApiGateway(lambda_rest_api)),
+            target=route53.RecordTarget.from_alias(route53_targets.ApiGateway(self.lambda_rest_api)),
             record_name=API_SUBDOMAIN,
         )
+
+        #: VPC Endpoint allowing the lambda function to access AWS SSM without leaving the VPC
+        # self.ssm_vpc_endpoint = SsmVpcEndpoint(
+        #     self,
+        #     "SSM-VPC-Endpoint"
+        # )
 
         cdk.CfnOutput(
             self,
             id=StackOutputs.subdomain.value,
             value=API_SUBDOMAIN,
-            description=f"Map {lambda_rest_api} to the URL of the API Gateway",
+            description=f"Map {self.lambda_rest_api} to the URL of the API Gateway",
             export_name=StackOutputs.subdomain.value,
         )
 
         cdk.CfnOutput(
             scope=self,
-            value=lambda_rest_api.url,
+            value=self.lambda_rest_api.url,
             description="ARN of bucket for database backups.",
             id=StackOutputs.api_gateway_url.value,
             export_name=StackOutputs.api_gateway_url.value,

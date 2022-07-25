@@ -5,7 +5,6 @@
 # with examples from the CDK Developer's Guide, which are in the process of
 # being updated to use `cdk`.  You may delete this import if you don't need it.
 import aws_cdk as cdk
-
 from rootski_backend_cdk.common.constants import StackNames
 from rootski_backend_cdk.database.lightsail_dependencies.stacks.db_backups_bucket_stack import (
     DatabaseBackupsBucketStack,

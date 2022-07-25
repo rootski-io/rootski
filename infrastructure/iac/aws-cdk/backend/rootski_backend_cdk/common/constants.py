@@ -1,5 +1,6 @@
-from aws_cdk import CfnTag
 from enum import Enum
+
+from aws_cdk import CfnTag
 
 TAGS = [
     CfnTag(key="app", value="rootski"),

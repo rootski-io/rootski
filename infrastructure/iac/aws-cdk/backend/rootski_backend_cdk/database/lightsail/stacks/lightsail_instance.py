@@ -3,8 +3,8 @@
 from enum import Enum
 from pathlib import Path
 
-from aws_cdk import aws_lightsail as lightsail
 import aws_cdk as cdk
+from aws_cdk import aws_lightsail as lightsail
 from constructs import Construct
 from jinja2 import Template
 from rootski_backend_cdk.common.constants import TAGS
@@ -109,7 +109,8 @@ class LightsailInstanceStack(cdk.Stack):
                     ),
                     lightsail.CfnInstance.PortProperty(
                         access_direction="inbound",
-                        cidrs=["172.0.0.0/8"],
+                        # cidrs=["172.0.0.0/8"],
+                        cidrs=["0.0.0.0/0"],
                         common_name="Postgres",
                         from_port=5432,
                         protocol="tcp",

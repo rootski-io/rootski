@@ -4,8 +4,9 @@ from enum import Enum
 from pathlib import Path
 from typing import List
 
+import aws_cdk as cdk
 from aws_cdk import aws_route53 as route53
-from aws_cdk import core as cdk
+from constructs import Construct
 
 THIS_DIR = Path(__file__).parent
 
@@ -31,7 +32,7 @@ class Subdomains(cdk.Stack):
 
     def __init__(
         self,
-        scope: cdk.Construct,
+        scope: Construct,
         construct_id: str,
         backend_public_ip: str,
         subdomains: List[str],
