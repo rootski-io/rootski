@@ -52,6 +52,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "EthanMWalker",
+      "name": "Ethan Walker",
+      "avatar_url": "https://avatars.githubusercontent.com/u/42601622?v=4",
+      "profile": "https://github.com/EthanMWalker",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
