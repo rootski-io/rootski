@@ -43,6 +43,15 @@
       "contributions": [
         "business"
       ]
+    },
+    {
+      "login": "Joseph-Drapeau",
+      "name": "Joe Drapeau",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36390255?v=4",
+      "profile": "https://github.com/Joseph-Drapeau",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
