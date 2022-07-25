@@ -1,4 +1,4 @@
-from aws_cdk.core import CfnTag
+from aws_cdk import CfnTag
 from enum import Enum
 
 TAGS = [
