@@ -9,7 +9,7 @@
 [![codecov](https://codecov.io/gh/rootski-io/rootski/branch/trunk/graph/badge.svg?token=YZJ0UFXNU3)](https://codecov.io/gh/rootski-io/rootski)
 
 <!--
-custom badges:
+custom  badges:
 Each of these are created using a open-source, free, publically hosted service called sheilds.io
 GitHub gist explaining how to make custom badges like these: https://github.com/8bitDesigner/slack-badge/blob/master/README.md
 sheilds.io homepage where color choices are documented: https://shields.io/
