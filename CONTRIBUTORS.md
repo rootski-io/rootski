@@ -7,6 +7,7 @@
     <td align="center"><a href="https://github.com/jabracadabrah"><img src="https://avatars.githubusercontent.com/u/59886656?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Josh Abrahamsen</b></sub></a><br /><a href="#infra-jabracadabrah" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
     <td align="center"><a href="https://github.com/phitoduck"><img src="https://avatars.githubusercontent.com/u/32227767?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Eric Riddoch</b></sub></a><br /><a href="#mentoring-phitoduck" title="Mentoring">🧑‍🏫</a> <a href="https://github.com/rootski-io/rootski/commits?author=phitoduck" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/rgard90"><img src="https://avatars.githubusercontent.com/u/39572434?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ryan Gardner</b></sub></a><br /><a href="#business-rgard90" title="Business development">💼</a></td>
+    <td align="center"><a href="https://github.com/Joseph-Drapeau"><img src="https://avatars.githubusercontent.com/u/36390255?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joe Drapeau</b></sub></a><br /><a href="https://github.com/rootski-io/rootski/commits?author=Joseph-Drapeau" title="Code">💻</a></td>
   </tr>
 </table>
 
