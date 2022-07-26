@@ -1,13 +1,30 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Literal, TypedDict
 
 from dynamodb_play.models.base import DynamoModel
+
+WORD_POS_ENUM = Literal[
+    "noun", "adjective", "verb", "adverb", "particle", "preposition", "pronoun", "conjunction"
+]
+
+
+class Word_(TypedDict):
+    word_id: str
+    word: str
+    accent: str
+    pos: WORD_POS_ENUM
+    frequency: int
 
 
 @dataclass
 class Word(DynamoModel):
 
-    word_id: str
+    data: dict
+    __type: Literal["WORD"] = "WORD"
+
+    @property
+    def word_id(self) -> str:
+        return str(self.data["word"]["word_id"])
 
     @property
     def pk(self) -> str:
@@ -20,6 +37,11 @@ class Word(DynamoModel):
     @property
     def keys(self) -> Dict[str, str]:
         return make_keys(word_id=self.word_id)
+
+    def to_item(self) -> dict:
+        data = {**self.data}
+        data["word"]["word_id"] = self.word_id
+        return {**self.keys, **data, "__type": self.__type}
 
 
 def make_pk(word_id: str) -> str:
