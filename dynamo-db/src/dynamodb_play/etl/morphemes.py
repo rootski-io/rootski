@@ -1,9 +1,10 @@
 from functools import reduce
-from typing import Generator, List
+from typing import List
 
 import rootski.services.database.models as orm
 from dynamodb_play.dynamo import get_rootski_dynamo_table
 from dynamodb_play.etl.db_service import get_dbservice
+from dynamodb_play.etl.utils import batchify
 from dynamodb_play.models.morpheme import Morpheme
 from dynamodb_play.models.morpheme_family import MorphemeFamily, MorphemeItem
 from rich.pretty import pprint
@@ -87,14 +88,6 @@ def query_morpheme_items_from_postgres() -> List[dict]:
 
     return items
 
-
-def batchify(lst: list, batch_size: int) -> Generator[list, None, None]:
-    """Return a generator that returns sublists of up to ``batch_size`` at a time of ``lst``."""
-    num_batches = len(lst) // batch_size
-    for batch_index in range(num_batches + 1):
-        batch_start_index = batch_index * batch_size
-        batch_stop_index = batch_start_index + batch_size
-        yield lst[batch_start_index:batch_stop_index]
 
 
 if __name__ == "__main__":
