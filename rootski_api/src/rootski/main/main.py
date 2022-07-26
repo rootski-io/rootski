@@ -8,12 +8,10 @@ To run this API with ``gunicorn``, use the following command:
     gunicorn rootski.main.main:create_app() --bind 0.0.0.0:3333
 """
 
-from typing import Optional
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-
 from pathlib import Path
+from typing import Optional
 
+from fastapi import FastAPI
 from rootski.config.config import Config
 from rootski.main.endpoints.breakdown.routes import router as breakdown_router
 from rootski.main.endpoints.graphql import router as graphql_router
@@ -23,10 +21,14 @@ from rootski.main.endpoints.word import router as word_router
 from rootski.schemas.core import Services
 from rootski.services.auth import AuthService
 from rootski.services.database import DBService
+from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
 from rootski.services.logger import LoggingService
+from starlette.middleware.cors import CORSMiddleware
 
 
-def create_app(config: Optional[Config] = None) -> FastAPI:
+def create_app(
+    config: Optional[Config] = None,
+) -> FastAPI:
 
     if not config:
         config = Config()
@@ -37,6 +39,7 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
         auth=AuthService.from_config(config=config),
         db=DBService.from_config(config=config),
         logger=LoggingService.from_config(config=config),
+        dynamo=DynamoDBService.from_config(config=config),
     )
 
     # configure startup behavior: initialize services on startup

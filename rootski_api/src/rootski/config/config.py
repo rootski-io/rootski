@@ -47,6 +47,8 @@ YAML_CONFIG_PATH_ENV_VAR: str = f"{ENVIRON_PREFIX}CONFIG_FILE_PATH"
 DEPLOYMENT_ENVIRONMENT_ENV_VAR = f"{ENVIRON_PREFIX}ENVIRONMENT"
 DEFAULT_DEPLOYMENT_ENVIRONMENT = "dev"
 
+DEFAULT_DYNAMO_TABLE_NAME = "rootski-table"
+
 # maps to a string boolean
 FETCH_VALUES_FROM_SSM_ENV_VAR = f"{ENVIRON_PREFIX}FETCH_VALUES_FROM_AWS_SSM"
 
@@ -184,6 +186,8 @@ class Config(BaseSettings):
     postgres_host: str
     postgres_port: str
     postgres_db: str
+
+    dynamo_table_name: str = DEFAULT_DYNAMO_TABLE_NAME
 
     @property
     def sync_sqlalchemy_database_uri(self) -> str:

@@ -1,17 +1,24 @@
+from typing import Union
+
 from fastapi import APIRouter, HTTPException, Request
 from loguru import logger
-from starlette.status import HTTP_400_BAD_REQUEST
-
 from rootski.schemas.core import Services
 from rootski.services.database import DBService
-from rootski.services.database.non_orm.db_service import (
-    RootskiDBService as LegacyDBService,
-)
+from rootski.services.database.dynamo import models as dynamo
+from rootski.services.database.dynamo.models2schemas.word import dynamo_to_pydantic__word
+from rootski.services.database.non_orm.db_service import RootskiDBService as LegacyDBService
+from starlette.status import HTTP_400_BAD_REQUEST
+
+from rootski import schemas
 
 router = APIRouter()
 
+TWordResponse = Union[
+    schemas.AdjectiveResponse, schemas.NounResponse, schemas.VerbResponse, schemas.WordResponse
+]
 
-@router.get("/word/{word_id}/{word_type}")
+
+@router.get("/word/{word_id}/{word_type}", response_model=TWordResponse)
 async def get_word_data(word_id: int, word_type: str, request: Request):
     """
     Return all data necessary to populate the word page for the given word
@@ -40,5 +47,14 @@ async def get_word_data(word_id: int, word_type: str, request: Request):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid word type.")
 
     payload = legacy_db_service.fetch_word_data(word_id, word_type)
-    # return json.dumps(payload, ensure_ascii=False)
-    return payload
+
+    dynamo_word = dynamo.Word(data=payload)
+    from rich.pretty import pprint
+
+    pprint(dynamo_word.data)
+    response: TWordResponse = dynamo_to_pydantic__word(word=dynamo_word)
+
+    print(type(response))
+    pprint(response.dict(by_alias=True))
+
+    return response
