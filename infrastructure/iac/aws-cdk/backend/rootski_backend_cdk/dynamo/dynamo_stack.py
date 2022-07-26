@@ -25,3 +25,9 @@ class DynamoStack(Stack):
             partition_key=dynamodb.Attribute(name="gsi1pk", type=dynamodb.AttributeType.STRING),
             sort_key=dynamodb.Attribute(name="gsi1sk", type=dynamodb.AttributeType.STRING),
         )
+
+        rootski_table.add_global_secondary_index(
+            index_name="gsi2",
+            partition_key=dynamodb.Attribute(name="gsi2pk", type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(name="gsi2sk", type=dynamodb.AttributeType.STRING),
+        )
