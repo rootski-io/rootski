@@ -46,13 +46,17 @@ def create_app(
     @app.on_event("startup")
     async def on_startup():
         services: Services = app.state.services
+
         logging_service: LoggingService = services.logger
         auth_service: AuthService = services.auth
         db_service: DBService = services.db
+        dynamo_service: DynamoDBService = services.dynamo
+
         # logging should be initialized first since it alters a global logger variable
         logging_service.init()
         auth_service.init()
         db_service.init()
+        dynamo_service.init()
 
         # # ensure that the static assets dir exists (for morphemes.json)
         Path(config.static_assets_dir).mkdir(exist_ok=True, parents=True)

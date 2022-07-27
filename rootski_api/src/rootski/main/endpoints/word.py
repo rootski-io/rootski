@@ -1,13 +1,17 @@
-from typing import Union
+from typing import Optional, Union
 
+import rootski.services.database.dynamo.models as dynamo
 from fastapi import APIRouter, HTTPException, Request
 from loguru import logger
 from rootski.schemas.core import Services
 from rootski.services.database import DBService
 from rootski.services.database.dynamo import models as dynamo
+from rootski.services.database.dynamo.actions.word import WordNotFoundError, get_word_by_id
+from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
 from rootski.services.database.dynamo.models2schemas.word import dynamo_to_pydantic__word
 from rootski.services.database.non_orm.db_service import RootskiDBService as LegacyDBService
-from starlette.status import HTTP_400_BAD_REQUEST
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from urllib3 import HTTPResponse
 
 from rootski import schemas
 
@@ -29,6 +33,7 @@ async def get_word_data(word_id: int, word_type: str, request: Request):
     """
     app_services: Services = request.app.state.services
     db_service: DBService = app_services.db
+    dynamo_service: DynamoDBService = app_services.dynamo
     legacy_db_service = LegacyDBService(engine=db_service.sync_engine)
 
     logger.info(f"Getting word data for word {word_id} of type {word_type}")
@@ -46,15 +51,12 @@ async def get_word_data(word_id: int, word_type: str, request: Request):
     ]:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid word type.")
 
-    payload = legacy_db_service.fetch_word_data(word_id, word_type)
+    word: Optional[dynamo.Word] = None
+    try:
+        word: dynamo.Word = get_word_by_id(word_id=word_id, db=dynamo_service)
+    except WordNotFoundError:
+        raise HTTPResponse(status=HTTP_404_NOT_FOUND)
 
-    dynamo_word = dynamo.Word(data=payload)
-    from rich.pretty import pprint
-
-    pprint(dynamo_word.data)
-    response: TWordResponse = dynamo_to_pydantic__word(word=dynamo_word)
-
-    print(type(response))
-    pprint(response.dict(by_alias=True))
+    response: TWordResponse = dynamo_to_pydantic__word(word=word)
 
     return response

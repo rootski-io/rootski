@@ -64,6 +64,7 @@ def run():
     """Run the rootski api using the config values in config/rootski-config.yml"""
     rootski_config_fpath = str((THIS_DIR / "config/rootski-config.yml").resolve().absolute())
     $ROOTSKI__CONFIG_FILE_PATH = rootski_config_fpath
+    $AWS_PROFILE = "rootski"
     uvicorn "rootski.main.main:create_default_app" --factory --reload --port 3333
 
 

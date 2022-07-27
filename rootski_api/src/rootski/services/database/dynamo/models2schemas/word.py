@@ -17,8 +17,13 @@ def dynamo_to_pydantic__word(
     common_word_fields = parse_common_word_schemas(word=word)
 
     if word.word_pos in ["noun", "pronoun"]:
+        declensions_or_none = (
+            schemas.NounDeclensions.parse_obj(word.data["declensions"])
+            if "declensions" in word.data.keys()
+            else None
+        )
         return schemas.NounResponse(
-            declensions=schemas.NounDeclensions(**word.data["declensions"]),
+            declensions=declensions_or_none,
             **common_word_fields,
         )
 
@@ -30,9 +35,10 @@ def dynamo_to_pydantic__word(
         )
 
     if word.word_pos == "adjective":
-        return schemas.AdjectiveResponse(
-            short_forms=schemas.AdjectiveShortForms(**word.data["short_forms"]), **common_word_fields
-        )
+        short_forms_or_none = None
+        if word.data is not None:
+            schemas.AdjectiveShortForms.parse_obj(word.data)
+        return schemas.AdjectiveResponse(short_forms=short_forms_or_none, **common_word_fields)
 
     return schemas.WordResponse(**common_word_fields)
 

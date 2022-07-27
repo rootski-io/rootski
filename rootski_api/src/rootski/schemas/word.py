@@ -34,7 +34,7 @@ class Word(BaseModel):
     word: str
     accent: str
     pos: WORD_POS_ENUM
-    frequency: int
+    frequency: Optional[int]
 
     class Config:
         orm_mode = True
@@ -99,26 +99,26 @@ class WordResponse(BaseModel):
 
 
 class NounDeclensions(BaseModel):
-    gender: Literal["m", "f", "n"]
-    animate: bool
-    indeclinable: bool
+    gender: Optional[Literal["m", "f", "n"]]
+    animate: Optional[bool]
+    indeclinable: Optional[bool]
 
-    nom: str
-    acc: str
-    prep: str
-    gen: str
-    dat: str
-    inst: str
-    nom_pl: str
-    acc_pl: str
-    prep_pl: str
-    gen_pl: str
-    dat_pl: str
-    inst_pl: str
+    nom: Optional[str]
+    acc: Optional[str]
+    prep: Optional[str]
+    gen: Optional[str]
+    dat: Optional[str]
+    inst: Optional[str]
+    nom_pl: Optional[str]
+    acc_pl: Optional[str]
+    prep_pl: Optional[str]
+    gen_pl: Optional[str]
+    dat_pl: Optional[str]
+    inst_pl: Optional[str]
 
 
 class NounResponse(WordResponse):
-    declensions: NounDeclensions
+    declensions: Optional[NounDeclensions]
 
 
 #############################
@@ -127,15 +127,15 @@ class NounResponse(WordResponse):
 
 
 class AdjectiveShortForms(BaseModel):
-    comp: str
-    fem_short: str
-    masc_short: str
-    neut_short: str
-    plural_short: str
+    comp: Optional[str]
+    fem_short: Optional[str]
+    masc_short: Optional[str]
+    neut_short: Optional[str]
+    plural_short: Optional[str]
 
 
 class AdjectiveResponse(WordResponse):
-    short_forms: AdjectiveShortForms
+    short_forms: Optional[AdjectiveShortForms]
 
 
 #########################
@@ -144,31 +144,31 @@ class AdjectiveResponse(WordResponse):
 
 
 class VerbConjugations(BaseModel):
-    aspect: Literal["perf", "impv"]
-    c__1st_per_sing: str = Field(alias="1st_per_sing")
-    c__2nd_per_sing: str = Field(alias="2nd_per_sing")
-    c__3rd_per_sing: str = Field(alias="3rd_per_sing")
-    c__1st_per_pl: str = Field(alias="1st_per_pl")
-    c__2nd_per_pl: str = Field(alias="2nd_per_pl")
-    c__3rd_per_pl: str = Field(alias="3rd_per_pl")
-    past_m: str
-    past_f: str
-    past_n: str
-    past_pl: str
+    aspect: Optional[Literal["perf", "impf"]]
+    c__1st_per_sing: Optional[str] = Field(alias="1st_per_sing")
+    c__2nd_per_sing: Optional[str] = Field(alias="2nd_per_sing")
+    c__3rd_per_sing: Optional[str] = Field(alias="3rd_per_sing")
+    c__1st_per_pl: Optional[str] = Field(alias="1st_per_pl")
+    c__2nd_per_pl: Optional[str] = Field(alias="2nd_per_pl")
+    c__3rd_per_pl: Optional[str] = Field(alias="3rd_per_pl")
+    past_m: Optional[str]
+    past_f: Optional[str]
+    past_n: Optional[str]
+    past_pl: Optional[str]
     actv_part: Optional[str]
     pass_part: Optional[str]
-    actv_past_part: str
-    pass_past_part: str
-    gerund: str
-    impr: str
-    impr_pl: str
+    actv_past_part: Optional[str]
+    pass_past_part: Optional[str]
+    gerund: Optional[str]
+    impr: Optional[str]
+    impr_pl: Optional[str]
 
 
 class VerbAspectualPair(BaseModel):
-    imp_word_id: str
-    imp_accent: str
-    pfv_word_id: str
-    pfv_accent: str
+    imp_word_id: Optional[str]
+    imp_accent: Optional[str]
+    pfv_word_id: Optional[str]
+    pfv_accent: Optional[str]
 
 
 class VerbResponse(WordResponse):
