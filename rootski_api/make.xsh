@@ -9,20 +9,9 @@ from textwrap import dedent
 from glob import glob
 from copy import deepcopy
 
-
-# manually add ../make_utils/ to PYTHONPATH so we can import resources from make_utils
-THIS_DIR = Path(__file__).parent.absolute()
-MAKE_UTILS_DIR = (THIS_DIR / "..").resolve().absolute()
-sys.path.insert(0, str(MAKE_UTILS_DIR))
-
-# manually add ./make_utils/ to PYTHONPATH so we can import from the make_utils module
-THIS_DIR = Path(__file__).parent.absolute()
-sys.path.insert(0, str(THIS_DIR))
-
 from make_utils.utils_without_dependencies import print_import_error_help_message, get_localhost
 
 try:
-    import bcrypt
     from rich import print
     from rich.panel import Panel
     import configparser
@@ -44,12 +33,15 @@ from rich.console import Console
 # make tracebacks beautiful when errors occur 😃
 traceback.install()
 
+THIS_DIR = Path(__file__).parent
+
 
 CUSTOM_MAKE_TEXT = dedent(f"""
 # install dependencies for running other makefile targets;
 # also install the rootski_api project
 install:
 \tpython -m pip install xonsh colorama pre-commit
+\tpython -m pip install -e ../make_utils
 \tpython -m pip install -e .[dev]
 """)
 
@@ -72,6 +64,7 @@ def run():
     """Run the rootski api using the config values in config/rootski-config.yml"""
     rootski_config_fpath = str((THIS_DIR / "config/rootski-config.yml").resolve().absolute())
     $ROOTSKI__CONFIG_FILE_PATH = rootski_config_fpath
+    $AWS_PROFILE = "rootski"
     uvicorn "rootski.main.main:create_default_app" --factory --reload --port 3333
 
 

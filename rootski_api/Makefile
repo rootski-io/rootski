@@ -7,6 +7,7 @@
 # also install the rootski_api project
 install:
 	python -m pip install xonsh colorama pre-commit
+	python -m pip install -e ../make_utils
 	python -m pip install -e .[dev]
 
 
@@ -23,8 +24,7 @@ help:
 	python -m xonsh make.xsh help
 
 
-# Generate a makefile from the targets registered with this instance of
-# the Makefile decorator.
+# Generate a makefile from the targets registered with this Makefile instance.
 make:
 	python -m xonsh make.xsh make
 

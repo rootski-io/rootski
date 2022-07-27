@@ -37,7 +37,23 @@ from .morpheme import (
     MorphemeInDb,
 )
 from .user import User, UserInDB
-from .word import WORD_POS_ENUM, Word, WordInDb
+from .word import (
+    WORD_POS_ENUM,
+    AdjectiveResponse,
+    AdjectiveShortForms,
+    Definition,
+    DefinitionForPOS,
+    ExampleSentence,
+    NounDeclensions,
+    NounResponse,
+    SubDefinition,
+    VerbAspectualPair,
+    VerbConjugations,
+    VerbResponse,
+    Word,
+    WordInDb,
+    WordResponse,
+)
 
 __all__ = [
     # breakdown
@@ -62,12 +78,23 @@ __all__ = [
     "User",
     "UserInDB",
     # word
+    "WORD_POS_ENUM",
     "Word",
     "WordInDb",
-    "WordPOS",
-    "WORD_POS_ENUM",
+    "SubDefinition",
+    "Definition",
+    "DefinitionForPOS",
+    "ExampleSentence",
+    "WordResponse",
+    "NounDeclensions",
+    "NounResponse",
+    "AdjectiveShortForms",
+    "AdjectiveResponse",
+    "VerbConjugations",
+    "VerbAspectualPair",
+    "VerbResponse",
     # core
-    "Services"
+    "Services",
     # morpheme types
     "MORPHEME_TYPE_PREFIX",
     "MORPHEME_TYPE_ROOT",

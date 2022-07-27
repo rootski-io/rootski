@@ -8,12 +8,10 @@ To run this API with ``gunicorn``, use the following command:
     gunicorn rootski.main.main:create_app() --bind 0.0.0.0:3333
 """
 
-from typing import Optional
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-
 from pathlib import Path
+from typing import Optional
 
+from fastapi import FastAPI
 from rootski.config.config import Config
 from rootski.main.endpoints.breakdown.routes import router as breakdown_router
 from rootski.main.endpoints.graphql import router as graphql_router
@@ -23,10 +21,14 @@ from rootski.main.endpoints.word import router as word_router
 from rootski.schemas.core import Services
 from rootski.services.auth import AuthService
 from rootski.services.database import DBService
+from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
 from rootski.services.logger import LoggingService
+from starlette.middleware.cors import CORSMiddleware
 
 
-def create_app(config: Optional[Config] = None) -> FastAPI:
+def create_app(
+    config: Optional[Config] = None,
+) -> FastAPI:
 
     if not config:
         config = Config()
@@ -37,19 +39,24 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
         auth=AuthService.from_config(config=config),
         db=DBService.from_config(config=config),
         logger=LoggingService.from_config(config=config),
+        dynamo=DynamoDBService.from_config(config=config),
     )
 
     # configure startup behavior: initialize services on startup
     @app.on_event("startup")
     async def on_startup():
         services: Services = app.state.services
+
         logging_service: LoggingService = services.logger
         auth_service: AuthService = services.auth
         db_service: DBService = services.db
+        dynamo_service: DynamoDBService = services.dynamo
+
         # logging should be initialized first since it alters a global logger variable
         logging_service.init()
         auth_service.init()
         db_service.init()
+        dynamo_service.init()
 
         # # ensure that the static assets dir exists (for morphemes.json)
         Path(config.static_assets_dir).mkdir(exist_ok=True, parents=True)
