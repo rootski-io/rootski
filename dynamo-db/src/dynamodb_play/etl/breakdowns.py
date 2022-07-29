@@ -3,43 +3,23 @@ NOTE: remember to cast all IDs to strings
 """
 
 
-from typing import List, Union
+from ast import Break
+from turtle import position
+from rich.pretty import pprint
+from sqlalchemy.orm import joinedload
+from functools import reduce
 
+
+from typing import List, Union
 import rootski.services.database.models as orm
 from dynamodb_play.etl.db_service import get_dbservice
-from dynamodb_play.models.breakdown import Breakdown
+from dynamodb_play.dynamo import get_rootski_dynamo_table
+from dynamodb_play.etl.utils import batchify, bulk_upload_to_dynamo
+from dynamodb_play.models.breakdown import Breakdown, BreakdownItemItem
 from dynamodb_play.models.breakdown_item import BreakdownItem, NullBreakdownItem
-from sqlalchemy.orm import joinedload
 
 
-def make_dynamo_morpheme_family_from_orm(orm_family: orm.MorphemeFamily) -> MorphemeFamily:
-    """
-    Build a ``MorphemeFamily`` object from a SQLAlchemy ``orm.MorphemeFamily`` object.
-
-    The resulting object has data organized in the way it is intended to end up in dynamo.
-    """
-    orm_morphemes: List[orm.Morpheme] = orm_family.morphemes
-    orm_meanings: List[orm.MorphemeFamilyMeaning] = orm_family.meanings
-
-    return MorphemeFamily(
-        family_id=str(orm_family.id),
-        level=orm_family.level,
-        word_pos=orm_morphemes[0].word_pos,
-        type=orm_morphemes[0].type,
-        morphemes=[
-            MorphemeItem(
-                morpheme=m.morpheme,
-                morpheme_id=str(m.morpheme_id),
-            )
-            for m in orm_morphemes
-        ],
-        family_meanings=[m.meaning for m in orm_meanings],
-    )
-
-
-def make_dynamo_breakdown_item_dict_from_orm(
-    orm_breakdown_item: orm.BreakdownItem,
-) -> Union[BreakdownItem, NullBreakdownItem]:
+def make_dynamo_breakdown_item_dict_from_orm(orm_breakdown_item :orm.BreakdownItem) -> Union[BreakdownItem, NullBreakdownItem]:
     """Build a ```BreakdownItem``` or ```NullBreakdownItem``` object from a SQLAlchemy ```orm.BreakdownItem``` object.
 
     The resulting object has data organized in the way it is intended to end up in dynamo.
@@ -49,7 +29,7 @@ def make_dynamo_breakdown_item_dict_from_orm(
             word_id=str(orm_breakdown_item),
             position=str(orm_breakdown_item.position),
             morpheme=str(orm_breakdown_item.morpheme),
-            submitted_by_user_email=orm_breakdown_item.breakdown.submitted_by_user.email,
+            submitted_by_user_email=orm_breakdown_item.breakdown.submitted_by_user.email
         )
     else:
         return BreakdownItem(
@@ -59,7 +39,7 @@ def make_dynamo_breakdown_item_dict_from_orm(
             morpheme=str(orm_breakdown_item.morpheme),
             morpheme_id=str(orm_breakdown_item.morpheme_id),
             submitted_by_user_email=orm_breakdown_item.breakdown.submitted_by_user.email,
-            breakdown_id=str(orm_breakdown_item.breakdown_id),
+            breakdown_id=str(orm_breakdown_item.breakdown_id)
         )
 
 
@@ -70,7 +50,7 @@ def make_dynamo_breakdown_dict_from_orm(orm_breakdown: orm.Breakdown) -> Breakdo
     The resulting object has data organized in the way it is intended to end up in dynamo.
     """
     breakdown_items: List[orm.BreakdownItem] = orm_breakdown.breakdown_items
-
+    
     return Breakdown(
         word=str(orm_breakdown.word),
         word_id=str(orm_breakdown.word_id),
@@ -79,12 +59,16 @@ def make_dynamo_breakdown_dict_from_orm(orm_breakdown: orm.Breakdown) -> Breakdo
         is_inference=orm_breakdown.is_inference,
         date_submitted=str(orm_breakdown.date_submitted),
         date_verified=str(orm_breakdown.date_verified),
-        breakdown_items=[make_dynamo_breakdown_item_dict_from_orm(b) for b in breakdown_items],
+        breakdown_items=[
+            make_dynamo_breakdown_item_dict_from_orm(b)
+            for b in breakdown_items
+        ],
     )
 
 
 def extract() -> List[dict]:
-    """Query breakdowns items from postgres database."""
+    """Query breakdowns items from postgres database.
+    """
     # connect to an instance of the rootski postgres database running locally
     db_service = get_dbservice()
     session = db_service.get_sync_session()
@@ -92,14 +76,27 @@ def extract() -> List[dict]:
     # query all of the breakdown rows from postgres
     orm_breakdowns: List[orm.Breakdown] = (
         session.query(orm.Breakdown)
-        .options(joinedload(orm.Breakdown.breakdown_items), joinedload(orm.Breakdown.submitted_by_user))
+        .options(
+            joinedload(orm.Breakdown.breakdown_items),
+            joinedload(orm.Breakdown.submitted_by_user)
+        )
         .all()
     )
 
     return orm_breakdowns
+    
+    
+def transform(orm_breakdowns) -> List[dict]:
+    """_summary_
 
+    :return: _description_
+    """
     # convert the SQLAlchemy "orm.Breakdown" models to dicts meant for dynamo
-
+    b
+    orm_breakdowns:
+    
+    
+    
     # m_families: List[MorphemeFamily] = [make_dynamo_morpheme_family_from_orm(b) for b in breakdown_orm]
     # m_family_items: List[dict] = [m.to_item() for m in m_families]
 
