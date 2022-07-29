@@ -24,5 +24,7 @@ def bulk_upload_to_dynamo(items: List[dict]):
 def batch_load_into_dynamo(items: List[dict], batch_size: int):
     """Upload each dict in ``item`` to dynamodb with ``batch_size`` items at a time."""
     for batch_index, batch in enumerate(batchify(items, batch_size=batch_size)):
-        print(f"Writing batch {batch_index} to dynamo")
+        print(f"Writing batch {batch_index} to dynamo. Sample item:")
+        if len(batch) > 0:
+            print(batch[0])
         bulk_upload_to_dynamo(items=batch)
