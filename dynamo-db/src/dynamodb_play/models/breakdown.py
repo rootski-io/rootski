@@ -8,20 +8,13 @@ from typing import Dict, List, Literal, Optional, Union
 from dynamodb_play.models.base import DynamoModel
 from dynamodb_play.models.breakdown_item import BreakdownItem, NullBreakdownItem
 
-# class BreakdownItemItem(TypedDict):
-
-#     position: str
-#     morpheme_id: Optional[str]
-#     morpheme: str
-#     morpheme_family_id: Optional[str]
-
 
 @dataclass(frozen=True)
 class Breakdown(DynamoModel):
 
     word: str
     word_id: int
-    submitted_by_user_email: str
+    submitted_by_user_email: Optional[str]
     is_verified: bool
     is_inference: bool
     date_submitted: str
@@ -64,7 +57,7 @@ class Breakdown(DynamoModel):
             "is_inference": self.is_inference,
             "date_submitted": self.date_submitted,
             "date_verified": self.date_verified,
-            "breakdown_items": [b.to_item() for b in self.breakdown_items],
+            "breakdown_items": [b.to_BreakdownItemItem() for b in self.breakdown_items],
         }
 
 
@@ -73,7 +66,7 @@ def make_pk(word_id: str) -> str:
 
 
 def make_sk() -> str:
-    return f"BREAKDOWN"
+    return "BREAKDOWN"
 
 
 def make_gsi1pk(submitted_by_user_email: str) -> str:

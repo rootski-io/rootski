@@ -3,10 +3,18 @@ NOTE: remember to cast all IDs to strings
 """
 
 from dataclasses import dataclass
-from typing import Dict, Literal, Optional
+from typing import Dict, Literal, Optional, TypedDict
 from uuid import uuid4
 
 from dynamodb_play.models.base import DynamoModel
+
+
+class BreakdownItemItem(TypedDict):
+    
+    position: str
+    morpheme_id: Optional[str]
+    morpheme: str
+    morpheme_family_id: Optional[str]
 
 
 @dataclass(frozen=True)
@@ -40,6 +48,14 @@ class NullBreakdownItem(DynamoModel):
         }
 
 
+    def to_BreakdownItemItem(self) -> BreakdownItemItem:
+        return BreakdownItemItem(
+            position=self.position,
+            morpheme_id=None,
+            morpheme=self.morpheme,
+            morpheme_family_id=None
+        )
+
 @dataclass(frozen=True)
 class BreakdownItem(DynamoModel):
 
@@ -49,7 +65,6 @@ class BreakdownItem(DynamoModel):
     morpheme: str
     morpheme_id: str
     submitted_by_user_email: Optional[str]
-
     breakdown_id: int
     __type: Literal["BREAKDOWN_ITEM"] = "BREAKDOWN_ITEM"
 
@@ -78,7 +93,16 @@ class BreakdownItem(DynamoModel):
             "morpheme": self.morpheme,
             "morpheme_id": str(self.morpheme_id),
             "submitted_by_user_email": self.submitted_by_user_email,
+            "breakdown_id": self.breakdown_id,
         }
+
+    def to_BreakdownItemItem(self) -> BreakdownItemItem:
+        return BreakdownItemItem(
+            position=self.position,
+            morpheme_id=self.morpheme_id,
+            morpheme=self.morpheme,
+            morpheme_family_id=self.morpheme_family_id
+        )
 
 
 def make_pk(word_id: str) -> str:
