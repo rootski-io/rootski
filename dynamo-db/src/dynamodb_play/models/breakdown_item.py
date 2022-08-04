@@ -10,7 +10,7 @@ from dynamodb_play.models.base import DynamoModel
 
 
 class BreakdownItemItem(TypedDict):
-    
+
     position: str
     morpheme_id: Optional[str]
     morpheme: str
@@ -47,14 +47,11 @@ class NullBreakdownItem(DynamoModel):
             "submitted_by_user_email": self.submitted_by_user_email,
         }
 
-
     def to_BreakdownItemItem(self) -> BreakdownItemItem:
         return BreakdownItemItem(
-            position=self.position,
-            morpheme_id=None,
-            morpheme=self.morpheme,
-            morpheme_family_id=None
+            position=self.position, morpheme_id=None, morpheme=self.morpheme, morpheme_family_id=None
         )
+
 
 @dataclass(frozen=True)
 class BreakdownItem(DynamoModel):
@@ -101,7 +98,7 @@ class BreakdownItem(DynamoModel):
             position=self.position,
             morpheme_id=self.morpheme_id,
             morpheme=self.morpheme,
-            morpheme_family_id=self.morpheme_family_id
+            morpheme_family_id=self.morpheme_family_id,
         )
 
 
