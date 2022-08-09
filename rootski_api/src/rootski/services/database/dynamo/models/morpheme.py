@@ -8,7 +8,7 @@ from typing import Dict, Literal
 from rootski.services.database.dynamo.models.base import DynamoModel
 
 
-@dataclass
+@dataclass(frozen=True)
 class Morpheme(DynamoModel):
 
     morpheme: str
