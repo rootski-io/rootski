@@ -25,16 +25,31 @@ class DynamoModel:
         return None
 
     @property
+    def gsi2pk(self) -> Optional[str]:
+        """Return the model's partition key in the first global third index."""
+        return None
+
+    @property
+    def gsi2sk(self) -> Optional[str]:
+        """Return the model's sort key in the first global third index."""
+        return None
+
+    @property
     def keys(self) -> Dict[str, str]:
 
         gsi1_keys: Dict[str, str] = (
             {"gsi1pk": self.gsi1pk, "gsi1sk": self.gsi1sk} if self.gsi1pk and self.gsi1sk else {}
         )
 
+        gsi2_keys: Dict[str, str] = (
+            {"gsi2pk": self.gsi2pk, "gsi2sk": self.gsi2sk} if self.gsi2pk and self.gsi2sk else {}
+        )
+
         return {
             "pk": self.pk,
             "sk": self.sk,
             **gsi1_keys,
+            **gsi2_keys,
         }
 
     def to_item(self) -> dict:
