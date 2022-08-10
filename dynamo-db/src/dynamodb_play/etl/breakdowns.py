@@ -36,7 +36,10 @@ def make_dynamo_breakdown_item_dict_from_orm(
 
     The resulting object has data organized in the way it is intended to end up in dynamo.
     """
-    if orm_breakdown_item.morpheme_id is None:
+    none_list = [None]
+    none_string_list = ["None"]
+
+    if orm_breakdown_item.morpheme_id in none_list or none_string_list:
         return NullBreakdownItem(
             word_id=str(orm_breakdown_item.breakdown.word_id),
             position=str(orm_breakdown_item.position),
@@ -53,7 +56,7 @@ def make_dynamo_breakdown_item_dict_from_orm(
             submitted_by_user_email=orm_breakdown_item.breakdown.submitted_by_user_email,  # None if not user_or_none else user_or_none.email,
             morpheme=str(orm_breakdown_item.morpheme),
             morpheme_id=str(orm_breakdown_item.morpheme_id),
-            morpheme_family_id=orm_breakdown_item.morpheme_id,  # None if not family_id_or_none else family_id_or_none.family_id,
+            morpheme_family_id=orm_breakdown_item.morpheme_.family_id,  # None if not family_id_or_none else family_id_or_none.family_id,
             breakdown_id=str(orm_breakdown_item.breakdown_id),
         )
 
@@ -94,7 +97,7 @@ def transform(orm_breakdowns) -> List[dict]:
     breakdown_item_dict_list: List[dict] = [bi.to_item() for bi in dynamo_breakdown_items]
 
     # Return all the dictionaries in a single list
-    return breakdown_item_dict_list + breakdown_dict_list
+    return breakdown_dict_list + breakdown_item_dict_list
 
 
 if __name__ == "__main__":

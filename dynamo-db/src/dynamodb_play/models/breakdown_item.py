@@ -43,7 +43,7 @@ class NullBreakdownItem(DynamoModel):
             "position": self.position,
             "morpheme": self.morpheme,
             "morpheme_id": None,
-            "family_id": None,
+            "morpheme_family_id": None,
             "submitted_by_user_email": self.submitted_by_user_email,
         }
 
