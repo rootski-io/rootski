@@ -13,6 +13,11 @@ from dynamodb_play.models.breakdown_item import BreakdownItem, NullBreakdownItem
 from sqlalchemy.orm import joinedload
 
 
+"""
+TODO Run this etl one more time. The BreakdownItem.to_item() function was missing the position field.
+"""
+
+
 def extract() -> List[orm.Breakdown]:
     """Query breakdowns items from postgres database."""
     # connect to an instance of the rootski postgres database running locally
