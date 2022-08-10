@@ -86,6 +86,7 @@ class BreakdownItem(DynamoModel):
             **self.keys,
             "__type": self.__type,
             "word_id": str(self.word_id),
+            "position": self.position,
             "morpheme": self.morpheme,
             "morpheme_id": str(self.morpheme_id),
             "morpheme_family_id": str(self.morpheme_family_id),
