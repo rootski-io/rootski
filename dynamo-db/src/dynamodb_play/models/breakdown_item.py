@@ -12,8 +12,8 @@ from dynamodb_play.models.base import DynamoModel
 class BreakdownItemItem(TypedDict):
 
     position: str
-    morpheme_id: Optional[str]
     morpheme: str
+    morpheme_id: Optional[str]
     morpheme_family_id: Optional[str]
 
 
@@ -43,13 +43,13 @@ class NullBreakdownItem(DynamoModel):
             "position": self.position,
             "morpheme": self.morpheme,
             "morpheme_id": None,
-            "family_id": None,
+            "morpheme_family_id": None,
             "submitted_by_user_email": self.submitted_by_user_email,
         }
 
     def to_BreakdownItemItem(self) -> BreakdownItemItem:
         return BreakdownItemItem(
-            position=self.position, morpheme_id=None, morpheme=self.morpheme, morpheme_family_id=None
+            position=self.position, morpheme=self.morpheme, morpheme_id=None, morpheme_family_id=None
         )
 
 
@@ -58,9 +58,9 @@ class BreakdownItem(DynamoModel):
 
     word_id: str
     position: int
-    morpheme_family_id: Optional[str]
     morpheme: str
     morpheme_id: str
+    morpheme_family_id: Optional[str]
     submitted_by_user_email: Optional[str]
     breakdown_id: int
     __type: Literal["BREAKDOWN_ITEM"] = "BREAKDOWN_ITEM"
@@ -86,9 +86,10 @@ class BreakdownItem(DynamoModel):
             **self.keys,
             "__type": self.__type,
             "word_id": str(self.word_id),
-            "morpheme_family_id": str(self.morpheme_family_id),
+            "position": self.position,
             "morpheme": self.morpheme,
             "morpheme_id": str(self.morpheme_id),
+            "morpheme_family_id": str(self.morpheme_family_id),
             "submitted_by_user_email": self.submitted_by_user_email,
             "breakdown_id": self.breakdown_id,
         }
@@ -96,8 +97,8 @@ class BreakdownItem(DynamoModel):
     def to_BreakdownItemItem(self) -> BreakdownItemItem:
         return BreakdownItemItem(
             position=self.position,
-            morpheme_id=self.morpheme_id,
             morpheme=self.morpheme,
+            morpheme_id=self.morpheme_id,
             morpheme_family_id=self.morpheme_family_id,
         )
 

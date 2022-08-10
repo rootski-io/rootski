@@ -3,7 +3,7 @@ NOTE: remember to cast all IDs to strings
 """
 
 from itertools import chain
-from typing import List, Optional, Union
+from typing import List, Union
 
 import rootski.services.database.models as orm
 from dynamodb_play.etl.db_service import get_dbservice
@@ -11,6 +11,11 @@ from dynamodb_play.etl.utils import batch_load_into_dynamo
 from dynamodb_play.models.breakdown import Breakdown
 from dynamodb_play.models.breakdown_item import BreakdownItem, NullBreakdownItem
 from sqlalchemy.orm import joinedload
+
+
+"""
+TODO Run this etl one more time. The BreakdownItem.to_item() function was missing the position field.
+"""
 
 
 def extract() -> List[orm.Breakdown]:
@@ -36,24 +41,27 @@ def make_dynamo_breakdown_item_dict_from_orm(
 
     The resulting object has data organized in the way it is intended to end up in dynamo.
     """
-    if orm.BreakdownItem.morpheme_id is None:
+    none_list = [None]
+    none_string_list = ["None"]
+
+    if orm_breakdown_item.morpheme_id in none_list or none_string_list:
         return NullBreakdownItem(
-            word_id=str(orm_breakdown_item),
+            word_id=str(orm_breakdown_item.breakdown.word_id),
             position=str(orm_breakdown_item.position),
+            submitted_by_user_email=orm_breakdown_item.breakdown.submitted_by_user_email,
             morpheme=str(orm_breakdown_item.morpheme),
-            submitted_by_user_email=orm_breakdown_item.breakdown.submitted_by_user.email,
         )
     else:
-        user_or_none: Optional[orm.User] = orm_breakdown_item.breakdown.submitted_by_user
-        family_id_or_none: Optional[orm.BreakdownItem] = orm_breakdown_item.morpheme_
+        # user_or_none: Optional[orm.User] = orm_breakdown_item.breakdown.submitted_by_user
+        # family_id_or_none: Optional[orm.BreakdownItem] = orm_breakdown_item.morpheme_
 
         return BreakdownItem(
             word_id=str(orm_breakdown_item.breakdown.word_id),
             position=str(orm_breakdown_item.position),
-            morpheme_family_id=None if not family_id_or_none else family_id_or_none.family_id,
+            submitted_by_user_email=orm_breakdown_item.breakdown.submitted_by_user_email,  # None if not user_or_none else user_or_none.email,
             morpheme=str(orm_breakdown_item.morpheme),
             morpheme_id=str(orm_breakdown_item.morpheme_id),
-            submitted_by_user_email=None if not user_or_none else user_or_none.email,
+            morpheme_family_id=orm_breakdown_item.morpheme_.family_id,  # None if not family_id_or_none else family_id_or_none.family_id,
             breakdown_id=str(orm_breakdown_item.breakdown_id),
         )
 
@@ -69,9 +77,11 @@ def make_dynamo_breakdown_dict_from_orm(orm_breakdown: orm.Breakdown) -> Breakdo
     return Breakdown(
         word=str(orm_breakdown.word),
         word_id=str(orm_breakdown.word_id),
-        submitted_by_user_email=str(orm_breakdown.submitted_by_user_email),
+        submitted_by_user_email="anonymous"
+        if orm_breakdown.submitted_by_user_email is None
+        else str(orm_breakdown.submitted_by_user_email),
         is_verified=orm_breakdown.is_verified,
-        is_inference=orm_breakdown.is_inference,
+        is_inference=True if orm_breakdown.submitted_by_user_email is None else orm_breakdown.is_inference,
         date_submitted=str(orm_breakdown.date_submitted),
         date_verified=str(orm_breakdown.date_verified),
         breakdown_items=[make_dynamo_breakdown_item_dict_from_orm(b) for b in breakdown_items],
@@ -97,6 +107,6 @@ def transform(orm_breakdowns) -> List[dict]:
 
 if __name__ == "__main__":
     # batch_etl_morphemes_from_postgres_to_dynamo()
-    orm_breakdowns = extract()
-    dynamo_dictionaries_list = transform(orm_breakdowns)
+    orm_breakdowns_ = extract()
+    dynamo_dictionaries_list = transform(orm_breakdowns_)
     batch_load_into_dynamo(dynamo_dictionaries_list, batch_size=1000)
