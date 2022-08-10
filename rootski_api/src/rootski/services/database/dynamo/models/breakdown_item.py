@@ -140,23 +140,26 @@ def make_dynamo_breakdown_item_from_dict(
 
     The resulting object has data organized in the way it is intended to end up in dynamo.
     """
-    if breakdown_item_dict["morpheme_id"] is None:
+    none_list = [None]
+    none_string_list = ["None"]
+
+    if breakdown_item_dict["morpheme_id"] in none_list or none_string_list:
         return NullBreakdownItem(
             word_id=str(breakdown_item_dict["word_id"]),
             position=str(breakdown_item_dict["position"]),
             morpheme=str(breakdown_item_dict["morpheme"]),
             submitted_by_user_email=breakdown_item_dict["submitted_by_user_email"],
         )
-    else:
-        return BreakdownItem(
-            word_id=str(breakdown_item_dict["word_id"]),
-            position=str(breakdown_item_dict["position"]),
-            morpheme=str(breakdown_item_dict["morpheme"]),
-            morpheme_id=str(breakdown_item_dict["morpheme_id"]),
-            morpheme_family_id=breakdown_item_dict["morpheme_family_id"],
-            submitted_by_user_email=breakdown_item_dict["submitted_by_user_email"],
-            breakdown_id=str(breakdown_item_dict["breakdown_id"]),
-        )
+
+    return BreakdownItem(
+        word_id=str(breakdown_item_dict["word_id"]),
+        position=str(breakdown_item_dict["position"]),
+        morpheme=str(breakdown_item_dict["morpheme"]),
+        morpheme_id=str(breakdown_item_dict["morpheme_id"]),
+        morpheme_family_id=breakdown_item_dict["morpheme_family_id"],
+        submitted_by_user_email=breakdown_item_dict["submitted_by_user_email"],
+        breakdown_id=str(breakdown_item_dict["breakdown_id"]),
+    )
 
 
 def make_dynamo_BreakdownItemItem_from_dict(breakdown_item_item_dict: dict) -> "BreakdownItemItem":
