@@ -6,6 +6,10 @@ from mypy_boto3_dynamodb import DynamoDBServiceResource
 from mypy_boto3_dynamodb.service_resource import _Table
 from mypy_boto3_dynamodb.type_defs import GlobalSecondaryIndexTypeDef
 
+from rootski_api.src.rootski.services.database.dynamo.db_service import DBService
+
+# from rootski.services.database import DBService
+
 
 def _get_boto_session() -> boto3.Session:
     return boto3.Session(region_name="us-west-2")
@@ -63,3 +67,12 @@ def rootski_dynamo_table() -> _Table:
     with mock_dynamodb():
         table = create_rootski_table()
         yield table
+
+
+@pytest.fixture
+def dynamo_db_service(rootski_dynamo_table: _Table) -> DBService:
+    """Create a dynamodb service."""
+    db_service = DBService("rootski_dynamo_table")
+    db_service.init()
+
+    yield db_service
