@@ -12,7 +12,6 @@ from dynamodb_play.models.breakdown import Breakdown
 from dynamodb_play.models.breakdown_item import BreakdownItem, NullBreakdownItem
 from sqlalchemy.orm import joinedload
 
-
 """
 TODO Run this etl one more time. The BreakdownItem.to_item() function was missing the position field.
 """
@@ -44,7 +43,7 @@ def make_dynamo_breakdown_item_dict_from_orm(
     none_list = [None]
     none_string_list = ["None"]
 
-    if orm_breakdown_item.morpheme_id in none_list or none_string_list:
+    if orm_breakdown_item.morpheme_id in (none_list or none_string_list):
         return NullBreakdownItem(
             word_id=str(orm_breakdown_item.breakdown.word_id),
             position=str(orm_breakdown_item.position),

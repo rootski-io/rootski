@@ -7,7 +7,7 @@ class BreakdownNotFoundError(Exception):
     """Error thrown if a Breakdown isn't found."""
 
 
-def get_official_breakdown_by_word_id(word_id: str, db: DBService) -> bool:
+def get_official_breakdown_by_word_id(word_id: str, db: DBService) -> Breakdown:
     """Query a breakdown from Dynamo matching the ``word_id``.
 
     :raises BreakdownNotFoundError: raised if no breakdown exists for the given ``word``.
@@ -27,7 +27,4 @@ def get_official_breakdown_by_word_id(word_id: str, db: DBService) -> bool:
 
 def is_verified(breakdown: Breakdown) -> bool:
     """Returns the value of breakdown.is_verified"""
-    if breakdown.is_verified is True:
-        return True
-    else:
-        return False
+    return bool(breakdown.is_verified)

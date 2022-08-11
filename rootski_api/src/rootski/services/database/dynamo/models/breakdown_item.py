@@ -143,7 +143,7 @@ def make_dynamo_breakdown_item_from_dict(
     none_list = [None]
     none_string_list = ["None"]
 
-    if breakdown_item_dict["morpheme_id"] in none_list or none_string_list:
+    if breakdown_item_dict["morpheme_id"] in (none_list or none_string_list):
         return NullBreakdownItem(
             word_id=str(breakdown_item_dict["word_id"]),
             position=str(breakdown_item_dict["position"]),

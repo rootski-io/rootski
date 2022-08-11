@@ -22,24 +22,6 @@ EXAMPLE_BREAKDOWN = {
 }
 
 
-EXAMPLE_VERIFiED_BREAKDOWN = {
-    "pk": "WORD#32",
-    "sk": "BREAKDOWN",
-    "gsi1pk": "USER#anonymous",
-    "gsi1sk": "WORD#32",
-    "gsi2pk": "WORD#32",
-    "gsi2sk": "USER#anonymous",
-    "__type": "BREAKDOWN",
-    "word": "мочь",
-    "word_id": "32",
-    "submitted_by_user_email": "anonymous",
-    "is_verified": True,
-    "is_inference": True,
-    "date_submitted": "2022-02-15 05:45:18.740114",
-    "date_verified": "None",
-    "breakdown_items": [{"position": "0", "morpheme_id": None, "morpheme": "мочь", "morpheme_family_id": None}],
-}
-
 EXAMPLE_BREAKDOWN_2 = {
     "pk": "WORD#61900",
     "sk": "BREAKDOWN",
@@ -59,6 +41,25 @@ EXAMPLE_BREAKDOWN_2 = {
         {"position": "0", "morpheme": "занавеш", "morpheme_id": None, "morpheme_family_id": None},
         {"position": "1", "morpheme": "ивать", "morpheme_id": None, "morpheme_family_id": None},
     ],
+}
+
+
+EXAMPLE_VERIFiED_BREAKDOWN = {
+    "pk": "WORD#32",
+    "sk": "BREAKDOWN",
+    "gsi1pk": "USER#anonymous",
+    "gsi1sk": "WORD#32",
+    "gsi2pk": "WORD#32",
+    "gsi2sk": "USER#anonymous",
+    "__type": "BREAKDOWN",
+    "word": "мочь",
+    "word_id": "32",
+    "submitted_by_user_email": "anonymous",
+    "is_verified": True,
+    "is_inference": True,
+    "date_submitted": "2022-02-15 05:45:18.740114",
+    "date_verified": "None",
+    "breakdown_items": [{"position": "0", "morpheme_id": None, "morpheme": "мочь", "morpheme_family_id": None}],
 }
 
 
@@ -90,6 +91,7 @@ EXAMPLE_NULL_BREAKDOWN_ITEM_1 = {
     "submitted_by_user_email": None,
 }
 
+
 EXAMPLE_DATA = [
     EXAMPLE_BREAKDOWN,
     EXAMPLE_BREAKDOWN_2,
@@ -103,5 +105,4 @@ EXAMPLE_DATA = [
 def seed_data(rootski_dynamo_table: _Table) -> None:
     for data in EXAMPLE_DATA:
         rootski_dynamo_table.put_item(Item=data)
-    item = rootski_dynamo_table.get_item(Key={"pk": "WORD#32", "sk": "BREAKDOWN"})
-    print(item)
+    # item = rootski_dynamo_table.get_item(Key={"pk": "WORD#32", "sk": "BREAKDOWN"})
