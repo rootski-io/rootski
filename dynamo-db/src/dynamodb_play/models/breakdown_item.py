@@ -11,7 +11,7 @@ from dynamodb_play.models.base import DynamoModel
 
 class BreakdownItemItem(TypedDict):
 
-    position: str
+    position: int
     morpheme: str
     morpheme_id: Optional[str]
     morpheme_family_id: Optional[str]
@@ -98,8 +98,8 @@ class BreakdownItem(DynamoModel):
         return BreakdownItemItem(
             position=self.position,
             morpheme=self.morpheme,
-            morpheme_id=self.morpheme_id,
-            morpheme_family_id=self.morpheme_family_id,
+            morpheme_id=str(self.morpheme_id),
+            morpheme_family_id=str(self.morpheme_family_id),
         )
 
 
