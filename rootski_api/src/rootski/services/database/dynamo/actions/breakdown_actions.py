@@ -10,22 +10,17 @@ For a word_id, retrieve a single breakdown in the following order of priority:
 (5) No breakdown found.
 """
 
-from rich.pretty import pprint
 from typing import List
+
+from boto3.dynamodb.conditions import Key
 from rootski.services.database.dynamo.actions.dynamo import (
     get_item_from_dynamo_response,
     get_item_status_code,
-    get_items_from_dynamo_query_response
+    get_items_from_dynamo_query_response,
 )
-from rootski.services.database.dynamo.models.breakdown import (
-    Breakdown,
-    make_keys,
-    make_gsi1_keys,
-)
-from rootski.services.database.dynamo.models.morpheme_family import MorphemeFamily
 from rootski.services.database.dynamo.db_service import DBService
-from boto3.dynamodb.conditions import Key
-from rootski_api.tests.fixtures.rootski_dynamo_table import dynamo_db_service
+from rootski.services.database.dynamo.models.breakdown import Breakdown, make_gsi1_keys, make_keys
+from rootski.services.database.dynamo.models.morpheme_family import MorphemeFamily
 
 
 class BreakdownNotFoundError(Exception):
@@ -60,9 +55,7 @@ def is_breakdown_verified(breakdown: Breakdown) -> bool:
 
 
 def get_breakdown_submitted_by_user_email_and_word_id(
-    word_id: str,
-    user_email: str,
-    db: DBService
+    word_id: str, user_email: str, db: DBService
 ) -> Breakdown:
     """Query a breakdown from Dynamo matching the ``word_id`` and ``user_email``."""
     table = db.rootski_table
@@ -70,13 +63,14 @@ def get_breakdown_submitted_by_user_email_and_word_id(
 
     get_items_response = table.query(
         IndexName="gsi1",
-        KeyConditionExpression=Key("gsi1pk").eq(breakdown_dynamo_keys["gsi1pk"]) & Key("gsi1sk").eq(breakdown_dynamo_keys["gsi1sk"])
+        KeyConditionExpression=Key("gsi1pk").eq(breakdown_dynamo_keys["gsi1pk"])
+        & Key("gsi1sk").eq(breakdown_dynamo_keys["gsi1sk"]),
     )
 
     items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
     if len(items) == 0:
         raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo for user {user_email}.")
-    
+
     breakdown = Breakdown.from_dict(breakdown_dict=items[0])
 
     return breakdown
@@ -88,7 +82,8 @@ def get_official_breakdown_submitted_by_another_user(word_id: str, db: DBService
     breakdown_dynamo_keys: dict = make_keys(word_id=word_id)
 
     get_items_response = table.query(
-        KeyConditionExpression=Key("pk").eq(breakdown_dynamo_keys["pk"]) & Key("sk").eq(breakdown_dynamo_keys["sk"]),
+        KeyConditionExpression=Key("pk").eq(breakdown_dynamo_keys["pk"])
+        & Key("sk").eq(breakdown_dynamo_keys["sk"]),
     )
 
     items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
@@ -104,12 +99,15 @@ def get_morpheme_family(morpheme_family_id: str, db: DBService) -> MorphemeFamil
     """Query a morpheme_family from Dynamo."""
     table = db.rootski_table
     get_items_response = table.query(
-        KeyConditionExpression=Key("pk").eq(f"MORPHEME_FAMILY#{morpheme_family_id}") & Key("sk").eq(f"MORPHEME_FAMILY#{morpheme_family_id}"),
+        KeyConditionExpression=Key("pk").eq(f"MORPHEME_FAMILY#{morpheme_family_id}")
+        & Key("sk").eq(f"MORPHEME_FAMILY#{morpheme_family_id}"),
     )
 
     items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
     if len(items) == 0:
-        raise MorphemeFamilyNotFoundError(f"No morpheme family with ID {morpheme_family_id} was found in Dynamo.")
+        raise MorphemeFamilyNotFoundError(
+            f"No morpheme family with ID {morpheme_family_id} was found in Dynamo."
+        )
     # pprint(items)
     morpheme_family = MorphemeFamily.from_dict(morpheme_family_dict=items[0])
 

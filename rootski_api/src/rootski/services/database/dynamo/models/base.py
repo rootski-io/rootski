@@ -1,6 +1,6 @@
-from dataclasses import dataclass
-from typing import Dict, Optional, Union, List
 import decimal
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Union
 
 
 @dataclass(frozen=True, eq=True)
