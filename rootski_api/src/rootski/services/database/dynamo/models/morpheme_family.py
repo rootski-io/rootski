@@ -3,10 +3,10 @@ NOTE: remember to cast all IDs to strings
 """
 
 from dataclasses import dataclass
-from typing import List, Literal, TypedDict
+from typing import List, Literal, Type, TypedDict
 
 from rootski.schemas.morpheme import MORPHEME_TYPE_ENUM, MORPHEME_WORD_POS_ENUM
-from rootski.services.database.dynamo.models.base import DynamoModel
+from rootski.services.database.dynamo.models.base import DynamoModel, replace_decimals
 from rootski.services.database.dynamo.models.morpheme import Morpheme
 
 
@@ -56,3 +56,23 @@ class MorphemeFamily(DynamoModel):
             )
             for m in self.morphemes
         ]
+
+    @classmethod
+    def from_dict(cls: Type["MorphemeFamily"], morpheme_family_dict: dict) -> "MorphemeFamily":
+        cleaned_morpheme_family_dict = replace_decimals(morpheme_family_dict)
+
+        return cls(
+            type=cleaned_morpheme_family_dict["type"],
+            word_pos=cleaned_morpheme_family_dict["word_pos"],
+            family_id=cleaned_morpheme_family_dict["family_id"],
+            level=cleaned_morpheme_family_dict["level"],
+            family_meanings=cleaned_morpheme_family_dict["family_meanings"],
+            morphemes=[
+                make_dynamo_MorphemeItem_from_dict(morpheme_dict)
+                for morpheme_dict in cleaned_morpheme_family_dict["morphemes"]
+            ],
+        )
+
+
+def make_dynamo_MorphemeItem_from_dict(morpheme_item_dict: dict) -> MorphemeItem:
+    return MorphemeItem(morpheme=morpheme_item_dict["morpheme"], morpheme_id=morpheme_item_dict["morpheme_id"])

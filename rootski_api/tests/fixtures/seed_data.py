@@ -1,6 +1,8 @@
 """
 Seed data to put into the mock DynamoDB table and test the breakdown endpoint.
 """
+from decimal import Decimal
+
 from mypy_boto3_dynamodb.service_resource import _Table
 
 EXAMPLE_BREAKDOWN = {
@@ -183,7 +185,7 @@ EXAMPLE_NULL_BREAKDOWN_ITEM_1 = {
 EXAMPLE_MORPHEME_FAMILY_245 = {
     "morphemes": [{"morpheme": "знай", "morpheme_id": "510"}, {"morpheme": "зна", "morpheme_id": "511"}],
     "family_meanings": ["know"],
-    "level": 1,
+    "level": Decimal("1"),
     "__type": "MORPHEME_FAMILY",
     "sk": "MORPHEME_FAMILY#245",
     "word_pos": "any",
@@ -196,7 +198,7 @@ EXAMPLE_MORPHEME_FAMILY_245 = {
 EXAMPLE_MORPHEME_FAMILY_1385 = {
     "morphemes": [{"morpheme": "ть", "morpheme_id": "2196"}],
     "family_meanings": [None],
-    "level": 6,
+    "level": Decimal("6"),
     "__type": "MORPHEME_FAMILY",
     "sk": "MORPHEME_FAMILY#1385",
     "word_pos": "verb",

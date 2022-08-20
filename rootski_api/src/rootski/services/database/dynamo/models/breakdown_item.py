@@ -147,14 +147,14 @@ def make_dynamo_breakdown_item_from_dict(
     if breakdown_item_dict["morpheme_id"] in (none_list or none_string_list):
         return NullBreakdownItem(
             word_id=str(cleaned_breakdown_item_dict["word_id"]),
-            position=str(cleaned_breakdown_item_dict["position"]),
+            position=cleaned_breakdown_item_dict["position"],
             morpheme=str(cleaned_breakdown_item_dict["morpheme"]),
             submitted_by_user_email=cleaned_breakdown_item_dict["submitted_by_user_email"],
         )
 
     return BreakdownItem(
         word_id=str(cleaned_breakdown_item_dict["word_id"]),
-        position=str(cleaned_breakdown_item_dict["position"]),
+        position=cleaned_breakdown_item_dict["position"],
         morpheme=str(cleaned_breakdown_item_dict["morpheme"]),
         morpheme_id=str(cleaned_breakdown_item_dict["morpheme_id"]),
         morpheme_family_id=str(cleaned_breakdown_item_dict["morpheme_family_id"]),

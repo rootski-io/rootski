@@ -108,7 +108,7 @@ def get_morpheme_family(morpheme_family_id: str, db: DBService) -> MorphemeFamil
         raise MorphemeFamilyNotFoundError(
             f"No morpheme family with ID {morpheme_family_id} was found in Dynamo."
         )
-    # pprint(items)
+
     morpheme_family = MorphemeFamily.from_dict(morpheme_family_dict=items[0])
 
     return morpheme_family
