@@ -107,6 +107,7 @@ def transform(orm_breakdowns) -> List[dict]:
 if __name__ == "__main__":
     # batch_etl_morphemes_from_postgres_to_dynamo()
     import os
+
     os.environ["AWS_PROFILE"] = "rootski"
     orm_breakdowns_ = extract()
     dynamo_dictionaries_list = transform(orm_breakdowns_)

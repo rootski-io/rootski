@@ -7,3 +7,7 @@ def get_item_status_code(item_output: GetItemOutputTableTypeDef) -> int:
 
 def get_item_from_dynamo_response(item_output: GetItemOutputTableTypeDef) -> dict:
     return item_output["Item"]
+
+
+def get_items_from_dynamo_query_response(item_output: GetItemOutputTableTypeDef) -> dict:
+    return item_output["Items"]

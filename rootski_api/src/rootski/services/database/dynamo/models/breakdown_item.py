@@ -6,12 +6,12 @@ from dataclasses import dataclass
 from typing import Dict, Literal, Optional, TypedDict, Union
 from uuid import uuid4
 
-from rootski.services.database.dynamo.models.base import DynamoModel
+from rootski.services.database.dynamo.models.base import DynamoModel, replace_decimals
 
 
 class BreakdownItemItem(TypedDict):
 
-    position: str
+    position: int
     morpheme: str
     morpheme_id: Optional[str]
     morpheme_family_id: Optional[str]
@@ -142,30 +142,32 @@ def make_dynamo_breakdown_item_from_dict(
     """
     none_list = [None]
     none_string_list = ["None"]
+    cleaned_breakdown_item_dict = replace_decimals(breakdown_item_dict)
 
     if breakdown_item_dict["morpheme_id"] in (none_list or none_string_list):
         return NullBreakdownItem(
-            word_id=str(breakdown_item_dict["word_id"]),
-            position=str(breakdown_item_dict["position"]),
-            morpheme=str(breakdown_item_dict["morpheme"]),
-            submitted_by_user_email=breakdown_item_dict["submitted_by_user_email"],
+            word_id=str(cleaned_breakdown_item_dict["word_id"]),
+            position=str(cleaned_breakdown_item_dict["position"]),
+            morpheme=str(cleaned_breakdown_item_dict["morpheme"]),
+            submitted_by_user_email=cleaned_breakdown_item_dict["submitted_by_user_email"],
         )
 
     return BreakdownItem(
-        word_id=str(breakdown_item_dict["word_id"]),
-        position=str(breakdown_item_dict["position"]),
-        morpheme=str(breakdown_item_dict["morpheme"]),
-        morpheme_id=str(breakdown_item_dict["morpheme_id"]),
-        morpheme_family_id=breakdown_item_dict["morpheme_family_id"],
-        submitted_by_user_email=breakdown_item_dict["submitted_by_user_email"],
-        breakdown_id=str(breakdown_item_dict["breakdown_id"]),
+        word_id=str(cleaned_breakdown_item_dict["word_id"]),
+        position=str(cleaned_breakdown_item_dict["position"]),
+        morpheme=str(cleaned_breakdown_item_dict["morpheme"]),
+        morpheme_id=str(cleaned_breakdown_item_dict["morpheme_id"]),
+        morpheme_family_id=str(cleaned_breakdown_item_dict["morpheme_family_id"]),
+        submitted_by_user_email=cleaned_breakdown_item_dict["submitted_by_user_email"],
+        breakdown_id=str(cleaned_breakdown_item_dict["breakdown_id"]),
     )
 
 
 def make_dynamo_BreakdownItemItem_from_dict(breakdown_item_item_dict: dict) -> "BreakdownItemItem":
+    cleaned_breakdown_item_item_dict = replace_decimals(breakdown_item_item_dict)
     return BreakdownItemItem(
-        position=breakdown_item_item_dict["position"],
-        morpheme=breakdown_item_item_dict["morpheme"],
-        morpheme_id=breakdown_item_item_dict["morpheme_id"],
-        morpheme_family_id=breakdown_item_item_dict["morpheme_family_id"],
+        position=cleaned_breakdown_item_item_dict["position"],
+        morpheme=cleaned_breakdown_item_item_dict["morpheme"],
+        morpheme_id=cleaned_breakdown_item_item_dict["morpheme_id"],
+        morpheme_family_id=cleaned_breakdown_item_item_dict["morpheme_family_id"],
     )
