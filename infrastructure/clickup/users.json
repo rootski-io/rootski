@@ -19,11 +19,11 @@
     },
     "null": {
         "user": {
-            "id": 48260825,
+            "id": 26378494,
             "username": null,
             "color": null,
             "profilePicture": null,
-            "initials": "A"
+            "initials": "O"
         }
     },
     "Rahul Ojha": {
@@ -179,6 +179,15 @@
             "initials": "JA"
         }
     },
+    "Asher Kang": {
+        "user": {
+            "id": 48260825,
+            "username": "Asher Kang",
+            "color": "#afb42b",
+            "profilePicture": null,
+            "initials": "AK"
+        }
+    },
     "Aastha Khanna ": {
         "user": {
             "id": 55231243,
@@ -186,6 +195,15 @@
             "color": null,
             "profilePicture": null,
             "initials": "AK"
+        }
+    },
+    "Jay Cui": {
+        "user": {
+            "id": 57009552,
+            "username": "Jay Cui",
+            "color": "#5d4037",
+            "profilePicture": "https://attachments.clickup.com/profilePictures/57009552_Khi.jpg",
+            "initials": "JC"
         }
     }
 }
