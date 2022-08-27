@@ -3,13 +3,8 @@ from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
 from pydantic import BaseModel, EmailStr, Field, constr, root_validator
-
 from rootski.errors import BadBreakdownItemError
-from rootski.schemas.morpheme import (
-    MORPHEME_TYPE_ENUM,
-    MORPHEME_WORD_POS_ENUM,
-    Morpheme,
-)
+from rootski.schemas.morpheme import MORPHEME_TYPE_ENUM, MORPHEME_WORD_POS_ENUM, Morpheme
 from rootski.services.database import models as orm
 
 
