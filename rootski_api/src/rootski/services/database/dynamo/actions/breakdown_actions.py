@@ -17,27 +17,22 @@ As of now, we assume no bad inputs are possible.
 The function get_morpheme_family_ids_of_non_null_breakdown_items() is used to filter out Null Breakdown items.
 """
 
-from typing import List, Dict
+from typing import Dict, List
 
 from boto3.dynamodb.conditions import Key
 from mypy_boto3_dynamodb.type_defs import KeysAndAttributesServiceResourceTypeDef
 from rootski.services.database.dynamo.actions.dynamo import (
+    batch_get_item_status_code,
     get_item_from_dynamo_response,
     get_item_status_code,
-    get_items_from_dynamo_query_response,
     get_items_from_dynamo_batch_get_items_response,
-    batch_get_item_status_code,
+    get_items_from_dynamo_query_response,
 )
 from rootski.services.database.dynamo.db_service import DBService
-from rootski.services.database.dynamo.models.breakdown import (
-    Breakdown,
-    make_gsi1_keys,
-    make_keys as make_keys__breakdown,
-)
-from rootski.services.database.dynamo.models.morpheme_family import (
-    MorphemeFamily,
-    make_keys as make_keys__morpheme_family,
-)
+from rootski.services.database.dynamo.models.breakdown import Breakdown, make_gsi1_keys
+from rootski.services.database.dynamo.models.breakdown import make_keys as make_keys__breakdown
+from rootski.services.database.dynamo.models.morpheme_family import MorphemeFamily
+from rootski.services.database.dynamo.models.morpheme_family import make_keys as make_keys__morpheme_family
 
 
 class BreakdownNotFoundError(Exception):
