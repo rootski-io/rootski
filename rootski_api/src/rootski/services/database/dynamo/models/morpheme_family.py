@@ -3,7 +3,7 @@ NOTE: remember to cast all IDs to strings
 """
 
 from dataclasses import dataclass
-from typing import List, Literal, Type, TypedDict
+from typing import Dict, List, Literal, Type, TypedDict
 
 from rootski.schemas.morpheme import MORPHEME_TYPE_ENUM, MORPHEME_WORD_POS_ENUM
 from rootski.services.database.dynamo.models.base import DynamoModel, replace_decimals
@@ -76,3 +76,14 @@ class MorphemeFamily(DynamoModel):
 
 def make_dynamo_MorphemeItem_from_dict(morpheme_item_dict: dict) -> MorphemeItem:
     return MorphemeItem(morpheme=morpheme_item_dict["morpheme"], morpheme_id=morpheme_item_dict["morpheme_id"])
+
+
+def make_pk(morpheme_family_id: str) -> str:
+    return f"MORPHEME_FAMILY#{morpheme_family_id}"
+
+
+def make_keys(morpheme_family_id: str) -> Dict[str, str]:
+    return {
+        "pk": make_pk(morpheme_family_id=morpheme_family_id),
+        "sk": make_pk(morpheme_family_id=morpheme_family_id),
+    }
