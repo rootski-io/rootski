@@ -192,7 +192,9 @@ class BreakdownItem(BreakdownItemCommon):
 
 
 class BreakdownItemInDb(BreakdownItemCommon):
-    breakdown_id: Optional[int] = None
+    # If this is a null_breakdown, expect breakdown_id to be none.
+    # formerly, breakdown_id: Optional[int] = None, when using SQLAlchemy
+    breakdown_id: str = "deprecated"
 
     class Config:
         orm_mode = True
