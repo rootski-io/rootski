@@ -8,19 +8,36 @@ For a word_id, retrieve a single breakdown in the following order of priority:
 (3) A breakdown submitted by another user.
 (4) The inferred breakdown submitted by "anonymous:.
 (5) No breakdown found.
+
+Note: Consider the following when using get_morpheme_families() function.
+Dynamodb's batch_get_item() function is used to return a morpheme_family for each valid morpheme_family_id.
+If a bad id is given, dynamodb skips that id and does alert the user an id was skipped/not found.
+Therefore a user can tell an id was bad if they submit n ids, but only get m < n in return.
+As of now, we assume no bad inputs are possible.
+The function get_morpheme_family_ids_of_non_null_breakdown_items() is used to filter out Null Breakdown items.
 """
 
-from typing import List
+from typing import List, Dict
 
 from boto3.dynamodb.conditions import Key
+from mypy_boto3_dynamodb.type_defs import KeysAndAttributesServiceResourceTypeDef
 from rootski.services.database.dynamo.actions.dynamo import (
     get_item_from_dynamo_response,
     get_item_status_code,
     get_items_from_dynamo_query_response,
+    get_items_from_dynamo_batch_get_items_response,
+    batch_get_item_status_code,
 )
 from rootski.services.database.dynamo.db_service import DBService
-from rootski.services.database.dynamo.models.breakdown import Breakdown, make_gsi1_keys, make_keys
-from rootski.services.database.dynamo.models.morpheme_family import MorphemeFamily
+from rootski.services.database.dynamo.models.breakdown import (
+    Breakdown,
+    make_gsi1_keys,
+    make_keys as make_keys__breakdown,
+)
+from rootski.services.database.dynamo.models.morpheme_family import (
+    MorphemeFamily,
+    make_keys as make_keys__morpheme_family,
+)
 
 
 class BreakdownNotFoundError(Exception):
@@ -37,7 +54,7 @@ def get_official_breakdown_by_word_id(word_id: str, db: DBService) -> Breakdown:
     :raises BreakdownNotFoundError: raised if no breakdown exists for the given ``word``.
     """
     table = db.rootski_table
-    breakdown_dynamo_keys: dict = make_keys(word_id=word_id)
+    breakdown_dynamo_keys: dict = make_keys__breakdown(word_id=word_id)
 
     get_item_response = table.get_item(Key=breakdown_dynamo_keys)
     if get_item_status_code(item_output=get_item_response) == 404:
@@ -79,7 +96,7 @@ def get_breakdown_submitted_by_user_email_and_word_id(
 def get_official_breakdown_submitted_by_another_user(word_id: str, db: DBService) -> Breakdown:
     """Query a breakdown from Dynamo from another user."""
     table = db.rootski_table
-    breakdown_dynamo_keys: dict = make_keys(word_id=word_id)
+    breakdown_dynamo_keys: dict = make_keys__breakdown(word_id=word_id)
 
     get_items_response = table.query(
         KeyConditionExpression=Key("pk").eq(breakdown_dynamo_keys["pk"])
@@ -95,30 +112,49 @@ def get_official_breakdown_submitted_by_another_user(word_id: str, db: DBService
     return breakdown
 
 
-def get_morpheme_family(morpheme_family_id: str, db: DBService) -> MorphemeFamily:
-    """Query a morpheme_family from Dynamo."""
+def get_morpheme_family_ids_of_non_null_breakdown_items(breakdown: Breakdown) -> List[str]:
+    breakdown_items = breakdown.breakdown_items
+    morpheme_family_ids = [
+        breakdown_item["morpheme_family_id"]
+        for breakdown_item in breakdown_items
+        if breakdown_item["morpheme_family_id"] is not None
+    ]
+    return morpheme_family_ids
+
+
+def make_id_morpheme_family_map(dynamo_list_of_morpheme_families: List[dict]) -> Dict[str, MorphemeFamily]:
+
+    morpheme_families_dict = {
+        family_dict["family_id"]: MorphemeFamily.from_dict(family_dict)
+        for family_dict in dynamo_list_of_morpheme_families
+    }
+
+    return morpheme_families_dict
+
+
+def get_morpheme_families(breakdown: Breakdown, db: DBService) -> Dict[str, MorphemeFamily]:
+    """Batch query the needed morpheme families from Dynamo to enrich a breakdown object."""
+    dynamo = db.dynamo
     table = db.rootski_table
-    get_items_response = table.query(
-        KeyConditionExpression=Key("pk").eq(f"MORPHEME_FAMILY#{morpheme_family_id}")
-        & Key("sk").eq(f"MORPHEME_FAMILY#{morpheme_family_id}"),
+
+    morpheme_family_ids: List[str] = get_morpheme_family_ids_of_non_null_breakdown_items(breakdown=breakdown)
+    batch_keys: List[dict] = [
+        make_keys__morpheme_family(morpheme_family_id=morpheme_family_id)
+        for morpheme_family_id in morpheme_family_ids
+    ]
+
+    get_response_items = dynamo.batch_get_item(
+        RequestItems={table.name: KeysAndAttributesServiceResourceTypeDef(Keys=batch_keys)},
     )
 
-    items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
-    if len(items) == 0:
-        raise MorphemeFamilyNotFoundError(
-            f"No morpheme family with ID {morpheme_family_id} was found in Dynamo."
-        )
+    items: List[dict] = get_items_from_dynamo_batch_get_items_response(
+        item_output=get_response_items, table_name=table.name
+    )
 
-    morpheme_family = MorphemeFamily.from_dict(morpheme_family_dict=items[0])
+    # TODO: We do not expect this error to be thrown, so there are currently no unit-tests.
+    if batch_get_item_status_code(item_output=get_response_items) == 404:
+        raise MorphemeFamilyNotFoundError("One of your morpheme family IDs was not found in Dynamo.")
 
-    return morpheme_family
+    morpheme_family_dict = make_id_morpheme_family_map(dynamo_list_of_morpheme_families=items)
 
-
-# if __name__ == "__main__":
-#     db = DBService("rootski-table")
-#     db.init()
-#     table = db.rootski_table
-#     get_item_response = table.get_item(
-#         Key={"pk": "MORPHEME_FAMILY#1385", "sk": "MORPHEME_FAMILY#1385"}
-#     )  # eric.riddoch@gmail.com"})
-#     print(get_item_response["Item"])
+    return morpheme_family_dict

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Type
 
 import boto3
-from mypy_boto3_dynamodb.service_resource import _Table
+from mypy_boto3_dynamodb.service_resource import _Table, DynamoDBServiceResource
 from rootski.config.config import Config
 from rootski.services.service import Service
 
@@ -13,7 +13,9 @@ class DBService(Service):
         self.dynamo_table_name: str = dynamo_table_name
 
     def init(self):
-        self.rootski_table: _Table = boto3.resource("dynamodb").Table(name=self.dynamo_table_name)
+        self.dynamo: DynamoDBServiceResource = boto3.resource("dynamodb")
+        self.rootski_table: _Table = self.dynamo.Table(name=self.dynamo_table_name)
+
 
     @classmethod
     def from_config(cls: Type[DBService], config: Config):
