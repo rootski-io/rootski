@@ -1,8 +1,8 @@
+from .breakdown import Breakdown
+from .breakdown_item import BreakdownItem, BreakdownItemItem, NullBreakdownItem
 from .morpheme import Morpheme
 from .morpheme_family import MorphemeFamily
 from .word import Word
-from .breakdown import Breakdown
-from .breakdown_item import NullBreakdownItem, BreakdownItem, BreakdownItemItem
 
 __all__ = [
     "Word",
@@ -11,5 +11,5 @@ __all__ = [
     "Breakdown",
     "NullBreakdownItem",
     "BreakdownItem",
-    "BreakdownItemItem"
+    "BreakdownItemItem",
 ]
