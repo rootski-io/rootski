@@ -34,7 +34,7 @@ def dynamo_to_pydantic__breakdown_item(
         morpheme_id=breakdown_item_item["morpheme_id"],
         family_id=breakdown_item_item["morpheme_family_id"],
         family=create_comma_separated_string_of_morphemes(morpheme_family.morphemes),
-        family_meanings=None if morpheme_family.family_meanings == [None] else morpheme_family.family_meanings,
+        family_meanings=[] if morpheme_family.family_meanings == [None] else morpheme_family.family_meanings,
         level=morpheme_family.level,
         type=morpheme_family.type,
         word_pos=morpheme_family.word_pos,

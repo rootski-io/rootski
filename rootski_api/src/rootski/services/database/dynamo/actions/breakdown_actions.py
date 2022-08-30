@@ -3,10 +3,10 @@ These are the actions needed to query the dynamo table for the breakdown endpoin
 
 For a word_id, retrieve a single breakdown in the following order of priority:
 
-(1) A breakdown whose "is_verified" attribute is true.
+(1) A breakdown whose "is_verified" attribute is true. Example: выглядеть.
 (2) A breakdown submitted by the logged in user.
-(3) A breakdown submitted by another user.
-(4) The inferred breakdown submitted by "anonymous:.
+(3) A breakdown submitted by another user. # Example самоусовершенствование.
+(4) The inferred breakdown submitted by "anonymous. Example выходить.
 (5) No breakdown found.
 
 Note: Consider the following when using get_morpheme_families() function.
@@ -103,6 +103,10 @@ def get_official_breakdown_submitted_by_another_user(word_id: str, db: DBService
         raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo.")
 
     breakdown = Breakdown.from_dict(breakdown_dict=items[0])
+    if breakdown.submitted_by_user_email == "anonymous":
+        raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo for another user.")
+
+    breakdown = Breakdown.from_dict(breakdown_dict=items[0])
 
     return breakdown
 
@@ -133,6 +137,11 @@ def get_morpheme_families(breakdown: Breakdown, db: DBService) -> Dict[str, Morp
     table = db.rootski_table
 
     morpheme_family_ids: List[str] = get_morpheme_family_ids_of_non_null_breakdown_items(breakdown=breakdown)
+
+    # If there are only null_breakdown_items, then there is no reason to query dynamo.
+    if len(morpheme_family_ids) == 0:
+        return {}
+
     batch_keys: List[dict] = [
         make_keys__morpheme_family(morpheme_family_id=morpheme_family_id)
         for morpheme_family_id in morpheme_family_ids
