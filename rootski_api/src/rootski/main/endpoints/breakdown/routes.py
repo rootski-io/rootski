@@ -1,16 +1,10 @@
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from fastapi import APIRouter, Body, Depends, HTTPException
-from sqlalchemy.orm import Session
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
-
-from rootski import schemas
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from loguru import logger as LOGGER
 from rootski.main import deps
-from rootski.main.endpoints.breakdown.docs import (
-    ExampleResponse,
-    make_apidocs_responses_obj,
-)
+from rootski.main.endpoints.breakdown.docs import ExampleResponse, make_apidocs_responses_obj
 from rootski.main.endpoints.breakdown.errors import (
     BREAKDOWN_NOT_FOUND,
     MORPHEME_IDS_NOT_FOUND_MSG,
@@ -19,11 +13,16 @@ from rootski.main.endpoints.breakdown.errors import (
     BadBreakdownError,
     MorphemeNotFoundError,
 )
-from rootski.main.endpoints.breakdown.utils import (
-    query_morphemes,
-    raise_exception_for_invalid_breakdown,
-)
+from rootski.main.endpoints.breakdown.utils import query_morphemes, raise_exception_for_invalid_breakdown
+from rootski.schemas.core import Services
 from rootski.services.database import models as orm
+from rootski.services.database.dynamo import models as dynamo
+from rootski.services.database.dynamo.actions import breakdown_actions
+from rootski.services.database.dynamo.models2schemas import breakdown as models_to_schemas
+from sqlalchemy.orm import Session
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+
+from rootski import schemas
 
 router = APIRouter()
 
@@ -57,64 +56,103 @@ def get_first_breakdown(breakdowns: List[orm.Breakdown], user_email: str) -> Opt
     },
 )
 def get_breakdown(
+    request: Request,
     word_id: int,
     user: schemas.User = Depends(deps.get_current_user),
-    db: Session = Depends(deps.get_session),
 ):
     """
     Return the first one of these to be found (prioritized in this order):
 
     1. A verified breakdown
     2. The breakdown last submitted by the requesting user
-    3. The inferenced breakdown
-    4. The default, unverified breakdown
+    3. The breakdown last submitted by another user
+    4. The inferenced breakdown
+    5. The default, unverified breakdown
 
     If this request does not have a "Bearer ..." Authorization header,
     the user is assumed to be anonymous.
-
     """
-    breakdowns: List[orm.Breakdown] = (
-        db.query(orm.Breakdown)
-        .filter(orm.Breakdown.word_id == word_id)
-        .filter(
-            (orm.Breakdown.submitted_by_user_email == user.email)
-            | (orm.Breakdown.submitted_by_user_email == None)
-        )
-        .all()
-    )
 
-    # (1) return a verified breakdown if there is one;
-    # there can be up to one verified breakdown per word
-    verified_breakdowns = [b for b in breakdowns if b.is_verified]
-    b: schemas.Breakdown = get_first_breakdown(verified_breakdowns, user.email)
-    if b:
-        return schemas.GetBreakdownResponse.from_breakdown(b)
-
-    # (2) return a breakdown submitted by the user
-    user_submitted_breakdowns = [b for b in breakdowns if b.submitted_by_user_email == user.email]
-    b: schemas.Breakdown = get_first_breakdown(user_submitted_breakdowns, user.email)
-    if b:
-        return schemas.GetBreakdownResponse.from_breakdown(b)
-
-    # (3) return a breakdown inferenced by the AI
-    inferenced_breakdowns = [b for b in breakdowns if b.is_inference]
-    b: schemas.Breakdown = get_first_breakdown(inferenced_breakdowns, user.email)
-    if b:
-        return schemas.GetBreakdownResponse.from_breakdown(b)
-
-    # (4) return a baseline breakdown; these are low quality breakdowns from webscraping
-    starter_breakdowns = (
-        set(breakdowns) - set(inferenced_breakdowns) - set(user_submitted_breakdowns) - set(verified_breakdowns)
-    )
-    starter_breakdowns = list(starter_breakdowns)
-    b: schemas.Breakdown = get_first_breakdown(starter_breakdowns, user.email)
-    if b:
-        return schemas.GetBreakdownResponse.from_breakdown(b)
-
-    raise HTTPException(
+    app_services: Services = request.app.state.services
+    dynamo_db = app_services.dynamo
+    NOT_FOUND_ERROR = HTTPException(
         status_code=HTTP_404_NOT_FOUND,
         detail=BREAKDOWN_NOT_FOUND.format(word_id=word_id),
     )
+
+    try:
+        breakdown: dynamo.Breakdown = breakdown_actions.get_official_breakdown_by_word_id(
+            word_id=word_id, db=dynamo_db
+        )
+    except breakdown_actions.BreakdownNotFoundError as err:
+        LOGGER.info(err)
+        raise NOT_FOUND_ERROR
+    LOGGER.info(breakdown)
+
+    # (1) return a verified breakdown if there is one;
+    # there can be up to one verified breakdown per word
+    LOGGER.info("Starting step 1")
+    if breakdown_actions.is_breakdown_verified(breakdown=breakdown):
+        morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
+        return models_to_schemas.dynamo_to_pydantic__breakdown(
+            breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+        )
+    LOGGER.info(f"No verified breakdown for word with ID {word_id} was found in Dynamo.")
+
+    LOGGER.info("Starting step 2")
+    if breakdown.submitted_by_user_email == user.email:
+        morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
+        return models_to_schemas.dynamo_to_pydantic__breakdown(
+            breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+        )
+
+    try:
+        user_submitted_breakdown = breakdown_actions.get_breakdown_submitted_by_user_email_and_word_id(
+            word_id=word_id, user_email=user.email, db=dynamo_db
+        )
+        morpheme_family_dict = breakdown_actions.get_morpheme_families(
+            breakdown=user_submitted_breakdown, db=dynamo_db
+        )
+        return models_to_schemas.dynamo_to_pydantic__breakdown(
+            breakdown=user_submitted_breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+        )
+    except breakdown_actions.BreakdownNotFoundError as err:
+        LOGGER.info(err)
+
+    # (3) return a breakdown submitted by another user
+    LOGGER.info("Starting step 3")
+    if breakdown.submitted_by_user_email != "anonymous":
+        morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
+        return models_to_schemas.dynamo_to_pydantic__breakdown(
+            breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+        )
+    try:
+        another_user_breakdown = breakdown_actions.get_official_breakdown_submitted_by_another_user(
+            word_id=word_id, db=dynamo_db
+        )
+        if another_user_breakdown.submitted_by_user_email != "anonymous":
+            morpheme_family_dict = breakdown_actions.get_morpheme_families(
+                breakdown=another_user_breakdown, db=dynamo_db
+            )
+            return models_to_schemas.dynamo_to_pydantic__breakdown(
+                breakdown=another_user_breakdown,
+                morpheme_family_dict=morpheme_family_dict,
+                user_email=user.email,
+            )
+    except breakdown_actions.BreakdownNotFoundError as err:
+        LOGGER.info(err)
+
+    # (4) return a breakdown inferenced by the AI
+    LOGGER.info("Starting step 4")
+    LOGGER.info(breakdown)
+    if breakdown.is_inference is True:
+        morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
+        return models_to_schemas.dynamo_to_pydantic__breakdown(
+            breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+        )
+
+    # (5) raise not found error
+    raise NOT_FOUND_ERROR
 
 
 @router.post(
