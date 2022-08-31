@@ -52,9 +52,8 @@ def get_official_breakdown_by_word_id(word_id: str, db: DBService) -> Breakdown:
     breakdown_dynamo_keys: dict = make_keys__breakdown(word_id=word_id)
 
     get_item_response = table.get_item(Key=breakdown_dynamo_keys)
-    if get_item_status_code(item_output=get_item_response) == 404:
+    if get_item_status_code(item_output=get_item_response) == 404 or "Item" not in get_item_response.keys():
         raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo.")
-
     item = get_item_from_dynamo_response(get_item_response)
     breakdown = Breakdown.from_dict(breakdown_dict=item)
 
@@ -118,7 +117,9 @@ def get_morpheme_family_ids_of_non_null_breakdown_items(breakdown: Breakdown) ->
         for breakdown_item in breakdown_items
         if breakdown_item["morpheme_family_id"] is not None
     ]
-    return morpheme_family_ids
+
+    # There may be duplicate id's in morpheme_family_ids, so we only return unique id's
+    return list(set(morpheme_family_ids))
 
 
 def make_id_morpheme_family_map(dynamo_list_of_morpheme_families: List[dict]) -> Dict[str, MorphemeFamily]:

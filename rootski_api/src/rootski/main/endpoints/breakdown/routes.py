@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from loguru import logger as LOGGER
@@ -25,18 +25,6 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from rootski import schemas
 
 router = APIRouter()
-
-
-def get_first_breakdown(breakdowns: List[orm.Breakdown], user_email: str) -> Optional[schemas.Breakdown]:
-    if len(breakdowns) > 0:
-        breakdown = breakdowns[0]
-        if not breakdown.word:
-            breakdown.word = breakdown.word_.word
-        to_return = schemas.Breakdown.from_orm_breakdown(breakdown)
-        to_return.submitted_by_current_user = breakdown.submitted_by_user_email == user_email
-        return to_return
-    else:
-        return None
 
 
 @router.get(
@@ -67,12 +55,11 @@ def get_breakdown(
     2. The breakdown last submitted by the requesting user
     3. The breakdown last submitted by another user
     4. The inferenced breakdown
-    5. The default, unverified breakdown
+    5. The breakdown was not found
 
     If this request does not have a "Bearer ..." Authorization header,
     the user is assumed to be anonymous.
     """
-
     app_services: Services = request.app.state.services
     dynamo_db = app_services.dynamo
     NOT_FOUND_ERROR = HTTPException(
@@ -85,21 +72,22 @@ def get_breakdown(
             word_id=word_id, db=dynamo_db
         )
     except breakdown_actions.BreakdownNotFoundError as err:
-        LOGGER.info(err)
+        LOGGER.debug(err)
         raise NOT_FOUND_ERROR
-    LOGGER.info(breakdown)
+    LOGGER.debug(breakdown)
 
     # (1) return a verified breakdown if there is one;
     # there can be up to one verified breakdown per word
-    LOGGER.info("Starting step 1")
+    LOGGER.debug("Starting step 1")
     if breakdown_actions.is_breakdown_verified(breakdown=breakdown):
         morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
         return models_to_schemas.dynamo_to_pydantic__breakdown(
             breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
         )
-    LOGGER.info(f"No verified breakdown for word with ID {word_id} was found in Dynamo.")
+    LOGGER.debug(f"No verified breakdown for word with ID {word_id} was found in Dynamo.")
 
-    LOGGER.info("Starting step 2")
+    # (2) return a breakdown submitted by current user
+    LOGGER.debug("Starting step 2")
     if breakdown.submitted_by_user_email == user.email:
         morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
         return models_to_schemas.dynamo_to_pydantic__breakdown(
@@ -117,10 +105,10 @@ def get_breakdown(
             breakdown=user_submitted_breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
         )
     except breakdown_actions.BreakdownNotFoundError as err:
-        LOGGER.info(err)
+        LOGGER.debug(err)
 
     # (3) return a breakdown submitted by another user
-    LOGGER.info("Starting step 3")
+    LOGGER.debug("Starting step 3")
     if breakdown.submitted_by_user_email != "anonymous":
         morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
         return models_to_schemas.dynamo_to_pydantic__breakdown(
@@ -140,18 +128,17 @@ def get_breakdown(
                 user_email=user.email,
             )
     except breakdown_actions.BreakdownNotFoundError as err:
-        LOGGER.info(err)
+        LOGGER.debug(err)
 
     # (4) return a breakdown inferenced by the AI
-    LOGGER.info("Starting step 4")
-    LOGGER.info(breakdown)
+    LOGGER.debug("Starting step 4")
     if breakdown.is_inference is True:
         morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
         return models_to_schemas.dynamo_to_pydantic__breakdown(
             breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
         )
 
-    # (5) raise not found error
+    # (5) The breakdown was not found.
     raise NOT_FOUND_ERROR
 
 

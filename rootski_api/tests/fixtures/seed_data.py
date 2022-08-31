@@ -68,28 +68,6 @@ EXAMPLE_BREAKDOWN_ANOTHER_USER_2 = {
 }
 
 
-EXAMPLE_BREAKDOWN_57 = {
-    "gsi2sk": "USER#anonymous",
-    "submitted_by_user_email": "anonymous",
-    "gsi1sk": "WORD#57",
-    "date_verified": "None",
-    "__type": "BREAKDOWN",
-    "word_id": "57",
-    "date_submitted": "2022-02-15 05:45:18.740114",
-    "word": "знать",
-    "sk": "BREAKDOWN",
-    "pk": "WORD#57",
-    "breakdown_items": [
-        {"morpheme": "зна", "morpheme_family_id": "245", "position": 0, "morpheme_id": "511"},
-        {"morpheme": "ть", "morpheme_family_id": "1385", "position": 1, "morpheme_id": "2196"},
-    ],
-    "gsi1pk": "USER#anonymous",
-    "is_verified": False,
-    "is_inference": True,
-    "gsi2pk": "WORD#57",
-}
-
-
 EXAMPLE_BREAKDOWN_ANOTHER_USER = {
     "pk": "WORD#10",
     "sk": "BREAKDOWN",
@@ -153,6 +131,127 @@ EXAMPLE_VERIFIED_BREAKDOWN = {
 }
 
 
+EXAMPLE_BREAKDOWN_56 = {
+    "gsi2sk": "USER#anonymous",
+    "submitted_by_user_email": "anonymous",
+    "gsi1sk": "WORD#56",
+    "date_verified": "None",
+    "__type": "BREAKDOWN",
+    "word_id": "56",
+    "date_submitted": "2022-02-15 05:45:18.740114",
+    "word": "самый",
+    "sk": "BREAKDOWN",
+    "pk": "WORD#56",
+    "breakdown_items": [
+        {"morpheme": "сам", "morpheme_family_id": None, "position": "0", "morpheme_id": None},
+        {"morpheme": "ый", "morpheme_family_id": None, "position": "1", "morpheme_id": None},
+    ],
+    "gsi1pk": "USER#anonymous",
+    "is_verified": False,
+    "is_inference": True,
+    "gsi2pk": "WORD#56",
+}
+
+
+EXAMPLE_BREAKDOWN_57 = {
+    "gsi2sk": "USER#anonymous",
+    "submitted_by_user_email": "anonymous",
+    "gsi1sk": "WORD#57",
+    "date_verified": "None",
+    "__type": "BREAKDOWN",
+    "word_id": "57",
+    "date_submitted": "2022-02-15 05:45:18.740114",
+    "word": "знать",
+    "sk": "BREAKDOWN",
+    "pk": "WORD#57",
+    "breakdown_items": [
+        {"morpheme": "зна", "morpheme_family_id": "245", "position": 0, "morpheme_id": "511"},
+        {"morpheme": "ть", "morpheme_family_id": "1385", "position": 1, "morpheme_id": "2196"},
+        {"morpheme": "зна", "morpheme_family_id": "245", "position": 0, "morpheme_id": "511"},
+        {"morpheme": "ть", "morpheme_family_id": "1385", "position": 1, "morpheme_id": "2196"},
+    ],
+    "gsi1pk": "USER#anonymous",
+    "is_verified": False,
+    "is_inference": True,
+    "gsi2pk": "WORD#57",
+}
+
+
+EXAMPLE_BREAKDOWN_438 = {
+    "gsi2sk": "USER#anonymous",
+    "submitted_by_user_email": "anonymous",
+    "gsi1sk": "WORD#438",
+    "date_verified": "None",
+    "__type": "BREAKDOWN",
+    "word_id": "438",
+    "date_submitted": "2022-02-15 05:45:18.740114",
+    "word": "выходить",
+    "sk": "BREAKDOWN",
+    "pk": "WORD#438",
+    "breakdown_items": [
+        {"morpheme": "вы", "morpheme_family_id": "102", "position": "0", "morpheme_id": "218"},
+        {"morpheme": "ход", "morpheme_family_id": "812", "position": "1", "morpheme_id": "1577"},
+        {"morpheme": "ить", "morpheme_family_id": "1333", "position": "2", "morpheme_id": "2139"},
+    ],
+    "gsi1pk": "USER#anonymous",
+    "is_verified": False,
+    "is_inference": True,
+    "gsi2pk": "WORD#438",
+}
+
+
+EXAMPLE_BREAKDOWN_771 = {
+    "gsi2sk": "USER#eric.riddoch@gmail.com",
+    "submitted_by_user_email": "eric.riddoch@gmail.com",
+    "gsi1sk": "WORD#771",
+    "date_verified": "2022-07-23 05:42:11.985578",
+    "__type": "BREAKDOWN",
+    "word_id": "771",
+    "date_submitted": "2022-02-15 09:00:24.068323",
+    "word": "выглядеть",
+    "sk": "BREAKDOWN",
+    "pk": "WORD#771",
+    "breakdown_items": [
+        {"morpheme": "вы", "morpheme_family_id": "1401", "position": "0", "morpheme_id": "2213"},
+        {"morpheme": "гляд", "morpheme_family_id": "127", "position": "1", "morpheme_id": "276"},
+        {"morpheme": "еть", "morpheme_family_id": "1324", "position": "2", "morpheme_id": "2130"},
+    ],
+    "gsi1pk": "USER#eric.riddoch@gmail.com",
+    "is_verified": True,
+    "is_inference": False,
+    "gsi2pk": "WORD#771",
+}
+
+
+EXAMPLE_BREAKDOWN_59470 = {
+    "gsi2sk": "USER#dmitriy.abaimov@bengroupinc.com",
+    "submitted_by_user_email": "dmitriy.abaimov@bengroupinc.com",
+    "gsi1sk": "WORD#59470",
+    "date_verified": "None",
+    "__type": "BREAKDOWN",
+    "word_id": "59470",
+    "date_submitted": "2022-02-23 15:38:30.049221",
+    "word": "None",
+    "sk": "BREAKDOWN",
+    "pk": "WORD#59470",
+    "breakdown_items": [
+        {"morpheme": "само", "morpheme_family_id": "1107", "position": "0", "morpheme_id": "1892"},
+        {"morpheme": "у", "morpheme_family_id": "1399", "position": "1", "morpheme_id": "2211"},
+        {"morpheme": "со", "morpheme_family_id": "1403", "position": "2", "morpheme_id": "2219"},
+        {"morpheme": "верш", "morpheme_family_id": "64", "position": "3", "morpheme_id": "124"},
+        {"morpheme": "ен", "morpheme_family_id": None, "position": "4", "morpheme_id": None},
+        {"morpheme": "ство", "morpheme_family_id": "1268", "position": "5", "morpheme_id": "2066"},
+        {"morpheme": "ва", "morpheme_family_id": None, "position": "6", "morpheme_id": None},
+        {"morpheme": "ни", "morpheme_family_id": None, "position": "7", "morpheme_id": None},
+        {"morpheme": "е", "morpheme_family_id": "1189", "position": "8", "morpheme_id": "1985"},
+    ],
+    "gsi1pk": "USER#dmitriy.abaimov@bengroupinc.com",
+    "is_verified": False,
+    "is_inference": False,
+    "gsi2pk": "WORD#59470",
+}
+
+
 EXAMPLE_BREAKDOWN_ITEM = {
     "submitted_by_user_email": "eric.riddoch@gmail.com",
     "breakdown_id": "77222",
@@ -209,13 +308,19 @@ EXAMPLE_MORPHEME_FAMILY_1385 = {
 
 
 EXAMPLE_DATA = [
+    # Hand-crafted examples for testing
     EXAMPLE_BREAKDOWN,
     EXAMPLE_BREAKDOWN_2,
-    EXAMPLE_BREAKDOWN_57,
     EXAMPLE_BREAKDOWN_ANOTHER_USER,
     EXAMPLE_BREAKDOWN_ANOTHER_USER_2,
     EXAMPLE_BREAKDOWN_ERIC_USER,
     EXAMPLE_VERIFIED_BREAKDOWN,
+    # Examples based on real data
+    EXAMPLE_BREAKDOWN_56,  # inferenced example with all null breakdown items
+    EXAMPLE_BREAKDOWN_57,  # inferenced example with duplicate breakdown_items
+    EXAMPLE_BREAKDOWN_438,  # inferenced example with no null breakdown items
+    EXAMPLE_BREAKDOWN_771,  # Verified example by user eric.riddoch@gmail.com
+    EXAMPLE_BREAKDOWN_59470,  # Non-verified example by user dmitriy.abaimov@bengroupinc.com
     EXAMPLE_BREAKDOWN_ITEM,
     EXAMPLE_NULL_BREAKDOWN_ITEM,
     EXAMPLE_MORPHEME_FAMILY_245,
