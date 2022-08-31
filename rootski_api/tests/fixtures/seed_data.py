@@ -5,6 +5,10 @@ from decimal import Decimal
 
 from mypy_boto3_dynamodb.service_resource import _Table
 
+#############################
+# Modified/made-up Examples #
+#############################
+
 EXAMPLE_BREAKDOWN = {
     "pk": "WORD#32",
     "sk": "BREAKDOWN",
@@ -130,6 +134,10 @@ EXAMPLE_VERIFIED_BREAKDOWN = {
     "breakdown_items": [{"position": 0, "morpheme_id": None, "morpheme": "мочь", "morpheme_family_id": None}],
 }
 
+
+######################
+# Real Data Examples #
+######################
 
 EXAMPLE_BREAKDOWN_56 = {
     "gsi2sk": "USER#anonymous",
@@ -306,9 +314,18 @@ EXAMPLE_MORPHEME_FAMILY_1385 = {
     "type": "suffix",
 }
 
+#########
+# Users #
+#########
+
+TEST_USER = {
+    "email": "banana-man@rootski.io",
+    "password": "Eric Is Banana Man",
+}
+
 
 EXAMPLE_DATA = [
-    # Hand-crafted examples for testing
+    # Hand-crafted/Modified examples for testing
     EXAMPLE_BREAKDOWN,
     EXAMPLE_BREAKDOWN_2,
     EXAMPLE_BREAKDOWN_ANOTHER_USER,
