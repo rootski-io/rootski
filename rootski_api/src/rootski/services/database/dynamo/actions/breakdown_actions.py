@@ -1,13 +1,22 @@
 """
-These are the actions needed to query the dynamo table for the breakdown endpoint.
+These are the actions needed to query/post into the dynamo table for the breakdown endpoints.
 
-For a word_id, retrieve a single breakdown in the following order of priority:
+Given a word_id for a single breakdown, retrieve the breakdown in the following order of priority:
 
 (1) A breakdown whose "is_verified" attribute is true. Example: выглядеть.
 (2) A breakdown submitted by the logged in user.
 (3) A breakdown submitted by another user. # Example самоусовершенствование.
 (4) The inferred breakdown submitted by "anonymous. Example выходить.
 (5) No breakdown found.
+
+
+Given a new breakdown to post by a user, perform the following actions in this order of priority:
+(1) query dynamo to see if the breakdown already exists
+    (a) check the breakdown's validity
+(2) verify the submitted breakdown is valid
+(3) query dynamo for a breakdown for this word, submitted by this user, and update it
+(4) if not found, prepare to save the breakdown to the database.
+
 
 Note: Consider the following when using get_morpheme_families() function.
 Dynamodb's batch_get_item() function is used to return a morpheme_family for each valid morpheme_family_id.
