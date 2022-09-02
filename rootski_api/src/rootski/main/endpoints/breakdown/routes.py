@@ -193,6 +193,7 @@ def submit_breakdown(
             status_code=HTTP_404_NOT_FOUND,
             detail=WORD_ID_NOT_FOUND.format(word_id=payload.word_id),
         )
+    # get_word_by_id(payload.word_id)
 
     # is the breakdown valid?
     id_to_morpheme: Dict[int, str] = {}

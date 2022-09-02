@@ -1,0 +1,6 @@
+def create_user():
+    ...
+
+
+def get_user():
+    ...
