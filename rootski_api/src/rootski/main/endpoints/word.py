@@ -1,16 +1,14 @@
 from typing import Optional, Union
 
 import rootski.services.database.dynamo.models as dynamo
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 from loguru import logger
 from rootski.schemas.core import Services
-from rootski.services.database import DBService
 from rootski.services.database.dynamo import models as dynamo
 from rootski.services.database.dynamo.actions.word import WordNotFoundError, get_word_by_id
 from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
 from rootski.services.database.dynamo.models2schemas.word import dynamo_to_pydantic__word
-from rootski.services.database.non_orm.db_service import RootskiDBService as LegacyDBService
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_404_NOT_FOUND
 from urllib3 import HTTPResponse
 
 from rootski import schemas
@@ -32,24 +30,9 @@ async def get_word_data(word_id: int, word_type: str, request: Request):
     That data should be fetched using GET /breakdown
     """
     app_services: Services = request.app.state.services
-    db_service: DBService = app_services.db
     dynamo_service: DynamoDBService = app_services.dynamo
-    legacy_db_service = LegacyDBService(engine=db_service.sync_engine)
 
     logger.info(f"Getting word data for word {word_id} of type {word_type}")
-
-    # validate params
-    if word_type not in [
-        "noun",
-        "adjective",
-        "verb",
-        "particle",
-        "adverb",
-        "preposition",
-        "pronoun",
-        "conjunction",
-    ]:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid word type.")
 
     word: Optional[dynamo.Word] = None
     try:
