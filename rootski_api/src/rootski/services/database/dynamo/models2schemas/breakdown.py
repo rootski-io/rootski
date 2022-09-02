@@ -8,7 +8,7 @@ from rootski.services.database.dynamo.models2schemas.breakdown_item import dynam
 
 def dynamo_to_pydantic__breakdown(
     breakdown: dynamo.Breakdown,
-    morpheme_family_dict: Dict[str, dynamo.MorphemeFamily],
+    ids_to_morpheme_families: Dict[str, dynamo.MorphemeFamily],
     user_email: str,
 ) -> schemas.GetBreakdownResponse:
 
@@ -27,7 +27,7 @@ def dynamo_to_pydantic__breakdown(
         breakdown_items=[
             dynamo_to_pydantic__breakdown_item(
                 breakdown_item_item=breakdown_item,
-                morpheme_family_dict=morpheme_family_dict,
+                morpheme_family_data=ids_to_morpheme_families,
             )
             for breakdown_item in breakdown.breakdown_items
         ],

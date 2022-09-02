@@ -161,7 +161,7 @@ EXAMPLE_BREAKDOWN_56 = {
 }
 
 
-EXAMPLE_BREAKDOWN_57 = {
+EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB = {
     "gsi2sk": "USER#anonymous",
     "submitted_by_user_email": "anonymous",
     "gsi1sk": "WORD#57",
@@ -319,8 +319,17 @@ EXAMPLE_MORPHEME_FAMILY_1385 = {
 #########
 
 TEST_USER = {
+    "pk": "USER#banana-man@rootski.io",
+    "sk": "USER#banana-man@rootski.io",
     "email": "banana-man@rootski.io",
-    "password": "Eric Is Banana Man",
+    "is_admin": False,
+}
+
+TEST_USER_AS_ADMIN = {
+    "pk": "USER#super_user@batcave.com",
+    "sk": "USER#super_user@batcave.com",
+    "email": "super_user@batcave.com",
+    "is_admin": True,
 }
 
 
@@ -334,7 +343,7 @@ EXAMPLE_DATA = [
     EXAMPLE_VERIFIED_BREAKDOWN,
     # Examples based on real data
     EXAMPLE_BREAKDOWN_56,  # inferenced example with all null breakdown items
-    EXAMPLE_BREAKDOWN_57,  # inferenced example with duplicate breakdown_items
+    EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB,  # inferenced example with duplicate breakdown_items
     EXAMPLE_BREAKDOWN_438,  # inferenced example with no null breakdown items
     EXAMPLE_BREAKDOWN_771,  # Verified example by user eric.riddoch@gmail.com
     EXAMPLE_BREAKDOWN_59470,  # Non-verified example by user dmitriy.abaimov@bengroupinc.com
@@ -342,6 +351,9 @@ EXAMPLE_DATA = [
     EXAMPLE_NULL_BREAKDOWN_ITEM,
     EXAMPLE_MORPHEME_FAMILY_245,
     EXAMPLE_MORPHEME_FAMILY_1385,
+    # Users
+    TEST_USER,
+    TEST_USER_AS_ADMIN,
 ]
 
 

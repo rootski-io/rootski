@@ -17,13 +17,12 @@ from rootski.main.main import create_app
 from rootski.schemas.core import Services
 from rootski.services.database import DBService
 from rootski.services.database import models as orm
+from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
-from tests.constants import CONFIG_VALUES_FOR_REAL_DATABASE, TEST_USER
+from tests.constants import CONFIG_VALUES_FOR_REAL_DATABASE, ROOTSKI_DYNAMO_TABLE_NAME, TEST_USER
 from tests.mocks import MockService
 from tests.utils import scoped_env_vars
-
-from rootski import schemas
 
 ####################
 # --- Fixtures --- #
@@ -85,7 +84,7 @@ def client(disable_auth: bool, act_as_admin: bool, db_service: DBService) -> Tes
 
 
 @pytest.fixture
-def dynamo_client(disable_auth: bool, act_as_admin: bool) -> TestClient:
+def dynamo_client(dynamo_db_service: DynamoDBService, disable_auth: bool, act_as_admin: bool) -> TestClient:
     CONFIG_VALUES = {
         "postgres_user": "dummy-user",
         "postgres_password": "dummy-pass",
@@ -99,6 +98,7 @@ def dynamo_client(disable_auth: bool, act_as_admin: bool) -> TestClient:
         "domain": "www.test-domain.io",
         "s3_static_site_origin": "http://www.static-site.com:25565",
         "cognito_web_client_id": "some-hash-looking-string",
+        "dynamo_table_name": ROOTSKI_DYNAMO_TABLE_NAME,
         "extra_allowed_cors_origins": [
             "http://www.extra-origin.com",
             "https://www.extra-origin.com",
@@ -107,9 +107,9 @@ def dynamo_client(disable_auth: bool, act_as_admin: bool) -> TestClient:
 
     config = Config(**CONFIG_VALUES)
     app: FastAPI = make_app(disable_auth=disable_auth, config_override=config)
-    app.dependency_overrides[deps.get_current_user] = lambda: schemas.User(
-        email=TEST_USER["email"], is_admin=act_as_admin
-    )
+    # app.dependency_overrides[deps.get_current_user] = lambda: schemas.User(
+    #     email=TEST_USER["email"], is_admin=act_as_admin
+    # )
     with TestClient(app) as client:
         yield client
 

@@ -110,7 +110,7 @@ def get_official_breakdown_submitted_by_another_user(word_id: str, db: DBService
     return breakdown
 
 
-def get_morpheme_family_ids_of_non_null_breakdown_items(breakdown: Breakdown) -> List[str]:
+def get_unique_morpheme_family_ids_of_non_null_breakdown_items(breakdown: Breakdown) -> List[str]:
     breakdown_items = breakdown.breakdown_items
     morpheme_family_ids = [
         breakdown_item["morpheme_family_id"]
@@ -122,14 +122,14 @@ def get_morpheme_family_ids_of_non_null_breakdown_items(breakdown: Breakdown) ->
     return list(set(morpheme_family_ids))
 
 
-def make_id_morpheme_family_map(dynamo_list_of_morpheme_families: List[dict]) -> Dict[str, MorphemeFamily]:
+def make_id_morpheme_family_map(morpheme_family_data_objs: List[dict]) -> Dict[str, MorphemeFamily]:
 
-    morpheme_families_dict = {
-        family_dict["family_id"]: MorphemeFamily.from_dict(family_dict)
-        for family_dict in dynamo_list_of_morpheme_families
+    morpheme_families_data = {
+        family_data["family_id"]: MorphemeFamily.from_dict(family_data)
+        for family_data in morpheme_family_data_objs
     }
 
-    return morpheme_families_dict
+    return morpheme_families_data
 
 
 def get_morpheme_families(breakdown: Breakdown, db: DBService) -> Dict[str, MorphemeFamily]:
@@ -137,19 +137,23 @@ def get_morpheme_families(breakdown: Breakdown, db: DBService) -> Dict[str, Morp
     dynamo = db.dynamo
     table = db.rootski_table
 
-    morpheme_family_ids: List[str] = get_morpheme_family_ids_of_non_null_breakdown_items(breakdown=breakdown)
+    unique_morpheme_family_ids: List[str] = get_unique_morpheme_family_ids_of_non_null_breakdown_items(
+        breakdown=breakdown
+    )
 
     # If there are only null_breakdown_items, then there is no reason to query dynamo.
-    if len(morpheme_family_ids) == 0:
+    if len(unique_morpheme_family_ids) == 0:
         return {}
 
-    batch_keys: List[dict] = [
+    unique_morpheme_family_keys__to_fetch: List[dict] = [
         make_keys__morpheme_family(morpheme_family_id=morpheme_family_id)
-        for morpheme_family_id in morpheme_family_ids
+        for morpheme_family_id in unique_morpheme_family_ids
     ]
 
     get_response_items = dynamo.batch_get_item(
-        RequestItems={table.name: KeysAndAttributesServiceResourceTypeDef(Keys=batch_keys)},
+        RequestItems={
+            table.name: KeysAndAttributesServiceResourceTypeDef(Keys=unique_morpheme_family_keys__to_fetch)
+        },
     )
 
     items: List[dict] = get_items_from_dynamo_batch_get_items_response(
@@ -157,9 +161,11 @@ def get_morpheme_families(breakdown: Breakdown, db: DBService) -> Dict[str, Morp
     )
 
     # TODO: We do not expect this error to be thrown, so there are currently no unit-tests.
-    if batch_get_item_status_code(item_output=get_response_items) == 404:
+    if batch_get_item_status_code(item_output=get_response_items) == 404 or len(items) != len(
+        unique_morpheme_family_keys__to_fetch
+    ):
         raise MorphemeFamilyNotFoundError("One of your morpheme family IDs was not found in Dynamo.")
 
-    morpheme_family_dict = make_id_morpheme_family_map(dynamo_list_of_morpheme_families=items)
+    morpheme_family_dict = make_id_morpheme_family_map(morpheme_family_data_objs=items)
 
     return morpheme_family_dict

@@ -15,7 +15,7 @@ def create_comma_separated_string_of_morphemes(morphemes_in_family: List[dynamo.
 
 def dynamo_to_pydantic__breakdown_item(
     breakdown_item_item: dynamo.BreakdownItemItem,
-    morpheme_family_dict: Dict[str, dynamo.MorphemeFamily],
+    morpheme_family_data: Dict[str, dynamo.MorphemeFamily],
 ) -> Union[schemas.NullMorphemeBreakdownItem, schemas.MorphemeBreakdownItemInResponse]:
 
     # If the conditional is true, then dynamo_breakdown_item is a NullBreakdownItem
@@ -26,7 +26,7 @@ def dynamo_to_pydantic__breakdown_item(
             morpheme_id=None,
         )
 
-    morpheme_family: dynamo.MorphemeFamily = morpheme_family_dict[breakdown_item_item["morpheme_family_id"]]
+    morpheme_family: dynamo.MorphemeFamily = morpheme_family_data[breakdown_item_item["morpheme_family_id"]]
 
     return schemas.MorphemeBreakdownItemInResponse(
         position=breakdown_item_item["position"],

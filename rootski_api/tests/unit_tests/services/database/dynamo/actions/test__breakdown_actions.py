@@ -11,10 +11,10 @@ from rootski.services.database.dynamo.models.breakdown_item import make_dynamo_b
 from tests.fixtures.seed_data import (
     EXAMPLE_BREAKDOWN,
     EXAMPLE_BREAKDOWN_2,
-    EXAMPLE_BREAKDOWN_57,
     EXAMPLE_BREAKDOWN_ANOTHER_USER,
     EXAMPLE_BREAKDOWN_ERIC_USER,
     EXAMPLE_BREAKDOWN_ITEM,
+    EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB,
     EXAMPLE_MORPHEME_FAMILY_245,
     EXAMPLE_MORPHEME_FAMILY_1385,
     EXAMPLE_NULL_BREAKDOWN_ITEM,
@@ -110,7 +110,7 @@ def test__get_official_breakdown_submitted_by_another_user(dynamo_db_service: DB
 
 def test__get_morpheme_families(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
-    dynamo_breakdown_model = Breakdown.from_dict(EXAMPLE_BREAKDOWN_57)
+    dynamo_breakdown_model = Breakdown.from_dict(EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB)
     morpheme_family_dict = get_morpheme_families(
         breakdown=dynamo_breakdown_model,
         db=dynamo_db_service,

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from loguru import logger as LOGGER
@@ -45,7 +45,7 @@ router = APIRouter()
 )
 def get_breakdown(
     request: Request,
-    word_id: int,
+    word_id: Union[str, int],
     user: schemas.User = Depends(deps.get_current_user),
 ):
     """
@@ -60,6 +60,8 @@ def get_breakdown(
     If this request does not have a "Bearer ..." Authorization header,
     the user is assumed to be anonymous.
     """
+    word_id = str(word_id)
+
     app_services: Services = request.app.state.services
     dynamo_db = app_services.dynamo
     NOT_FOUND_ERROR = HTTPException(
@@ -80,29 +82,31 @@ def get_breakdown(
     # there can be up to one verified breakdown per word
     LOGGER.debug("Starting step 1")
     if breakdown_actions.is_breakdown_verified(breakdown=breakdown):
-        morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
+        is_to_morpheme_families = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
         return models_to_schemas.dynamo_to_pydantic__breakdown(
-            breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+            breakdown=breakdown, ids_to_morpheme_families=is_to_morpheme_families, user_email=user.email
         )
     LOGGER.debug(f"No verified breakdown for word with ID {word_id} was found in Dynamo.")
 
     # (2) return a breakdown submitted by current user
     LOGGER.debug("Starting step 2")
     if breakdown.submitted_by_user_email == user.email:
-        morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
+        is_to_morpheme_families = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
         return models_to_schemas.dynamo_to_pydantic__breakdown(
-            breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+            breakdown=breakdown, ids_to_morpheme_families=is_to_morpheme_families, user_email=user.email
         )
 
     try:
         user_submitted_breakdown = breakdown_actions.get_breakdown_submitted_by_user_email_and_word_id(
             word_id=word_id, user_email=user.email, db=dynamo_db
         )
-        morpheme_family_dict = breakdown_actions.get_morpheme_families(
+        is_to_morpheme_families = breakdown_actions.get_morpheme_families(
             breakdown=user_submitted_breakdown, db=dynamo_db
         )
         return models_to_schemas.dynamo_to_pydantic__breakdown(
-            breakdown=user_submitted_breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+            breakdown=user_submitted_breakdown,
+            ids_to_morpheme_families=is_to_morpheme_families,
+            user_email=user.email,
         )
     except breakdown_actions.BreakdownNotFoundError as err:
         LOGGER.debug(err)
@@ -110,21 +114,21 @@ def get_breakdown(
     # (3) return a breakdown submitted by another user
     LOGGER.debug("Starting step 3")
     if breakdown.submitted_by_user_email != "anonymous":
-        morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
+        is_to_morpheme_families = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
         return models_to_schemas.dynamo_to_pydantic__breakdown(
-            breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+            breakdown=breakdown, ids_to_morpheme_families=is_to_morpheme_families, user_email=user.email
         )
     try:
         another_user_breakdown = breakdown_actions.get_official_breakdown_submitted_by_another_user(
             word_id=word_id, db=dynamo_db
         )
         if another_user_breakdown.submitted_by_user_email != "anonymous":
-            morpheme_family_dict = breakdown_actions.get_morpheme_families(
+            is_to_morpheme_families = breakdown_actions.get_morpheme_families(
                 breakdown=another_user_breakdown, db=dynamo_db
             )
             return models_to_schemas.dynamo_to_pydantic__breakdown(
                 breakdown=another_user_breakdown,
-                morpheme_family_dict=morpheme_family_dict,
+                ids_to_morpheme_families=is_to_morpheme_families,
                 user_email=user.email,
             )
     except breakdown_actions.BreakdownNotFoundError as err:
@@ -133,9 +137,9 @@ def get_breakdown(
     # (4) return a breakdown inferenced by the AI
     LOGGER.debug("Starting step 4")
     if breakdown.is_inference is True:
-        morpheme_family_dict = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
+        is_to_morpheme_families = breakdown_actions.get_morpheme_families(breakdown=breakdown, db=dynamo_db)
         return models_to_schemas.dynamo_to_pydantic__breakdown(
-            breakdown=breakdown, morpheme_family_dict=morpheme_family_dict, user_email=user.email
+            breakdown=breakdown, ids_to_morpheme_families=is_to_morpheme_families, user_email=user.email
         )
 
     # (5) The breakdown was not found.

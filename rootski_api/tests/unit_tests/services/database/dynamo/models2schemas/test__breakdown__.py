@@ -9,7 +9,11 @@ from rootski.services.database.dynamo.models2schemas.breakdown_item import (
     create_comma_separated_string_of_morphemes,
     dynamo_to_pydantic__breakdown_item,
 )
-from tests.fixtures.seed_data import EXAMPLE_BREAKDOWN_57, EXAMPLE_MORPHEME_FAMILY_245, seed_data
+from tests.fixtures.seed_data import (
+    EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB,
+    EXAMPLE_MORPHEME_FAMILY_245,
+    seed_data,
+)
 
 
 def test__create_comma_separated_string_of_morphemes():
@@ -20,7 +24,7 @@ def test__create_comma_separated_string_of_morphemes():
 
 def test__dynamo_to_pydantic__breakdown_item(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
-    TEST_DATA: dict = EXAMPLE_BREAKDOWN_57
+    TEST_DATA: dict = EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB
     dynamo_breakdown_model = dynamo.Breakdown.from_dict(TEST_DATA)
     morpheme_family_dict: Dict[str, dynamo.MorphemeFamily] = get_morpheme_families(
         breakdown=dynamo_breakdown_model,
@@ -29,7 +33,7 @@ def test__dynamo_to_pydantic__breakdown_item(dynamo_db_service: DBService):
     breakdown_items: List[Union[schemas.NullMorphemeBreakdownItem, schemas.MorphemeBreakdownItemInResponse]] = [
         dynamo_to_pydantic__breakdown_item(
             breakdown_item_item=breakdown_item,
-            morpheme_family_dict=morpheme_family_dict,
+            morpheme_family_data=morpheme_family_dict,
         )
         for breakdown_item in dynamo_breakdown_model.breakdown_items
     ]
@@ -57,7 +61,7 @@ def test__dynamo_to_pydantic__breakdown_item(dynamo_db_service: DBService):
 
 def test__dynamo_to_pydantic__breakdown(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
-    TEST_DATA: dict = EXAMPLE_BREAKDOWN_57
+    TEST_DATA: dict = EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB
     dynamo_breakdown_model: dynamo.Breakdown = dynamo.Breakdown.from_dict(TEST_DATA)
     morpheme_family_dict: Dict[str, dynamo.MorphemeFamily] = get_morpheme_families(
         breakdown=dynamo_breakdown_model,
@@ -69,7 +73,7 @@ def test__dynamo_to_pydantic__breakdown(dynamo_db_service: DBService):
     # pprint(datetime.strptime())
     pydantic_breakdown: schemas.GetBreakdownResponse = dynamo_to_pydantic__breakdown(
         breakdown=dynamo_breakdown_model,
-        morpheme_family_dict=morpheme_family_dict,
+        ids_to_morpheme_families=morpheme_family_dict,
         user_email=USER_EMAIL,
     )
     if dynamo_breakdown_model.is_inference is True:

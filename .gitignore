@@ -12,7 +12,6 @@ node_modules/
 artifacts
 awscliv2.zip
 
-rootski_api/static/morphemes.json
 rootski_api/migrations/initial_data/yandex_data
 
 **/*venv

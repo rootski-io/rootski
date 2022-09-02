@@ -45,7 +45,8 @@ repos:
                   ^docs/source/rst/architecture/frontend/material-ui-course.png|
                   ^docs/source/rst/architecture/frontend/frontend-screenshot.png|
                   ^docs/source/rst/architecture/frontend/cognito-hosted-ui.png|
-                  ^docs/source/rst/architecture/frontend/stephen-grider-react-course.png
+                  ^docs/source/rst/architecture/frontend/stephen-grider-react-course.png|
+                  ^rootski_api/static/morphemes.json
               )
           # Sort requirements in requirements.txt files.
           - id: requirements-txt-fixer
