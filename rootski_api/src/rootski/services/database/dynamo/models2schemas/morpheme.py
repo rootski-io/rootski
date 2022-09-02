@@ -14,8 +14,8 @@ def dynamo_to_pydantic__complete_morpheme(
         morpheme=dynamo_morpheme_obj.morpheme,
         family_id=int(dynamo_morpheme_obj.family_id),
         type=ids_to_morpheme_families[morpheme_id]["type"],
-        word_pos=ids_to_morpheme_families[morpheme_id]["word-pos"],
-        meanings=ids_to_morpheme_families[morpheme_id],
-        level=ids_to_morpheme_families[morpheme_id],
-        family=ids_to_morpheme_families[morpheme_id],
+        word_pos=ids_to_morpheme_families[morpheme_id]["word_pos"],
+        meanings=ids_to_morpheme_families[morpheme_id]["meanings"],
+        level=ids_to_morpheme_families[morpheme_id]["level"],
+        family=ids_to_morpheme_families[morpheme_id]["family"],
     )

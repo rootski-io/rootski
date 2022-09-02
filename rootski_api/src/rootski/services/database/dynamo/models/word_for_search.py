@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Literal, Optional
+from typing import Dict, Literal, Union
 
 from rootski.services.database.dynamo.models.base import DynamoModel
 from rootski.services.database.dynamo.models.word import WORD_POS_ENUM
@@ -10,8 +10,8 @@ class WordForSearch(DynamoModel):
 
     word: str
     word_id: str
-    pos: WORD_POS_ENUM
-    frequency: Optional[int]
+    pos: Union[WORD_POS_ENUM, Literal["deprecated"]]
+    frequency: int = -1
 
     __type: Literal["WORD"] = "WORD_FOR_SEARCH"
 
@@ -32,7 +32,7 @@ class WordForSearch(DynamoModel):
             **self.keys,
             "word": self.word,
             "word_id": self.word_id,
-            "frequency": int(self.frequency) if self.frequency else None,
+            "frequency": int(self.frequency) if self.frequency not in [None, -1] else -1,
             "pos": self.pos,
             "__type": self.__type,
         }

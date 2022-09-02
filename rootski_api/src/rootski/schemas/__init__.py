@@ -36,6 +36,7 @@ from .morpheme import (
     MorphemeFamilyMeaning,
     MorphemeInDb,
 )
+from .search import SearchResponse, SearchWord
 from .user import User, UserInDB
 from .word import (
     WORD_POS_ENUM,
@@ -108,4 +109,7 @@ __all__ = [
     "MORPHEME_WORD_POS_VERB",
     "MORPHEME_WORD_POS_ENUM",
     "MORPHEME_WORD_POS_VALUES",
+    # search,
+    "SearchWord",
+    "SearchResponse",
 ]
