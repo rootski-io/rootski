@@ -1,28 +1,8 @@
 from pathlib import Path
-from typing import List
-
-import json
 
 from fastapi.routing import APIRouter
-from loguru import logger
-
-from rootski.config.config import Config
 from rootski.main.endpoints.breakdown.docs import ExampleResponse, make_apidocs_responses_obj
-
-from rootski.schemas.core import Services
-from rootski.schemas.morpheme import CompleteMorpheme
-from rootski.services.database.dynamo import models as dynamo
-from rootski.services.database.dynamo.actions.morpheme import get_all_morphemes
-
-from rootski.services.database.database import DBService
-from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
-from rootski.services.database.dynamo.models2schemas import morpheme as models2schemas
-from rootski.services.database.make_morphemes_json import make_morphemes_json
-
-from sqlalchemy.orm.session import Session
-from starlette.requests import Request
 from starlette.responses import FileResponse
-
 
 router = APIRouter()
 
