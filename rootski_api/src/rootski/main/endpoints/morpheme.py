@@ -57,6 +57,6 @@ async def get_morphemes_json():  # request: Request, force: bool = False
         force (boolean): forces regeneration of the morphemes.json file
     """
 
-    THIS_DIR = Path(__file__).parent.parent.parent.parent
+    THIS_DIR = Path(__file__).parent.parent.parent
     morpheme_json_fpath = THIS_DIR / "resources/morphemes.json"
     return FileResponse(morpheme_json_fpath, media_type="application/json")
