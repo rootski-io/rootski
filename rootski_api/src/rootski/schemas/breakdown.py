@@ -276,8 +276,8 @@ class BreakdownUpsert(BaseModel):
 
 class SubmitBreakdownResponse(BaseModel):
     word_id: int
-    breakdown_id: int
     is_verified: bool
+    breakdown_id: int = Field(-1, description="Always `-1` since this field is deprecated.")
 
 
 ############################

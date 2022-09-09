@@ -2,7 +2,7 @@ from typing import Dict, List, Union
 
 import rootski.services.database.dynamo.models as dynamo
 from rootski.schemas import breakdown as schemas
-from rootski.services.database.dynamo.actions.breakdown_actions import get_morpheme_families
+from rootski.services.database.dynamo.actions.breakdown_actions import get_morpheme_families_for_breakdown
 from rootski.services.database.dynamo.db_service import DBService
 from rootski.services.database.dynamo.models2schemas.breakdown import dynamo_to_pydantic__breakdown
 from rootski.services.database.dynamo.models2schemas.breakdown_item import (
@@ -26,7 +26,7 @@ def test__dynamo_to_pydantic__breakdown_item(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
     TEST_DATA: dict = EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB
     dynamo_breakdown_model = dynamo.Breakdown.from_dict(TEST_DATA)
-    morpheme_family_dict: Dict[str, dynamo.MorphemeFamily] = get_morpheme_families(
+    morpheme_family_dict: Dict[str, dynamo.MorphemeFamily] = get_morpheme_families_for_breakdown(
         breakdown=dynamo_breakdown_model,
         db=dynamo_db_service,
     )
@@ -63,7 +63,7 @@ def test__dynamo_to_pydantic__breakdown(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
     TEST_DATA: dict = EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB
     dynamo_breakdown_model: dynamo.Breakdown = dynamo.Breakdown.from_dict(TEST_DATA)
-    morpheme_family_dict: Dict[str, dynamo.MorphemeFamily] = get_morpheme_families(
+    morpheme_family_dict: Dict[str, dynamo.MorphemeFamily] = get_morpheme_families_for_breakdown(
         breakdown=dynamo_breakdown_model,
         db=dynamo_db_service,
     )

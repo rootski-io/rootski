@@ -25,7 +25,9 @@ def get_user(email: str, db: DynamoDBService) -> User:
     keys = make_keys(email=email)
     get_user_response = dynamo_db.get_item(Key=keys)
     if get_item_status_code(item_output=get_user_response) == 404 or "Item" not in get_user_response.keys():
-        raise UserNotFoundError(f"User with email {email} was not found in Dynamo table {dynamo_table_name}.")
+        raise UserNotFoundError(
+            f"User with email {email} was not found in Dynamo table named {dynamo_table_name}."
+        )
 
     user_dict = get_item_from_dynamo_response(get_user_response)
     user = User.from_dict(user_dict=user_dict)
