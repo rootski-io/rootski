@@ -3,9 +3,9 @@ NOTE: remember to cast all IDs to strings
 """
 
 from dataclasses import dataclass
-from typing import Dict, Literal
+from typing import Dict, Literal, Type
 
-from rootski.services.database.dynamo.models.base import DynamoModel
+from rootski.services.database.dynamo.models.base import DynamoModel, replace_decimals
 
 
 @dataclass(frozen=True)
@@ -41,6 +41,16 @@ class Morpheme(DynamoModel):
             "morpheme": self.morpheme,
             "morpheme_id": self.morpheme_id,
         }
+
+    @classmethod
+    def from_dict(cls: Type["Morpheme"], morpheme_dict: dict) -> "Morpheme":
+        cleaned_morpheme_dict = replace_decimals(morpheme_dict)
+
+        return cls(
+            morpheme=cleaned_morpheme_dict["morpheme"],
+            morpheme_id=cleaned_morpheme_dict["morpheme_id"],
+            family_id=cleaned_morpheme_dict["family_id"],
+        )
 
 
 def make_pk(family_id: str) -> str:

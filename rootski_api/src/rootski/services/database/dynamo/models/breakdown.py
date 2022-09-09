@@ -50,15 +50,36 @@ class Breakdown(DynamoModel):
     def gsi2sk(self) -> str:
         return make_gsi1pk(submitted_by_user_email=self.submitted_by_user_email)
 
-    def to_item(self) -> dict:
+    def to_item(self, is_official: bool) -> dict:
+        """Generates a dictionary of a breakdown to be uploaded to Dynamo.
+        is_official is False if the breakdown will not be returned in rootski's get_breakdown endpoint.
+
+        :param is_official:
+        :return:
+        """
+        if is_official:
+            return {
+                **self.keys,
+                "__type": self.__type,
+                "word": self.word,
+                "word_id": str(self.word_id),
+                "submitted_by_user_email": self.submitted_by_user_email,
+                "is_verified": self.is_verified,
+                "is_inference": self.is_inference,
+                "date_submitted": self.date_submitted,
+                "date_verified": self.date_verified,
+                "breakdown_items": [b.to_BreakdownItemItem() for b in self.breakdown_items],
+            }
+
         return {
-            **self.keys,
-            "__type": self.__type,
+            "pk": f"USER#{self.submitted_by_user_email}",
+            "sk": f"BREAKDOWN#{self.word_id}",
+            "__type": "UNOFFICIAL_USER_BREAKDOWN",
             "word": self.word,
             "word_id": str(self.word_id),
             "submitted_by_user_email": self.submitted_by_user_email,
             "is_verified": self.is_verified,
-            "is_inference": self.is_inference,
+            "is_inference": False,
             "date_submitted": self.date_submitted,
             "date_verified": self.date_verified,
             "breakdown_items": [b.to_BreakdownItemItem() for b in self.breakdown_items],
@@ -112,4 +133,11 @@ def make_gsi2_keys(word_id: str, submitted_by_user_email: str) -> Dict[str, str]
     return {
         "gsi2pk": make_pk(word_id=word_id),
         "gsi2sk": make_gsi1pk(submitted_by_user_email=submitted_by_user_email),
+    }
+
+
+def make_unofficial_keys(user_email: str, word_id: str) -> Dict[str, str]:
+    return {
+        "pk": f"USER#{user_email}",
+        "sk": f"BREAKDOWN#{word_id}",
     }
