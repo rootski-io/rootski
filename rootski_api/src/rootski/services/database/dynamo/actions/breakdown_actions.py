@@ -17,7 +17,10 @@ Given a new breakdown to post by a user, perform the following actions in this o
 (2) Check if the user is an admin
 (3) Upsert the valid breakdown to dynamo
 
-Note: Consider the following when using get_morpheme_families() function.
+NOTE: Dynamodb cannot perform batch queries on global secondary indexes.
+Therefore in get_morphemes() we will need to loop over the individual keys.
+
+NOTE: Consider the following when using get_morpheme_families() function.
 Dynamodb's batch_get_item() function is used to return a morpheme_family for each valid morpheme_family_id.
 If a bad id is given, dynamodb skips that id and does alert the user an id was skipped/not found.
 Therefore a user can tell an id was bad if they submit n ids, but only get m < n in return.
@@ -177,18 +180,8 @@ def get_morpheme_families(morpheme_family_ids: List[str], db: DBService) -> Dict
     return morpheme_family_data
 
 
-def get_morphemes_for_breakdown(
-    user_submitted_breakdown: schemas.BreakdownUpsert, db: DBService
-) -> Dict[str, Morpheme]:
-    unique_morpheme_ids: List[str] = get_unique_morpheme_ids_of_non_null_breakdown_items(
-        breakdown_items=user_submitted_breakdown.breakdown_items
-    )
-    morpheme_data: Dict[str, Morpheme] = get_morphemes(morpheme_ids=unique_morpheme_ids, db=db)
-    return morpheme_data
-
-
 def get_morphemes(morpheme_ids: List[str], db: DBService) -> Dict[str, Morpheme]:
-    dynamo = db.dynamo
+    db.dynamo
     table = db.rootski_table
     unique_morpheme_ids: List[str] = list(set(morpheme_ids))
 
@@ -199,30 +192,32 @@ def get_morphemes(morpheme_ids: List[str], db: DBService) -> Dict[str, Morpheme]
     unique_morpheme_keys__to_fetch: List[dict] = [
         make_gsi1_keys__morpheme(morpheme_id=morpheme_id) for morpheme_id in unique_morpheme_ids
     ]
+    print("Keys: ", unique_morpheme_keys__to_fetch)
 
-    get_response_items = dynamo.batch_get_item(
-        RequestItems={table.name: KeysAndAttributesServiceResourceTypeDef(Keys=unique_morpheme_keys__to_fetch)},
-    )
-
-    items: List[dict] = get_items_from_dynamo_batch_get_items_response(
-        item_output=get_response_items, table_name=table.name
-    )
-
-    # TODO: We do not expect this error to be thrown, so there are currently no unit-tests.
-    if batch_get_item_status_code(item_output=get_response_items) == 404 or len(items) != len(
-        unique_morpheme_keys__to_fetch
-    ):
-        raise MorphemeNotFoundError("One of your morpheme IDs was not found in Dynamo.")
+    items: List[dict] = []
+    for morpheme_keys in unique_morpheme_keys__to_fetch:
+        get_item_response = table.query(
+            IndexName="gsi1",
+            KeyConditionExpression=Key("gsi1pk").eq(morpheme_keys["gsi1pk"])
+            & Key("gsi1sk").eq(morpheme_keys["gsi1sk"]),
+        )
+        if (
+            get_item_status_code(item_output=get_item_response) != 200
+            or "Items" not in get_item_response.keys()
+        ):
+            raise MorphemeNotFoundError("One of your morpheme IDs was not found in Dynamo.")
+        item: List[dict] = get_items_from_dynamo_query_response(get_item_response)
+        items.append(item[0])
 
     morpheme_data = make_id_morpheme_map(morpheme_data_objs=items)
 
     return morpheme_data
 
 
-def upsert_breakdown(user_submitted_breakdown: Breakdown, db: DBService) -> None:
+def upsert_breakdown(breakdown: Breakdown, is_official: bool, db: DBService) -> None:
     table = db.rootski_table
-    breakdown_data = user_submitted_breakdown.to_item(is_official=False)
-    table.put_item(item=breakdown_data)
+    breakdown_data: dict = breakdown.to_item(is_official=is_official)
+    table.put_item(Item=breakdown_data)
 
 
 ####################

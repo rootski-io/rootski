@@ -66,8 +66,8 @@ class Breakdown(DynamoModel):
                 "submitted_by_user_email": self.submitted_by_user_email,
                 "is_verified": self.is_verified,
                 "is_inference": self.is_inference,
-                "date_submitted": self.date_submitted,
-                "date_verified": self.date_verified,
+                "date_submitted": str(self.date_submitted),
+                "date_verified": str(self.date_verified),
                 "breakdown_items": [b.to_BreakdownItemItem() for b in self.breakdown_items],
             }
 
@@ -80,7 +80,7 @@ class Breakdown(DynamoModel):
             "submitted_by_user_email": self.submitted_by_user_email,
             "is_verified": self.is_verified,
             "is_inference": False,
-            "date_submitted": self.date_submitted,
+            "date_submitted": str(self.date_submitted),
             "date_verified": self.date_verified,
             "breakdown_items": [b.to_BreakdownItemItem() for b in self.breakdown_items],
         }

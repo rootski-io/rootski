@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from loguru import logger as LOGGER
@@ -9,7 +9,6 @@ from rootski.main.endpoints.breakdown.errors import (
     BREAKDOWN_NOT_FOUND,
     MORPHEME_IDS_NOT_FOUND_MSG,
     PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
-    VERIFIED_BREAKDOWN_EXISTS,
     WORD_ID_NOT_FOUND,
     BadBreakdownError,
     MorphemeNotFoundError,
@@ -19,8 +18,11 @@ from rootski.schemas.core import Services
 from rootski.services.database.dynamo import models as dynamo
 from rootski.services.database.dynamo.actions import breakdown_actions
 from rootski.services.database.dynamo.actions import word as word_actions
+from rootski.services.database.dynamo.db_service import DBService
 from rootski.services.database.dynamo.models2schemas import breakdown as models_to_schemas
 from rootski.services.database.dynamo.models2schemas import breakdown_schema_to_model as schemas_to_models
+from rootski.services.database.dynamo.models.breakdown_item import BreakdownItemItem
+from rootski.services.database.dynamo.models.morpheme import Morpheme
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from rootski import schemas
@@ -211,7 +213,7 @@ def submit_breakdown(
     LOGGER.info("Starting step 1")
     try:
         LOGGER.info("Getting morphemes")
-        breakdown_morpheme_data: Dict[str, dynamo.Morpheme] = breakdown_actions.get_morphemes_for_breakdown(
+        breakdown_morpheme_data: Dict[str, dynamo.Morpheme] = get_morphemes_for_breakdown(
             user_submitted_breakdown=payload,
             db=dynamo_db,
         )
@@ -226,7 +228,7 @@ def submit_breakdown(
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=str(e))
 
     try:
-        LOGGER.info("Checking if valid breakdown")
+        LOGGER.info("Checking if the breakdown is a valid dynamo breakdown")
         user_breakdown: dynamo.Breakdown = schemas_to_models.pydantic_to_dynamo__breakdown(
             user_breakdown=payload,
             morpheme_data=breakdown_morpheme_data,
@@ -235,6 +237,19 @@ def submit_breakdown(
         )
     except BadBreakdownError as e:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
+
+    LOGGER.info("Recreating the word from the breakdown items")
+    recreated_word = recreate_word_from_breakdown_items(breakdown_items=user_breakdown.breakdown_items)
+    if not recreated_word == breakdown_word:
+        incorrect_word = recreate_incorrect_word_from_breakdown_items(
+            breakdown_items=user_breakdown.breakdown_items
+        )
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail=PARTS_DONT_SUM_TO_WHOLE_WORD_MSG.format(
+                submitted_breakdown=incorrect_word, word=breakdown_word
+            ),
+        )
     LOGGER.info(user_breakdown)
 
     # (2) Check if the user is an admin
@@ -245,13 +260,48 @@ def submit_breakdown(
 
     # (3) upsert the user's breakdown to dynamo
     LOGGER.info("Starting step 3")
-    breakdown_actions.upsert_breakdown(user_submitted_breakdown=user_breakdown, db=dynamo_db)
+    breakdown_actions.upsert_breakdown(breakdown=user_breakdown, is_official=user.is_admin, db=dynamo_db)
 
     return schemas.SubmitBreakdownResponse(
         breakdown_id=DEPRECATED_BREAKDOWN_ID,
         word_id=user_breakdown.word_id,
         is_verified=user_breakdown.is_verified,
     )
+
+
+##########
+# Helper #
+##########
+
+
+def get_morphemes_for_breakdown(
+    user_submitted_breakdown: schemas.BreakdownUpsert, db: DBService
+) -> Dict[str, Morpheme]:
+    unique_morpheme_ids: List[str] = breakdown_actions.get_unique_morpheme_ids_of_non_null_breakdown_items(
+        breakdown_items=user_submitted_breakdown.breakdown_items
+    )
+    morpheme_data: Dict[str, Morpheme] = breakdown_actions.get_morphemes(
+        morpheme_ids=unique_morpheme_ids, db=db
+    )
+    return morpheme_data
+
+
+def recreate_word_from_breakdown_items(breakdown_items: List[BreakdownItemItem]):
+    sorted_breakdown_items_by_position: List[BreakdownItemItem] = sorted(
+        breakdown_items, key=lambda breakdown_item: breakdown_item.position
+    )
+    recreated_word: str = "".join([bi.morpheme for bi in sorted_breakdown_items_by_position])
+
+    return recreated_word
+
+
+def recreate_incorrect_word_from_breakdown_items(breakdown_items: List[BreakdownItemItem]):
+    sorted_breakdown_items_by_position: List[BreakdownItemItem] = sorted(
+        breakdown_items, key=lambda breakdown_item: breakdown_item.position
+    )
+    recreated_incorrect_word: str = "-".join([bi.morpheme for bi in sorted_breakdown_items_by_position])
+
+    return recreated_incorrect_word
 
     # # is the breakdown valid?
     # id_to_morpheme: Dict[int, str] = {}

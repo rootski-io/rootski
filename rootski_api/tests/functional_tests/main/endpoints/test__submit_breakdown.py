@@ -6,11 +6,6 @@ the ``test__auth`` service is sufficient.
 from typing import List, Tuple, Union
 
 import pytest
-from starlette.responses import Response
-from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
-from starlette.testclient import TestClient
-
-from rootski import schemas
 from rootski.main.endpoints.breakdown.errors import (
     MORPHEME_IDS_NOT_FOUND_MSG,
     PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
@@ -18,11 +13,16 @@ from rootski.main.endpoints.breakdown.errors import (
 )
 from rootski.schemas.breakdown import make_specific_breakdown_item
 from rootski.services.database import DBService
+from starlette.responses import Response
+from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from starlette.testclient import TestClient
 from tests.functional_tests.main.endpoints.fake_data import (
     get_breakdown_orm_objs,
     get_schemas_from_models,
     insert_test_objs,
 )
+
+from rootski import schemas
 
 ############################
 # --- Helper Functions --- #
@@ -60,7 +60,7 @@ def make_submit_breakdown_request(
         )
     ],
 )
-def test__submit_breakdown__success(client: TestClient, db_service: DBService):
+def test__submit_breakdown__success(client: TestClient, db_service: DBService, dynamo_db_service):
     # seed the database
     word_orm, morphemes_orm = get_breakdown_orm_objs()
     word, morphemes = insert_test_objs(db=db_service, word=word_orm, morphemes=morphemes_orm)
