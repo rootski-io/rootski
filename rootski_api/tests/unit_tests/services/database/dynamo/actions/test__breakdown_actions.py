@@ -12,12 +12,13 @@ from tests.fixtures.seed_data import (
     EXAMPLE_BREAKDOWN,
     EXAMPLE_BREAKDOWN_2,
     EXAMPLE_BREAKDOWN_ANOTHER_USER,
-    EXAMPLE_BREAKDOWN_ERIC_USER,
     EXAMPLE_BREAKDOWN_ITEM,
     EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB,
     EXAMPLE_MORPHEME_FAMILY_245,
     EXAMPLE_MORPHEME_FAMILY_1385,
     EXAMPLE_NULL_BREAKDOWN_ITEM,
+    EXAMPLE_USER_SUBMITTED_BREAKDOWN,
+    TEST_USER_NOT_AS_ADMIN,
     seed_data,
 )
 
@@ -82,13 +83,13 @@ def test__is_breakdown_verified(dynamo_db_service: DBService):
 
 def test__get_breakdown_submitted_by_user_email_and_word_id(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
-    user_email = "eric.riddoch@gmail.com"
-    word_id = "5"
+    user_email = TEST_USER_NOT_AS_ADMIN["email"]
+    word_id = "7"
 
     breakdown: Breakdown = get_user_submitted_breakdown_by_user_email_and_word_id(
         user_email=user_email, word_id=word_id, db=dynamo_db_service
     )
-    assert breakdown.word_id == EXAMPLE_BREAKDOWN_ERIC_USER["word_id"]
+    assert breakdown.word_id == EXAMPLE_USER_SUBMITTED_BREAKDOWN["word_id"]
     assert breakdown.submitted_by_user_email == user_email
     assert breakdown.submitted_by_user_email != "anonymous"
     assert breakdown.submitted_by_user_email != "another_user@gmail.com"

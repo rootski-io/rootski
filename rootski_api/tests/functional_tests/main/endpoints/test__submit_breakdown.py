@@ -215,7 +215,7 @@ def test__submit_breakdown__error_when_morpheme_ids_not_found(
     assert response.status_code == HTTP_404_NOT_FOUND
     assert "detail" in response.json().keys()
     assert (
-        MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=str({"218", "1577", "2139"}))
+        MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=str({"1577", "2139", "218"}))
         == response.json()["detail"]
     )
 
