@@ -648,10 +648,10 @@ NON_ADMIN_USER = {
     "is_admin": False,
 }
 
-TEST_USER = {
-    "pk": "USER#banana-man@rootski.io",
-    "sk": "USER#banana-man@rootski.io",
-    "email": "banana-man@rootski.io",
+TEST_USER_NOT_AS_ADMIN = {
+    "pk": "USER#email@gmail.com",
+    "sk": "USER#email@gmail.com",
+    "email": "email@gmail.com",
     "is_admin": False,
 }
 
@@ -754,7 +754,7 @@ EXAMPLE_DATA = [
     # Users
     ADMIN_USER,
     NON_ADMIN_USER,
-    TEST_USER,
+    TEST_USER_NOT_AS_ADMIN,
     TEST_USER_AS_ADMIN,
 ]
 

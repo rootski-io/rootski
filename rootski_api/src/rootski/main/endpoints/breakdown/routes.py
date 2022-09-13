@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Dict, List, Union
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
@@ -234,6 +233,7 @@ def submit_breakdown(
             morpheme_data=breakdown_morpheme_data,
             user_email=user.email,
             word=breakdown_word,
+            is_admin=user.is_admin,
         )
     except BadBreakdownError as e:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
@@ -250,13 +250,13 @@ def submit_breakdown(
                 submitted_breakdown=incorrect_word, word=breakdown_word
             ),
         )
-    LOGGER.debug(user_breakdown)
+    LOGGER.debug(user_breakdown.pk)
 
-    # (2) Check if the user is an admin
+    # TODO: Delete step 2 or fix this
     LOGGER.debug("Starting step 2")
-    if user.is_admin:
-        user_breakdown.is_verified = True
-        user_breakdown.date_verified = datetime.now()
+    if not user.is_admin:
+        user_breakdown = user_breakdown.not_official_breakdown_pk(user_email=user.email)
+        user_breakdown = user_breakdown.not_official_breakdown_sk(word_id=user_breakdown.word_id)
 
     # (3) upsert the user's breakdown to dynamo
     LOGGER.debug("Starting step 3")

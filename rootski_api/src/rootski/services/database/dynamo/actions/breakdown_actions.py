@@ -100,14 +100,6 @@ def get_user_submitted_breakdown_by_user_email_and_word_id(
 
     return breakdown
 
-    items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
-    if len(items) == 0:
-        raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo for user {user_email}.")
-
-    breakdown = Breakdown.from_dict(breakdown_dict=items[0])
-
-    return breakdown
-
 
 # TODO: Discover if this is redundant. Remove if so. I think this is redundant.
 # Once we get the extra rows into dynamo associated with users personal breakdowns,

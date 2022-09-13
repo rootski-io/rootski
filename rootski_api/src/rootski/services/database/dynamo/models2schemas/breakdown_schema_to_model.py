@@ -12,6 +12,7 @@ def pydantic_to_dynamo__breakdown(
     morpheme_data: Dict[str, Morpheme],
     user_email: str,
     word: str,
+    is_admin: bool,
 ) -> Breakdown:
 
     breakdown_items: List[Union[NullBreakdownItem, BreakdownItem]] = [
@@ -23,6 +24,18 @@ def pydantic_to_dynamo__breakdown(
         )
         for breakdown_item in user_breakdown.breakdown_items
     ]
+
+    if is_admin:
+        return Breakdown(
+            word=word,
+            word_id=user_breakdown.word_id,
+            is_verified=True,
+            is_inference=False,
+            submitted_by_user_email=user_email,
+            date_submitted=datetime.now(),
+            date_verified=datetime.now(),
+            breakdown_items=breakdown_items,
+        )
 
     return Breakdown(
         word=word,

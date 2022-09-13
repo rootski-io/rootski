@@ -21,6 +21,7 @@ from rootski.services.database.dynamo.models.breakdown import Breakdown
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from starlette.testclient import TestClient
+from tests.constants import TEST_USER
 from tests.fixtures.seed_data import (
     EXAMPLE_BREAKDOWN_DOESNT_ADD_UP,
     EXAMPLE_SUCCESSFUL_BREAKDOWN_SUBMISSION,
@@ -60,8 +61,6 @@ def make_submit_breakdown_request(
 # --- Tests --- #
 #################
 
-# TODO: submit a breakdown that should do to just the user's breakdown,
-# and then test as admin to see if the data gets overwritten
 
 # TODO: (1) run get_breakdown on an breakdown that doesn't exist: assert it does not exist
 # (2) submit the breakdown we just tried to get: assert correct output, response
@@ -87,6 +86,7 @@ def test__submit_breakdown__success(
 
     # Verify the breakdown is not in the database
     word_id: str = "50"
+    user_email: str = TEST_USER["email"]
     try:
         get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
         raise Exception(f"Breakdown with word id {word_id} was found in Dynamo when it should not yet exist.")
@@ -103,18 +103,76 @@ def test__submit_breakdown__success(
     assert status_code == HTTP_200_OK
     assert response.breakdown_id == -1  # this field is deprecated and should be -1
     assert response.word_id == int(word_id)
-    print(act_as_admin)
-    print(response.is_verified)
     assert response.is_verified == act_as_admin
 
     # Read the data from the updated database
     if act_as_admin is True:
+        # official_breakdown: Breakdown = get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
         official_breakdown: Breakdown = get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
         assert official_breakdown.word_id == word_id
+        assert official_breakdown.word == "сказать"
+        assert official_breakdown.is_verified == True
+        assert official_breakdown.is_inference == False
+        assert official_breakdown.pk == f"WORD#{word_id}"
+        assert official_breakdown.sk == f"BREAKDOWN"
+    else:
+        user_breakdown = get_user_submitted_breakdown_by_user_email_and_word_id(
+            db=dynamo_db_service,
+            word_id=word_id,
+            user_email=user_email,
+        )
+        assert user_breakdown.word_id == word_id
+        assert user_breakdown.word == "сказать"
+        assert user_breakdown.is_verified == False
+        assert user_breakdown.is_inference == False
+        assert user_breakdown.pk == f"USER#{user_email}"
+        assert user_breakdown.sk == f"BREAKDOWN#{word_id}"
 
-    assert False
+
+# TODO: submit a breakdown that should do to just the user's breakdown,
+# and then test as admin to see if the data gets overwritten
+# fix name
+@pytest.mark.parametrize(
+    ["disable_auth", "act_as_admin"],
+    [
+        (
+            True,
+            True,
+        )
+    ],
+)
+def test__submit_breakdown__stop_success_overwrite_official_breakdown(
+    dynamo_client: TestClient, dynamo_db_service: DynamoDBService, act_as_admin: bool
+):
+    # Seed the database and make the request
+    seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
+
+    # Verify the breakdown is not in the database
+    word_id: str = "7"
+    user_email: str = TEST_USER["email"]
+
+    # Upload the breakdown to Dynamo
+    USER_SUBMISSION: dict = EXAMPLE_USER_SUBMISSION_REPLACING_CURRENT_BREAKDOWN
+    status_code, response = make_submit_breakdown_request(
+        user_submission=USER_SUBMISSION, dynamo_client=dynamo_client, should_succeed=True
+    )
+
+    # Verify that the breakdown was submitted successfully
+    assert status_code == HTTP_200_OK
+    assert response.breakdown_id == -1  # this field is deprecated and should be -1
+    assert response.word_id == int(word_id)
+    assert response.is_verified == act_as_admin
+
+    official_breakdown: Breakdown = get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
+    assert official_breakdown.word_id == word_id
+    assert official_breakdown.word == "быть"
+    assert official_breakdown.is_verified == True
+    assert official_breakdown.is_inference == False
+    assert official_breakdown.pk == f"WORD#{word_id}"
+    assert official_breakdown.sk == f"BREAKDOWN"
 
 
+# TODO: Fix name
 @pytest.mark.parametrize(
     ["disable_auth", "act_as_admin"],
     [

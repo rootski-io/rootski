@@ -28,7 +28,11 @@ class Breakdown(DynamoModel):
 
     @property
     def pk(self) -> str:
-        return make_pk(word_id=self.word_id)
+        return make_pk(
+            word_id=self.word_id,
+            user_email=self.submitted_by_user_email,
+            is_official=(self.is_inference or self.is_verified),
+        )
 
     @property
     def sk(self) -> str:
@@ -50,7 +54,7 @@ class Breakdown(DynamoModel):
     def gsi2sk(self) -> str:
         return make_gsi1pk(submitted_by_user_email=self.submitted_by_user_email)
 
-    def to_item(self, is_official: bool) -> dict:
+    def to_item(self, is_official: bool = False) -> dict:
         """Generates a dictionary of a breakdown to be uploaded to Dynamo.
         is_official is False if the breakdown will not be returned in rootski's get_breakdown endpoint.
 
@@ -103,8 +107,11 @@ class Breakdown(DynamoModel):
         )
 
 
-def make_pk(word_id: str) -> str:
-    return f"WORD#{word_id}"
+def make_pk(word_id: str, user_email: str, is_official: bool) -> str:
+    if is_official:
+        return f"WORD#{word_id}"
+    else:
+        return f"USER#{user_email}"
 
 
 def make_sk() -> str:

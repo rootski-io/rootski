@@ -24,6 +24,8 @@ from tests.constants import CONFIG_VALUES_FOR_REAL_DATABASE, ROOTSKI_DYNAMO_TABL
 from tests.mocks import MockService
 from tests.utils import scoped_env_vars
 
+from rootski import schemas
+
 ####################
 # --- Fixtures --- #
 ####################
@@ -107,9 +109,9 @@ def dynamo_client(dynamo_db_service: DynamoDBService, disable_auth: bool, act_as
 
     config = Config(**CONFIG_VALUES)
     app: FastAPI = make_app(disable_auth=disable_auth, config_override=config)
-    # app.dependency_overrides[deps.get_current_user] = lambda: schemas.User(
-    #     email=TEST_USER["email"], is_admin=act_as_admin
-    # )
+    app.dependency_overrides[deps.get_current_user] = lambda: schemas.User(
+        email=TEST_USER["email"], is_admin=act_as_admin
+    )
     with TestClient(app) as client:
         yield client
 
