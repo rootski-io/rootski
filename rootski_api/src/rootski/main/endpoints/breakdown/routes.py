@@ -10,9 +10,10 @@ from rootski.main.endpoints.breakdown.errors import (
     PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
     WORD_ID_NOT_FOUND,
     BadBreakdownError,
-    BreakdownNotFoundError,
     MorphemeNotFoundError,
+    UserBreakdownNotFoundError,
     WordNotFoundError,
+    BreakdownNotFoundError
 )
 from rootski.schemas.core import Services
 from rootski.services.database.dynamo import models as dynamo
@@ -119,7 +120,7 @@ def get_breakdown(
             ids_to_morpheme_families=is_to_morpheme_families,
             user_email=user.email,
         )
-    except breakdown_actions.BreakdownNotFoundError as err:
+    except UserBreakdownNotFoundError as err:
         LOGGER.debug(err)
 
     # (3) return a breakdown submitted by another user
@@ -144,7 +145,7 @@ def get_breakdown(
                 ids_to_morpheme_families=is_to_morpheme_families,
                 user_email=user.email,
             )
-    except breakdown_actions.BreakdownNotFoundError as err:
+    except BreakdownNotFoundError as err:
         LOGGER.debug(err)
 
     # (4) return a breakdown inferenced by the AI
