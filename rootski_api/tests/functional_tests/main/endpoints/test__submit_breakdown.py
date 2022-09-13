@@ -104,10 +104,9 @@ def test__submit_breakdown__success(
     assert response.breakdown_id == -1  # this field is deprecated and should be -1
     assert response.word_id == int(word_id)
     assert response.is_verified == act_as_admin
-
     # Read the data from the updated database
     if act_as_admin is True:
-        # official_breakdown: Breakdown = get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
+
         official_breakdown: Breakdown = get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
         assert official_breakdown.word_id == word_id
         assert official_breakdown.word == "сказать"
@@ -125,13 +124,10 @@ def test__submit_breakdown__success(
         assert user_breakdown.word == "сказать"
         assert user_breakdown.is_verified == False
         assert user_breakdown.is_inference == False
-        assert user_breakdown.pk == f"USER#{user_email}"
-        assert user_breakdown.sk == f"BREAKDOWN#{word_id}"
+        assert user_breakdown.pk_for_unofficial_breakdown == f"USER#{user_email}"
+        assert user_breakdown.sk_for_unofficial_breakdown == f"BREAKDOWN#{word_id}"
 
 
-# TODO: submit a breakdown that should do to just the user's breakdown,
-# and then test as admin to see if the data gets overwritten
-# fix name
 @pytest.mark.parametrize(
     ["disable_auth", "act_as_admin"],
     [
@@ -141,7 +137,7 @@ def test__submit_breakdown__success(
         )
     ],
 )
-def test__submit_breakdown__stop_success_overwrite_official_breakdown(
+def test__submit_breakdown__success_overwrite_official_breakdown(
     dynamo_client: TestClient, dynamo_db_service: DynamoDBService, act_as_admin: bool
 ):
     # Seed the database and make the request
@@ -172,7 +168,6 @@ def test__submit_breakdown__stop_success_overwrite_official_breakdown(
     assert official_breakdown.sk == f"BREAKDOWN"
 
 
-# TODO: Fix name
 @pytest.mark.parametrize(
     ["disable_auth", "act_as_admin"],
     [
@@ -182,7 +177,7 @@ def test__submit_breakdown__stop_success_overwrite_official_breakdown(
         )
     ],
 )
-def test__submit_breakdown__lots_success_with_null_morpheme(
+def test__submit_breakdown__success_with_null_morpheme(
     dynamo_client: TestClient, dynamo_db_service: DynamoDBService
 ):
     # Seed the database and make the request

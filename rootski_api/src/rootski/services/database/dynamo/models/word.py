@@ -16,7 +16,7 @@ class Word_(TypedDict):
     frequency: int
 
 
-@dataclass(frozen=True)
+@dataclass
 class Word(DynamoModel):
 
     data: dict

@@ -28,15 +28,19 @@ class Breakdown(DynamoModel):
 
     @property
     def pk(self) -> str:
-        return make_pk(
-            word_id=self.word_id,
-            user_email=self.submitted_by_user_email,
-            is_official=(self.is_inference or self.is_verified),
-        )
+        return make_pk(word_id=self.word_id)
+
+    @property
+    def pk_for_unofficial_breakdown(self):
+        return user_submitted_pk(user_email=self.submitted_by_user_email)
 
     @property
     def sk(self) -> str:
         return make_sk()
+
+    @property
+    def sk_for_unofficial_breakdown(self):
+        return user_submitted_sk(word_id=self.word_id)
 
     @property
     def gsi1pk(self) -> str:
@@ -107,11 +111,8 @@ class Breakdown(DynamoModel):
         )
 
 
-def make_pk(word_id: str, user_email: str, is_official: bool) -> str:
-    if is_official:
-        return f"WORD#{word_id}"
-    else:
-        return f"USER#{user_email}"
+def make_pk(word_id: str) -> str:
+    return f"WORD#{word_id}"
 
 
 def make_sk() -> str:
@@ -143,8 +144,16 @@ def make_gsi2_keys(word_id: str, submitted_by_user_email: str) -> Dict[str, str]
     }
 
 
+def user_submitted_pk(user_email: str):
+    return f"USER#{user_email}"
+
+
+def user_submitted_sk(word_id: str):
+    return f"BREAKDOWN#{word_id}"
+
+
 def make_unofficial_keys(user_email: str, word_id: str) -> Dict[str, str]:
     return {
-        "pk": f"USER#{user_email}",
-        "sk": f"BREAKDOWN#{word_id}",
+        "pk": user_submitted_pk(user_email=user_email),
+        "sk": user_submitted_sk(word_id=word_id),
     }

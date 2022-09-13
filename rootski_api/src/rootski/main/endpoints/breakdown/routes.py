@@ -10,6 +10,7 @@ from rootski.main.endpoints.breakdown.errors import (
     PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
     WORD_ID_NOT_FOUND,
     BadBreakdownError,
+    BreakdownNotFoundError,
     MorphemeNotFoundError,
     WordNotFoundError,
 )
@@ -79,7 +80,7 @@ def get_breakdown(
         breakdown: dynamo.Breakdown = breakdown_actions.get_official_breakdown_by_word_id(
             word_id=word_id, db=dynamo_db
         )
-    except breakdown_actions.BreakdownNotFoundError as err:
+    except BreakdownNotFoundError as err:
         LOGGER.debug(err)
         raise NOT_FOUND_ERROR
     LOGGER.debug(breakdown)
@@ -250,13 +251,13 @@ def submit_breakdown(
                 submitted_breakdown=incorrect_word, word=breakdown_word
             ),
         )
-    LOGGER.debug(user_breakdown.pk)
+    LOGGER.debug(user_breakdown)
 
     # TODO: Delete step 2 or fix this
-    LOGGER.debug("Starting step 2")
-    if not user.is_admin:
-        user_breakdown = user_breakdown.not_official_breakdown_pk(user_email=user.email)
-        user_breakdown = user_breakdown.not_official_breakdown_sk(word_id=user_breakdown.word_id)
+    # LOGGER.debug("Starting step 2")
+    # if not user.is_admin:
+    #     user_breakdown.pk = user.email
+    #     user_breakdown = user_breakdown.not_official_breakdown_sk(word_id=user_breakdown.word_id)
 
     # (3) upsert the user's breakdown to dynamo
     LOGGER.debug("Starting step 3")

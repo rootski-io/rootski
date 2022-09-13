@@ -15,7 +15,7 @@ class MorphemeItem(TypedDict):
     morpheme: str
 
 
-@dataclass(frozen=True)
+@dataclass
 class MorphemeFamily(DynamoModel):
 
     type: MORPHEME_TYPE_ENUM

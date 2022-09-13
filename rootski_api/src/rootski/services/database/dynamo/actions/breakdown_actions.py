@@ -91,6 +91,7 @@ def get_user_submitted_breakdown_by_user_email_and_word_id(
     breakdown_dynamo_keys: dict = make_unofficial_keys(user_email=user_email, word_id=word_id)
 
     get_item_response = table.get_item(Key=breakdown_dynamo_keys)
+
     if get_item_status_code(item_output=get_item_response) == 404 or "Item" not in get_item_response.keys():
         raise UserBreakdownNotFoundError(
             USER_BREAKDOWN_NOT_FOUND.format(word_id=word_id, user_email=user_email)

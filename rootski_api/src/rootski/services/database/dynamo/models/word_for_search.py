@@ -5,7 +5,7 @@ from rootski.services.database.dynamo.models.base import DynamoModel
 from rootski.services.database.dynamo.models.word import WORD_POS_ENUM
 
 
-@dataclass(frozen=True)
+@dataclass
 class WordForSearch(DynamoModel):
 
     word: str
