@@ -9,7 +9,14 @@ from textwrap import dedent
 from glob import glob
 from copy import deepcopy
 
-from make_utils.utils_without_dependencies import print_import_error_help_message, get_localhost
+# TODO: for some reason "pip install "
+THIS_DIR = Path(__file__).parent
+MAKE_UTILS_DIR = (THIS_DIR / "../make_utils/src").resolve().absolute()
+
+from rich import print
+sys.path.insert(0, str(MAKE_UTILS_DIR))
+
+from make_utils.utils_without_dependencies import print_import_error_help_message
 
 try:
     from rich import print
