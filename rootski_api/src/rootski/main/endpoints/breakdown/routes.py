@@ -108,7 +108,7 @@ def get_breakdown(
         )
 
     try:
-        user_submitted_breakdown = breakdown_actions.get_breakdown_submitted_by_user_email_and_word_id(
+        user_submitted_breakdown = breakdown_actions.get_user_submitted_breakdown_by_user_email_and_word_id(
             word_id=word_id, user_email=user.email, db=dynamo_db
         )
         is_to_morpheme_families = breakdown_actions.get_morpheme_families_for_breakdown(
@@ -210,9 +210,9 @@ def submit_breakdown(
     DEPRECATED_BREAKDOWN_ID = -1
 
     # (1) Check that the breakdown is valid
-    LOGGER.info("Starting step 1")
+    LOGGER.debug("Starting step 1")
     try:
-        LOGGER.info("Getting morphemes")
+        LOGGER.debug("Getting morphemes")
         breakdown_morpheme_data: Dict[str, dynamo.Morpheme] = get_morphemes_for_breakdown(
             user_submitted_breakdown=payload,
             db=dynamo_db,
@@ -221,14 +221,14 @@ def submit_breakdown(
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=str(e))
 
     try:
-        LOGGER.info("Getting word")
+        LOGGER.debug("Getting word")
         word_obj: dynamo.Word = word_actions.get_word_by_id(word_id=payload.word_id, db=dynamo_db)
         breakdown_word: str = word_obj.data["word"]["word"]
-    except WordNotFoundError:
+    except WordNotFoundError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=str(e))
 
     try:
-        LOGGER.info("Checking if the breakdown is a valid dynamo breakdown")
+        LOGGER.debug("Checking if the breakdown is a valid dynamo breakdown")
         user_breakdown: dynamo.Breakdown = schemas_to_models.pydantic_to_dynamo__breakdown(
             user_breakdown=payload,
             morpheme_data=breakdown_morpheme_data,
@@ -238,7 +238,7 @@ def submit_breakdown(
     except BadBreakdownError as e:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
 
-    LOGGER.info("Recreating the word from the breakdown items")
+    LOGGER.debug("Recreating the word from the breakdown items")
     recreated_word = recreate_word_from_breakdown_items(breakdown_items=user_breakdown.breakdown_items)
     if not recreated_word == breakdown_word:
         incorrect_word = recreate_incorrect_word_from_breakdown_items(
@@ -250,16 +250,16 @@ def submit_breakdown(
                 submitted_breakdown=incorrect_word, word=breakdown_word
             ),
         )
-    LOGGER.info(user_breakdown)
+    LOGGER.debug(user_breakdown)
 
     # (2) Check if the user is an admin
-    LOGGER.info("Starting step 2")
+    LOGGER.debug("Starting step 2")
     if user.is_admin:
         user_breakdown.is_verified = True
         user_breakdown.date_verified = datetime.now()
 
     # (3) upsert the user's breakdown to dynamo
-    LOGGER.info("Starting step 3")
+    LOGGER.debug("Starting step 3")
     breakdown_actions.upsert_breakdown(breakdown=user_breakdown, is_official=user.is_admin, db=dynamo_db)
 
     return schemas.SubmitBreakdownResponse(
@@ -302,64 +302,3 @@ def recreate_incorrect_word_from_breakdown_items(breakdown_items: List[Breakdown
     recreated_incorrect_word: str = "-".join([bi.morpheme for bi in sorted_breakdown_items_by_position])
 
     return recreated_incorrect_word
-
-    # # is the breakdown valid?
-    # id_to_morpheme: Dict[int, str] = {}
-    # try:
-    #     id_to_morpheme = query_morphemes(db=db, breakdown_items=payload.breakdown_items)
-    #     raise_exception_for_invalid_breakdown(
-    #         db=db,
-    #         word=word.word,
-    #         breakdown_items=payload.breakdown_items,
-    #         id_to_morpheme=id_to_morpheme,
-    #     )
-    # except MorphemeNotFoundError as e:
-    #     raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=str(e))
-    # except BadBreakdownError as e:
-    #     raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
-
-    # # look for a breakdown for this word already submitted by this user so we can update it
-    # breakdown: Optional[orm.Breakdown] = (
-    #     db.query(orm.Breakdown)
-    #     .filter(
-    #         orm.Breakdown.submitted_by_user_email == user.email and orm.Breakdown.word_id == payload.word_id
-    #     )
-    #     .first()
-    # )
-
-    # # if not found, we'll create a new one
-    # if not breakdown:
-    #     breakdown = orm.Breakdown(word_id=payload.word_id, submitted_by_user_email=user.email)
-    # breakdown.submitted_by_user_email = user.email
-    # breakdown.word_id = word.id
-
-    # # is it verified?
-    # breakdown.is_verified = user.is_admin
-    # if user.is_admin:
-    #     breakdown.verified_by_user_email = user.email
-    #     breakdown.date_verified = datetime.now()
-
-    # # prepare to save the breakdown in the database; NOTE ideally, we would
-    # #
-    # breakdown_items = []
-    # for b_item in payload.breakdown_items:
-    #     b_item_kwargs = b_item.dict()
-    #     to_add = schemas.BreakdownItemInDb(**b_item_kwargs).to_orm()
-    #     if isinstance(b_item, schemas.NullMorphemeBreakdownItem):
-    #         to_add.morpheme = b_item.morpheme
-    #     elif isinstance(b_item, schemas.MorphemeBreakdownItemInRequest):
-    #         to_add.morpheme = id_to_morpheme[to_add.morpheme_id]
-    #     else:
-    #         raise HTTP_400_BAD_REQUEST("Bad request body.")
-    #     breakdown_items.append(to_add)
-    # breakdown.breakdown_items = breakdown_items
-
-    # # save the breakdown in the database
-    # db.add(breakdown)
-    # db.commit()
-
-    # return schemas.SubmitBreakdownResponse(
-    #     breakdown_id=breakdown.breakdown_id,
-    #     word_id=breakdown.word_id,
-    #     is_verified=breakdown.is_verified,
-    # )

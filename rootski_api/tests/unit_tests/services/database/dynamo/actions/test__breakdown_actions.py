@@ -1,8 +1,8 @@
 from rootski.services.database.dynamo.actions.breakdown_actions import (
-    get_breakdown_submitted_by_user_email_and_word_id,
     get_morpheme_families_for_breakdown,
     get_official_breakdown_by_word_id,
     get_official_breakdown_submitted_by_another_user,
+    get_user_submitted_breakdown_by_user_email_and_word_id,
     is_breakdown_verified,
 )
 from rootski.services.database.dynamo.db_service import DBService
@@ -85,7 +85,7 @@ def test__get_breakdown_submitted_by_user_email_and_word_id(dynamo_db_service: D
     user_email = "eric.riddoch@gmail.com"
     word_id = "5"
 
-    breakdown: Breakdown = get_breakdown_submitted_by_user_email_and_word_id(
+    breakdown: Breakdown = get_user_submitted_breakdown_by_user_email_and_word_id(
         user_email=user_email, word_id=word_id, db=dynamo_db_service
     )
     assert breakdown.word_id == EXAMPLE_BREAKDOWN_ERIC_USER["word_id"]

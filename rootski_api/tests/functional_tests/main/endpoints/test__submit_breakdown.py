@@ -3,23 +3,32 @@ For these tests, we will override the authorization dependency
 so that the tests are not dependent on cognito. We'll assume that
 the ``test__auth`` service is sufficient.
 """
-from typing import List, Tuple, Union
+from typing import Tuple, Union
 
 import pytest
 from rootski.main.endpoints.breakdown.errors import (
     MORPHEME_IDS_NOT_FOUND_MSG,
     PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
     WORD_ID_NOT_FOUND,
+    BreakdownNotFoundError,
 )
-from rootski.schemas.breakdown import make_specific_breakdown_item
-from rootski.services.database import DBService
+from rootski.services.database.dynamo.actions.breakdown_actions import (
+    get_official_breakdown_by_word_id,
+    get_user_submitted_breakdown_by_user_email_and_word_id,
+)
+from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
+from rootski.services.database.dynamo.models.breakdown import Breakdown
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from starlette.testclient import TestClient
-from tests.functional_tests.main.endpoints.fake_data import (
-    get_breakdown_orm_objs,
-    get_schemas_from_models,
-    insert_test_objs,
+from tests.fixtures.seed_data import (
+    EXAMPLE_BREAKDOWN_DOESNT_ADD_UP,
+    EXAMPLE_SUCCESSFUL_BREAKDOWN_SUBMISSION,
+    EXAMPLE_SUCCESSFUL_BREAKDOWN_W_ALL_NULL_BREAKDOWN_ITEMS,
+    EXAMPLE_USER_SUBMISSION_MISSING_MORPHEME_IDS,
+    EXAMPLE_USER_SUBMISSION_MISSING_WORD,
+    EXAMPLE_USER_SUBMISSION_REPLACING_CURRENT_BREAKDOWN,
+    seed_data,
 )
 
 from rootski import schemas
@@ -29,17 +38,18 @@ from rootski import schemas
 ############################
 
 
-def make_request_payload(word: schemas.Word, morphemes: List[schemas.Morpheme]) -> schemas.BreakdownUpsert:
-    breakdown_items = [make_specific_breakdown_item(morpheme=m, position=i) for i, m in enumerate(morphemes)]
-    payload = schemas.BreakdownUpsert(word_id=word.id, breakdown_items=breakdown_items)
+def make_request_payload(user_submission: dict) -> schemas.BreakdownUpsert:
+    payload = schemas.BreakdownUpsert(
+        word_id=user_submission["word_id"], breakdown_items=user_submission["breakdown_items"]
+    )
     return payload
 
 
 def make_submit_breakdown_request(
-    word: schemas.Word, morphemes: List[schemas.Morpheme], client: TestClient, should_succeed: bool
+    user_submission: dict, dynamo_client: TestClient, should_succeed: bool
 ) -> Union[Tuple[int, schemas.SubmitBreakdownResponse], Response]:
-    payload = make_request_payload(word=word, morphemes=morphemes)
-    response = client.post("/breakdown", json=payload.dict(exclude_unset=True))
+    payload = make_request_payload(user_submission=user_submission)
+    response = dynamo_client.post("/breakdown", json=payload.dict(exclude_unset=True))
     if should_succeed:
         return response.status_code, schemas.SubmitBreakdownResponse(**response.json())
     else:
@@ -50,31 +60,59 @@ def make_submit_breakdown_request(
 # --- Tests --- #
 #################
 
+# TODO: submit a breakdown that should do to just the user's breakdown,
+# and then test as admin to see if the data gets overwritten
 
+# TODO: (1) run get_breakdown on an breakdown that doesn't exist: assert it does not exist
+# (2) submit the breakdown we just tried to get: assert correct output, response
+# (3) then get the breakdown we just submitted based on is_admin: verified it was gotten-ied
 @pytest.mark.parametrize(
     ["disable_auth", "act_as_admin"],
     [
         (
             True,
             False,
-        )
+        ),
+        (
+            True,
+            True,
+        ),
     ],
 )
-def test__submit_breakdown__success(client: TestClient, db_service: DBService, dynamo_db_service):
-    # seed the database
-    word_orm, morphemes_orm = get_breakdown_orm_objs()
-    word, morphemes = insert_test_objs(db=db_service, word=word_orm, morphemes=morphemes_orm)
+def test__submit_breakdown__success(
+    dynamo_client: TestClient, dynamo_db_service: DynamoDBService, act_as_admin: bool
+):
+    # Seed the database and make the request
+    seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
 
-    # make the request
+    # Verify the breakdown is not in the database
+    word_id: str = "50"
+    try:
+        get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
+        raise Exception(f"Breakdown with word id {word_id} was found in Dynamo when it should not yet exist.")
+    except BreakdownNotFoundError:
+        pass
+
+    # Upload the breakdown to Dynamo
+    USER_SUBMISSION: dict = EXAMPLE_SUCCESSFUL_BREAKDOWN_SUBMISSION
     status_code, response = make_submit_breakdown_request(
-        word=word, morphemes=morphemes, client=client, should_succeed=True
+        user_submission=USER_SUBMISSION, dynamo_client=dynamo_client, should_succeed=True
     )
 
-    # verify that the breakdown was submitted successfully
+    # Verify that the breakdown was submitted successfully
     assert status_code == HTTP_200_OK
-    assert response.breakdown_id == 1  # there were no others, so it should be 1
-    assert response.is_verified == False  # the test user is not an admin
-    assert response.word_id == word.id
+    assert response.breakdown_id == -1  # this field is deprecated and should be -1
+    assert response.word_id == int(word_id)
+    print(act_as_admin)
+    print(response.is_verified)
+    assert response.is_verified == act_as_admin
+
+    # Read the data from the updated database
+    if act_as_admin is True:
+        official_breakdown: Breakdown = get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
+        assert official_breakdown.word_id == word_id
+
+    assert False
 
 
 @pytest.mark.parametrize(
@@ -86,25 +124,20 @@ def test__submit_breakdown__success(client: TestClient, db_service: DBService, d
         )
     ],
 )
-def test__submit_breakdown__success_with_null_morpheme(client: TestClient, db_service: DBService):
-    # seed the database with "ать" as a null morpheme
-    word_orm, morphemes_orm = get_breakdown_orm_objs()
-
-    # only insert the first two morphemes, the third will be null
-    _, _ = insert_test_objs(db=db_service, word=word_orm, morphemes=morphemes_orm[:2])
-    word, morphemes = get_schemas_from_models(word=word_orm, morphemes=morphemes_orm)
-    morphemes[2].morpheme_id = None
-    morphemes[2].type = None
-
-    # make the request
+def test__submit_breakdown__lots_success_with_null_morpheme(
+    dynamo_client: TestClient, dynamo_db_service: DynamoDBService
+):
+    # Seed the database and make the request
+    seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
+    USER_SUBMISSION: dict = EXAMPLE_SUCCESSFUL_BREAKDOWN_W_ALL_NULL_BREAKDOWN_ITEMS
     status_code, response = make_submit_breakdown_request(
-        word=word, morphemes=morphemes, client=client, should_succeed=True
+        user_submission=USER_SUBMISSION, dynamo_client=dynamo_client, should_succeed=True
     )
 
     assert status_code == HTTP_200_OK
-    assert response.breakdown_id == 1  # there were no others, so it should be 1
+    assert response.breakdown_id == -1  # this field is now deprecated
     assert response.is_verified == False  # the test user is not an admin
-    assert response.word_id == word.id
+    assert response.word_id == USER_SUBMISSION["word_id"]
 
 
 @pytest.mark.parametrize(
@@ -116,27 +149,22 @@ def test__submit_breakdown__success_with_null_morpheme(client: TestClient, db_se
         )
     ],
 )
-def test__submit_breakdown__error_when_morpheme_ids_not_found(client: TestClient, db_service: DBService):
-    # seed the database with only the first of three morphemes
-    word_orm, morphemes_orm = get_breakdown_orm_objs()
-    _, _ = insert_test_objs(db=db_service, word=word_orm, morphemes=morphemes_orm[:1])
-    word, morphemes = get_schemas_from_models(word=word_orm, morphemes=morphemes_orm)
-
-    # in the request body, have the second and third breakdown items have morpheme
-    # IDs that don't exist in the database
-    morphemes[1].morpheme_id = 99
-    morphemes[2].morpheme_id = 100
-
-    # make the request
+def test__submit_breakdown__error_when_morpheme_ids_not_found(
+    dynamo_client: TestClient, dynamo_db_service: DynamoDBService
+):
+    # seed the database and make the request
+    seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
+    USER_SUBMISSION = EXAMPLE_USER_SUBMISSION_MISSING_MORPHEME_IDS
     response = make_submit_breakdown_request(
-        word=word, morphemes=morphemes, client=client, should_succeed=False
+        user_submission=USER_SUBMISSION, dynamo_client=dynamo_client, should_succeed=False
     )
 
-    # we should get a 404 Not Found error, because the submitted breakdown tried
-    # to use the IDs of two morphemes that don't exist
     assert response.status_code == HTTP_404_NOT_FOUND
     assert "detail" in response.json().keys()
-    assert MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=str({99, 100})) == response.json()["detail"]
+    assert (
+        MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=str({"218", "1577", "2139"}))
+        == response.json()["detail"]
+    )
 
 
 @pytest.mark.parametrize(
@@ -148,24 +176,20 @@ def test__submit_breakdown__error_when_morpheme_ids_not_found(client: TestClient
         )
     ],
 )
-def test__submit_breakdown__error_when_word_not_found(client: TestClient, db_service: DBService):
-    # seed the database with
-    word_orm, morphemes_orm = get_breakdown_orm_objs()
-    _, _ = insert_test_objs(db=db_service, word=word_orm, morphemes=morphemes_orm[:1])
-    word_orm.id = 99
-    word_orm.word = "nerf nerf nerf"
-    word, morphemes = get_schemas_from_models(word=word_orm, morphemes=morphemes_orm)
-
-    # make the request
+def test__submit_breakdown__error_when_word_not_found(
+    dynamo_client: TestClient, dynamo_db_service: DynamoDBService
+):
+    # Seed the database and get the response
+    seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
+    USER_SUBMISSION: dict = EXAMPLE_USER_SUBMISSION_MISSING_WORD
     response = make_submit_breakdown_request(
-        word=word, morphemes=morphemes, client=client, should_succeed=False
+        user_submission=USER_SUBMISSION, dynamo_client=dynamo_client, should_succeed=False
     )
 
-    # we should get a 404 Not Found error, because there is no word with ID 99
-    # in the database
+    # There is no word with ID 150 in mock dynamo db database
     assert response.status_code == HTTP_404_NOT_FOUND
     assert "detail" in response.json().keys()
-    assert WORD_ID_NOT_FOUND.format(word_id=word.id) == response.json()["detail"]
+    assert WORD_ID_NOT_FOUND.format(word_id=USER_SUBMISSION["word_id"]) == response.json()["detail"]
 
 
 @pytest.mark.parametrize(
@@ -177,25 +201,19 @@ def test__submit_breakdown__error_when_word_not_found(client: TestClient, db_ser
         )
     ],
 )
-def test__submit_breakdown__error_when_breakdown_doesnt_add_up(client: TestClient, db_service: DBService):
-    # seed the database with
-    word_orm, morphemes_orm = get_breakdown_orm_objs()
-    morphemes_orm[0].morpheme = "dobby"
-    morphemes_orm[1].morpheme = "is"
-    morphemes_orm[2].morpheme = "free!"
-    _, _ = insert_test_objs(db=db_service, word=word_orm, morphemes=morphemes_orm[:1])
-    word, morphemes = get_schemas_from_models(word=word_orm, morphemes=morphemes_orm)
-
-    # make the request
+def test__submit_breakdown__error_when_breakdown_doesnt_add_up(
+    dynamo_client: TestClient, dynamo_db_service: DynamoDBService
+):
+    # Seed the database and make the request
+    seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
+    USER_SUBMISSION: dict = EXAMPLE_BREAKDOWN_DOESNT_ADD_UP
     response = make_submit_breakdown_request(
-        word=word, morphemes=morphemes, client=client, should_succeed=False
+        user_submission=USER_SUBMISSION, dynamo_client=dynamo_client, should_succeed=False
     )
 
-    # we should get a 404 Not Found error, because there is no word with ID 99
-    # in the database
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert "detail" in response.json().keys()
     assert (
-        PARTS_DONT_SUM_TO_WHOLE_WORD_MSG.format(submitted_breakdown="dobby-is-free!", word="приказать")
+        PARTS_DONT_SUM_TO_WHOLE_WORD_MSG.format(submitted_breakdown="сказe-ать", word="сказать")
         == response.json()["detail"]
     )

@@ -33,6 +33,16 @@ from typing import Dict, List, Union
 
 from boto3.dynamodb.conditions import Key
 from mypy_boto3_dynamodb.type_defs import KeysAndAttributesServiceResourceTypeDef
+from rootski.main.endpoints.breakdown.errors import (
+    BREAKDOWN_NOT_FOUND,
+    MORPHEME_FAMILY_IDS_NOT_FOUND_MSG,
+    MORPHEME_IDS_NOT_FOUND_MSG,
+    USER_BREAKDOWN_NOT_FOUND,
+    BreakdownNotFoundError,
+    MorphemeFamilyNotFoundError,
+    MorphemeNotFoundError,
+    UserBreakdownNotFoundError,
+)
 from rootski.schemas import breakdown as schemas
 from rootski.services.database.dynamo.actions.dynamo import (
     batch_get_item_status_code,
@@ -42,24 +52,13 @@ from rootski.services.database.dynamo.actions.dynamo import (
     get_items_from_dynamo_query_response,
 )
 from rootski.services.database.dynamo.db_service import DBService
-from rootski.services.database.dynamo.models.breakdown import Breakdown, make_gsi1_keys
+from rootski.services.database.dynamo.models.breakdown import Breakdown
 from rootski.services.database.dynamo.models.breakdown import make_keys as make_keys__breakdown
+from rootski.services.database.dynamo.models.breakdown import make_unofficial_keys
 from rootski.services.database.dynamo.models.morpheme import Morpheme
 from rootski.services.database.dynamo.models.morpheme import make_gsi1_keys as make_gsi1_keys__morpheme
 from rootski.services.database.dynamo.models.morpheme_family import MorphemeFamily
 from rootski.services.database.dynamo.models.morpheme_family import make_keys as make_keys__morpheme_family
-
-
-class BreakdownNotFoundError(Exception):
-    """Error thrown if a Breakdown isn't found."""
-
-
-class MorphemeFamilyNotFoundError(Exception):
-    """Error thrown if a MorphemeFamily isn't found."""
-
-
-class MorphemeNotFoundError(Exception):
-    """Error thrown if a Morpheme isn't found."""
 
 
 def get_official_breakdown_by_word_id(word_id: str, db: DBService) -> Breakdown:
@@ -72,9 +71,40 @@ def get_official_breakdown_by_word_id(word_id: str, db: DBService) -> Breakdown:
 
     get_item_response = table.get_item(Key=breakdown_dynamo_keys)
     if get_item_status_code(item_output=get_item_response) == 404 or "Item" not in get_item_response.keys():
-        raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo.")
+        raise BreakdownNotFoundError(BREAKDOWN_NOT_FOUND.format(word_id=word_id))
     item = get_item_from_dynamo_response(get_item_response)
     breakdown = Breakdown.from_dict(breakdown_dict=item)
+
+    return breakdown
+
+
+def is_breakdown_verified(breakdown: Breakdown) -> bool:
+    """Returns the bool of breakdown.is_verified"""
+    return breakdown.is_verified
+
+
+def get_user_submitted_breakdown_by_user_email_and_word_id(
+    word_id: str, user_email: str, db: DBService
+) -> Breakdown:
+    """Query a breakdown from Dynamo matching the ``word_id`` and ``user_email``."""
+    table = db.rootski_table
+    breakdown_dynamo_keys: dict = make_unofficial_keys(user_email=user_email, word_id=word_id)
+
+    get_item_response = table.get_item(Key=breakdown_dynamo_keys)
+    if get_item_status_code(item_output=get_item_response) == 404 or "Item" not in get_item_response.keys():
+        raise UserBreakdownNotFoundError(
+            USER_BREAKDOWN_NOT_FOUND.format(word_id=word_id, user_email=user_email)
+        )
+    item = get_item_from_dynamo_response(get_item_response)
+    breakdown = Breakdown.from_dict(breakdown_dict=item)
+
+    return breakdown
+
+    items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
+    if len(items) == 0:
+        raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo for user {user_email}.")
+
+    breakdown = Breakdown.from_dict(breakdown_dict=items[0])
 
     return breakdown
 
@@ -100,35 +130,6 @@ def get_official_breakdown_submitted_by_another_user(word_id: str, db: DBService
     breakdown = Breakdown.from_dict(breakdown_dict=items[0])
     if breakdown.submitted_by_user_email == "anonymous":
         raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo for another user.")
-
-    breakdown = Breakdown.from_dict(breakdown_dict=items[0])
-
-    return breakdown
-
-
-def is_breakdown_verified(breakdown: Breakdown) -> bool:
-    """Returns the bool of breakdown.is_verified"""
-    return breakdown.is_verified
-
-
-# TODO: Re-write this function to grab unverified breakdowns belonging to a user. Rename function
-# Rewrite this function so that it grabs the users own personal breakdown.
-def get_breakdown_submitted_by_user_email_and_word_id(
-    word_id: str, user_email: str, db: DBService
-) -> Breakdown:
-    """Query a breakdown from Dynamo matching the ``word_id`` and ``user_email``."""
-    table = db.rootski_table
-    breakdown_dynamo_keys: dict = make_gsi1_keys(submitted_by_user_email=user_email, word_id=word_id)
-
-    get_items_response = table.query(
-        IndexName="gsi1",
-        KeyConditionExpression=Key("gsi1pk").eq(breakdown_dynamo_keys["gsi1pk"])
-        & Key("gsi1sk").eq(breakdown_dynamo_keys["gsi1sk"]),
-    )
-
-    items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
-    if len(items) == 0:
-        raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo for user {user_email}.")
 
     breakdown = Breakdown.from_dict(breakdown_dict=items[0])
 
@@ -173,7 +174,9 @@ def get_morpheme_families(morpheme_family_ids: List[str], db: DBService) -> Dict
     if batch_get_item_status_code(item_output=get_response_items) == 404 or len(items) != len(
         unique_morpheme_family_keys__to_fetch
     ):
-        raise MorphemeFamilyNotFoundError("One of your morpheme family IDs was not found in Dynamo.")
+        raise MorphemeFamilyNotFoundError(
+            MORPHEME_FAMILY_IDS_NOT_FOUND_MSG.format(not_found_ids=set(unique_morpheme_family_ids))
+        )
 
     morpheme_family_data = make_id_morpheme_family_map(morpheme_family_data_objs=items)
 
@@ -192,7 +195,6 @@ def get_morphemes(morpheme_ids: List[str], db: DBService) -> Dict[str, Morpheme]
     unique_morpheme_keys__to_fetch: List[dict] = [
         make_gsi1_keys__morpheme(morpheme_id=morpheme_id) for morpheme_id in unique_morpheme_ids
     ]
-    print("Keys: ", unique_morpheme_keys__to_fetch)
 
     items: List[dict] = []
     for morpheme_keys in unique_morpheme_keys__to_fetch:
@@ -204,8 +206,11 @@ def get_morphemes(morpheme_ids: List[str], db: DBService) -> Dict[str, Morpheme]
         if (
             get_item_status_code(item_output=get_item_response) != 200
             or "Items" not in get_item_response.keys()
+            or len(get_item_response["Items"]) == 0
         ):
-            raise MorphemeNotFoundError("One of your morpheme IDs was not found in Dynamo.")
+            raise MorphemeNotFoundError(
+                MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=set(unique_morpheme_ids))
+            )
         item: List[dict] = get_items_from_dynamo_query_response(get_item_response)
         items.append(item[0])
 
