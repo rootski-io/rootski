@@ -10,10 +10,10 @@ from rootski.main.endpoints.breakdown.errors import (
     PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
     WORD_ID_NOT_FOUND,
     BadBreakdownError,
+    BreakdownNotFoundError,
     MorphemeNotFoundError,
     UserBreakdownNotFoundError,
     WordNotFoundError,
-    BreakdownNotFoundError
 )
 from rootski.schemas.core import Services
 from rootski.services.database.dynamo import models as dynamo
