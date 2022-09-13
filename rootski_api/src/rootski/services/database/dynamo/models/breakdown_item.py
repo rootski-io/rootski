@@ -17,7 +17,7 @@ class BreakdownItemItem(TypedDict):
     morpheme_family_id: Optional[str]
 
 
-@dataclass
+@dataclass(frozen=True)
 class NullBreakdownItem(DynamoModel):
 
     word_id: str
@@ -53,7 +53,7 @@ class NullBreakdownItem(DynamoModel):
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class BreakdownItem(DynamoModel):
 
     word_id: str

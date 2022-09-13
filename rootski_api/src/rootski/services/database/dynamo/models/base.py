@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 
 
-@dataclass(eq=True)
+@dataclass(frozen=True, eq=True)
 class DynamoModel:
     @property
     def pk(self) -> str:
