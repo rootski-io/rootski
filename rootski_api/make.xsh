@@ -50,6 +50,21 @@ install:
 \tpython -m pip install xonsh colorama pre-commit
 \tpython -m pip install -e ../make_utils
 \tpython -m pip install -e .[dev]
+
+# run all tests in parallel, generate coverage report
+# TODO: running tests in parallel causes flakiness. We've disabled parallel tests.
+# This is probably due to tests colliding over the same fixture. We may need to look
+# into changing all fixture scopes to "function".
+test:
+\tAWS_DEFAULT_PROFILE=rootski \
+\tAWS_DEFAULT_REGION=us-west-2 \
+\tpy.test tests \
+\t\t--ignore "tests/smoke_tests" \
+\t\t--cov src/ \
+\t\t--cov-report term-missing \
+\t\t--cov-report html \
+\t\t--cov-report xml \
+\t\t--junitxml ./test-reports/junit.xml
 """)
 
 

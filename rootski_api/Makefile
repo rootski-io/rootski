@@ -10,6 +10,13 @@ install:
 	python -m pip install -e ../make_utils
 	python -m pip install -e .[dev]
 
+# run all tests in parallel, generate coverage report
+# TODO: running tests in parallel causes flakiness. We've disabled parallel tests.
+# This is probably due to tests colliding over the same fixture. We may need to look
+# into changing all fixture scopes to "function".
+test:
+	AWS_DEFAULT_PROFILE=rootski 	AWS_DEFAULT_REGION=us-west-2 	py.test tests 		--ignore "tests/smoke_tests" 		--cov src/ 		--cov-report term-missing 		--cov-report html 		--cov-report xml 		--junitxml ./test-reports/junit.xml
+
 
 
 
