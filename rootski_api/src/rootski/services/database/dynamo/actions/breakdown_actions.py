@@ -102,27 +102,18 @@ def get_user_submitted_breakdown_by_user_email_and_word_id(
     return breakdown
 
 
-# TODO: Discover if this is redundant. Remove if so. I think this is redundant.
-# Once we get the extra rows into dynamo associated with users personal breakdowns,
-# then this endpoint can be re-written to return those breakdowns.
-# As of now it is querying the official breakdown rows.
 def get_official_breakdown_submitted_by_another_user(word_id: str, db: DBService) -> Breakdown:
     """Query a breakdown from Dynamo from another user."""
     table = db.rootski_table
-    breakdown_dynamo_keys: dict = make_keys__breakdown(word_id=word_id)
 
     get_items_response = table.query(
-        KeyConditionExpression=Key("pk").eq(breakdown_dynamo_keys["pk"])
-        & Key("sk").eq(breakdown_dynamo_keys["sk"]),
+        IndexName="gsi2",
+        KeyConditionExpression=Key("gsi2pk").eq(f"WORD#{word_id}") & Key("gsi2sk").begins_with("USER#"),
     )
 
     items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
     if len(items) == 0:
         raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo.")
-
-    breakdown = Breakdown.from_dict(breakdown_dict=items[0])
-    if breakdown.submitted_by_user_email == "anonymous":
-        raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo for another user.")
 
     breakdown = Breakdown.from_dict(breakdown_dict=items[0])
 
@@ -265,3 +256,21 @@ def make_id_morpheme_map(morpheme_data_objs: List[dict]) -> Dict[str, Morpheme]:
     }
 
     return morpheme_data
+
+
+def see_whether_breakdowns_are_overwritten(db: DBService):
+    table = db.rootski_table
+    get_items_response = table.query(
+        IndexName="gsi2",
+        KeyConditionExpression=Key("gsi2pk").eq(f"WORD#7") & Key("gsi2sk").eq("USER#email@gmail.com"),
+    )
+
+    items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
+    print(items)
+
+    get_items_response = table.query(
+        IndexName="gsi1",
+        KeyConditionExpression=Key("gsi1pk").eq(f"USER#anonymous") & Key("gsi1sk").eq("WORD#7"),
+    )
+    items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
+    print(items)

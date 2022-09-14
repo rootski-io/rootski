@@ -128,15 +128,14 @@ def get_breakdown(
         another_user_breakdown = breakdown_actions.get_official_breakdown_submitted_by_another_user(
             word_id=word_id, db=dynamo_db
         )
-        if another_user_breakdown.submitted_by_user_email != "anonymous":
-            is_to_morpheme_families = breakdown_actions.get_morpheme_families_for_breakdown(
-                breakdown=another_user_breakdown, db=dynamo_db
-            )
-            return models_to_schemas.dynamo_to_pydantic__breakdown(
-                breakdown=another_user_breakdown,
-                ids_to_morpheme_families=is_to_morpheme_families,
-                user_email=user.email,
-            )
+        is_to_morpheme_families = breakdown_actions.get_morpheme_families_for_breakdown(
+            breakdown=another_user_breakdown, db=dynamo_db
+        )
+        return models_to_schemas.dynamo_to_pydantic__breakdown(
+            breakdown=another_user_breakdown,
+            ids_to_morpheme_families=is_to_morpheme_families,
+            user_email=user.email,
+        )
     except dynamo_error.BreakdownNotFoundError as err:
         LOGGER.debug(err)
 

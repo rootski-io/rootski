@@ -11,14 +11,14 @@ from rootski.services.database.dynamo.models2schemas.breakdown_item import (
 )
 from tests.fixtures.seed_data import (
     EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB,
-    EXAMPLE_MORPHEME_FAMILY_245,
+    EXAMPLE_MORPHEME_FAMILY_W_ID_245,
     seed_data,
 )
 
 
 def test__create_comma_separated_string_of_morphemes():
     test_answer = "знай,зна"
-    family_string = create_comma_separated_string_of_morphemes(EXAMPLE_MORPHEME_FAMILY_245["morphemes"])
+    family_string = create_comma_separated_string_of_morphemes(EXAMPLE_MORPHEME_FAMILY_W_ID_245["morphemes"])
     assert family_string == test_answer
 
 

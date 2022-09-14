@@ -4,27 +4,29 @@ from rootski.services.database.dynamo.actions.breakdown_actions import (
     get_official_breakdown_submitted_by_another_user,
     get_user_submitted_breakdown_by_user_email_and_word_id,
     is_breakdown_verified,
+    see_whether_breakdowns_are_overwritten,
 )
 from rootski.services.database.dynamo.db_service import DBService
 from rootski.services.database.dynamo.models.breakdown import Breakdown
 from rootski.services.database.dynamo.models.breakdown_item import make_dynamo_breakdown_item_from_dict
+from tests.constants import TEST_USER
 from tests.fixtures.seed_data import (
-    EXAMPLE_BREAKDOWN,
-    EXAMPLE_BREAKDOWN_2,
-    EXAMPLE_BREAKDOWN_ANOTHER_USER,
     EXAMPLE_BREAKDOWN_ITEM,
     EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB,
-    EXAMPLE_MORPHEME_FAMILY_245,
-    EXAMPLE_MORPHEME_FAMILY_1385,
+    EXAMPLE_BREAKDOWN_W_NULL_AND_NON_NULL_BREAKDOWN_ITEMS_IN_DB,
+    EXAMPLE_MORPHEME_FAMILY_W_ID_245,
+    EXAMPLE_MORPHEME_FAMILY_W_ID_1385,
+    EXAMPLE_NON_VERIFIED_BREAKDOWN_SUBMITTED_BY_USER,
     EXAMPLE_NULL_BREAKDOWN_ITEM,
-    EXAMPLE_USER_SUBMITTED_BREAKDOWN,
+    EXAMPLE_OFFICIAL_BREAKDOWN_BY_USER_W_NULL_AND_NON_NULL_BREAKDOWN_ITEMS_IN_DB,
+    EXAMPLE_USER_SUBMITTED_BREAKDOWN__NOT_TEST_USER,
     TEST_USER_NOT_AS_ADMIN,
     seed_data,
 )
 
 
 def test__breakdown_from_dict():
-    SEED_BREAKDOWN = EXAMPLE_BREAKDOWN_2
+    SEED_BREAKDOWN = EXAMPLE_NON_VERIFIED_BREAKDOWN_SUBMITTED_BY_USER
     breakdown = Breakdown.from_dict(breakdown_dict=SEED_BREAKDOWN)
 
     assert breakdown.pk == SEED_BREAKDOWN["pk"]
@@ -66,7 +68,8 @@ def test__breakdown_item_from_dict():
 
 def test__get_official_breakdown_by_word_id(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
-    word_id = "32"
+    word_id = "7"
+    EXAMPLE_BREAKDOWN = EXAMPLE_BREAKDOWN_W_NULL_AND_NON_NULL_BREAKDOWN_ITEMS_IN_DB
 
     breakdown: Breakdown = get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
     assert breakdown.word == EXAMPLE_BREAKDOWN["word"]
@@ -75,7 +78,7 @@ def test__get_official_breakdown_by_word_id(dynamo_db_service: DBService):
 
 def test__is_breakdown_verified(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
-    word_id = "32"
+    word_id = "7"
 
     breakdown: Breakdown = get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
     assert is_breakdown_verified(breakdown=breakdown) is False
@@ -89,7 +92,7 @@ def test__get_breakdown_submitted_by_user_email_and_word_id(dynamo_db_service: D
     breakdown: Breakdown = get_user_submitted_breakdown_by_user_email_and_word_id(
         user_email=user_email, word_id=word_id, db=dynamo_db_service
     )
-    assert breakdown.word_id == EXAMPLE_USER_SUBMITTED_BREAKDOWN["word_id"]
+    assert breakdown.word_id == EXAMPLE_USER_SUBMITTED_BREAKDOWN__NOT_TEST_USER["word_id"]
     assert breakdown.submitted_by_user_email == user_email
     assert breakdown.submitted_by_user_email != "anonymous"
     assert breakdown.submitted_by_user_email != "another_user@gmail.com"
@@ -97,16 +100,20 @@ def test__get_breakdown_submitted_by_user_email_and_word_id(dynamo_db_service: D
 
 def test__get_official_breakdown_submitted_by_another_user(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
-    word_id = "10"
-    user_email = "eric.riddoch@gmail.com"
+    word_id = "7"
+    user_email = TEST_USER["email"]
+    EXAMPLE_BREAKDOWN = EXAMPLE_OFFICIAL_BREAKDOWN_BY_USER_W_NULL_AND_NON_NULL_BREAKDOWN_ITEMS_IN_DB
+
+    see_whether_breakdowns_are_overwritten(db=dynamo_db_service)
 
     breakdown: Breakdown = get_official_breakdown_submitted_by_another_user(
         word_id=word_id, db=dynamo_db_service
     )
-    assert breakdown.submitted_by_user_email == EXAMPLE_BREAKDOWN_ANOTHER_USER["submitted_by_user_email"]
+    assert breakdown.submitted_by_user_email == EXAMPLE_BREAKDOWN["submitted_by_user_email"]
     assert breakdown.submitted_by_user_email != user_email
     assert breakdown.submitted_by_user_email != "anonymous"
     assert breakdown.submitted_by_user_email != "null"
+    assert False
 
 
 def test__get_morpheme_families(dynamo_db_service: DBService):
@@ -116,5 +123,5 @@ def test__get_morpheme_families(dynamo_db_service: DBService):
         breakdown=dynamo_breakdown_model,
         db=dynamo_db_service,
     )
-    assert morpheme_family_dict["245"].family_id == EXAMPLE_MORPHEME_FAMILY_245["family_id"]
-    assert morpheme_family_dict["1385"].family_id == EXAMPLE_MORPHEME_FAMILY_1385["family_id"]
+    assert morpheme_family_dict["245"].family_id == EXAMPLE_MORPHEME_FAMILY_W_ID_245["family_id"]
+    assert morpheme_family_dict["1385"].family_id == EXAMPLE_MORPHEME_FAMILY_W_ID_1385["family_id"]
