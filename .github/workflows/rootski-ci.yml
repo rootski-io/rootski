@@ -51,8 +51,8 @@ jobs:
         path: ~/.cache/pre-commit
         key: ~/.cache/pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
 
-    - name: install docker
-      uses: docker-practice/actions-setup-docker@1.0.8
+    # - name: install docker
+    #   uses: docker-practice/actions-setup-docker@1.0.8
 
     - name: run lambda handler tests
       run: |
