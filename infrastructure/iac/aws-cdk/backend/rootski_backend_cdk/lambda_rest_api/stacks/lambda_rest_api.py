@@ -155,6 +155,7 @@ class RootskiLambdaRestApiStack(cdk.Stack):
                         "mkdir -p /asset-output"
                         + "&& pip install -r ./aws-lambda/requirements.txt -t /asset-output"
                         + "&& pip install . -t /asset-output"
+                        + "&& cp -r ./src/rootski/resources /asset-output/rootski/"  # TODO: Check that this works
                         + "&& cp aws-lambda/index.py /asset-output"
                         + "&& rm -rf /asset-output/boto3 /asset-output/botocore",
                     ],
