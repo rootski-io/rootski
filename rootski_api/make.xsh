@@ -43,7 +43,7 @@ traceback.install()
 THIS_DIR = Path(__file__).parent
 
 
-CUSTOM_MAKE_TEXT = dedent(f"""
+CUSTOM_MAKE_TEXT = dedent("""
 # install dependencies for running other makefile targets;
 # also install the rootski_api project
 install:
@@ -56,14 +56,24 @@ install:
 # This is probably due to tests colliding over the same fixture. We may need to look
 # into changing all fixture scopes to "function".
 test:
-\tAWS_DEFAULT_PROFILE=rootski \
-\tAWS_DEFAULT_REGION=us-west-2 \
-\tpy.test tests \
-\t\t--ignore "tests/smoke_tests" \
-\t\t--cov src/ \
-\t\t--cov-report term-missing \
-\t\t--cov-report html \
-\t\t--cov-report xml \
+\tAWS_DEFAULT_PROFILE=rootski \\
+\tAWS_DEFAULT_REGION=us-west-2 \\
+\tpy.test tests \\
+\t\t--ignore "tests/smoke_tests" \\
+\t\t--cov src/ \\
+\t\t--cov-report term-missing \\
+\t\t--cov-report html \\
+\t\t--cov-report xml \\
+\t\t--junitxml ./test-reports/junit.xml
+
+test-ci:
+\tAWS_DEFAULT_REGION=us-west-2 \\
+\tpy.test tests \\
+\t\t--ignore "tests/smoke_tests" \\
+\t\t--cov src/ \\
+\t\t--cov-report term-missing \\
+\t\t--cov-report html \\
+\t\t--cov-report xml \\
 \t\t--junitxml ./test-reports/junit.xml
 """)
 

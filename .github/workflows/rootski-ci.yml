@@ -86,7 +86,7 @@ jobs:
     - name: run tests and other code quality checks
       run: |
         # run the backend tests
-        make --directory rootski_api/ test
+        make --directory rootski_api/ test-ci
 
         # check the code quality across the entire project (formatting, linting, static code checks)
         make check-code-quality-ci

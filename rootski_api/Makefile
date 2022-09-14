@@ -15,7 +15,25 @@ install:
 # This is probably due to tests colliding over the same fixture. We may need to look
 # into changing all fixture scopes to "function".
 test:
-	AWS_DEFAULT_PROFILE=rootski 	AWS_DEFAULT_REGION=us-west-2 	py.test tests 		--ignore "tests/smoke_tests" 		--cov src/ 		--cov-report term-missing 		--cov-report html 		--cov-report xml 		--junitxml ./test-reports/junit.xml
+	AWS_DEFAULT_PROFILE=rootski \
+	AWS_DEFAULT_REGION=us-west-2 \
+	py.test tests \
+		--ignore "tests/smoke_tests" \
+		--cov src/ \
+		--cov-report term-missing \
+		--cov-report html \
+		--cov-report xml \
+		--junitxml ./test-reports/junit.xml
+
+test-ci:
+	AWS_DEFAULT_REGION=us-west-2 \
+	py.test tests \
+		--ignore "tests/smoke_tests" \
+		--cov src/ \
+		--cov-report term-missing \
+		--cov-report html \
+		--cov-report xml \
+		--junitxml ./test-reports/junit.xml
 
 
 
@@ -25,7 +43,7 @@ test:
 ####################
 
 # Show a list of available Makefile targets AKA commands.
-#
+# 
 # Run this! The output is nice and colorful ✨ 🎨 ✨
 help:
 	python -m xonsh make.xsh help
@@ -66,7 +84,7 @@ run-compose:
 
 # Helper target for building the special rootski docker image used in
 # the functional tests.
-#
+# 
 # If you don't run this, 'full-test' and 'full-test-local' will build
 # the image automatically anyway.
 build-test-image:
@@ -74,10 +92,10 @@ build-test-image:
 
 
 # Execute only the unit tests.
-#
+# 
 # You should run this often as you make changes. Running this command
 # is easy and the unit tests execute very quickly. 🚀 🎉
-#
+# 
 # Regularly running these as you code will make it easy to see if you've
 # accidentally broken the intended behavior of existing code. The sooner
 # you catch errors that you have introduced, the easier it will be to
@@ -87,15 +105,15 @@ unit-test:
 
 
 # Execute ALL of the rootski API tests.
-#
+# 
 # NOTE: The "auth_service.py" tests require your [rootski] AWS profile
 # credentials to have permissions to programattically create/delete
 # a test user.
-#
+# 
 # This particular test may fail locally due to your credentials lacking
 # sufficient permissions, but it may still pass in CI. This is because
 # the CI pipeline has its own AWS credentials.
-#
+# 
 # NOTE: Even if you *do* have sufficient credentials, you should know
 # that the functional tests require the AWS credentials to be
 # present in environment variables. Run 'full-test-local' to
@@ -111,24 +129,24 @@ full-test:
 
 
 # Execute the functional and unit tests without docker.
-#
+# 
 # The tests will read the values in 'tests/resources/test.env',
 # but the ROOTSKI__POSTGRES_HOST variable will be set to localhost.
-#
+# 
 # Note that these tests require a PostgreSQL database to be available
 # at localhost:<port> where port is the ROOTSKI__POSTGRES_PORT value
 # found in 'tests/resources/test.env'.
-#
+# 
 # This can be achieved by running 'run_test_db' before running this
 # target.
-#
+# 
 # Note that if you want to set breakpoints to debug your tests,
 # you will need to need to launch the tests from your editor.
 # Unfortunately, we can't write a target that stops on breakpoints
 # for you :(
-#
+# 
 # If you are using VS Code and would like to set breakpoints for tests:
-#
+# 
 # 1. create a .vscode/launch.json file
 # 2. create a new launch configuration
 # 3. set the ROOTSKI__POSTGRES_HOST variable to localhost
@@ -139,17 +157,17 @@ full-test:
 # open up the test explorer AKA a menu to browse the python tests.
 # 6. Select the test you want to run in VS Code and run it
 # in "debug mode".
-#
+# 
 # Happy testing!
 full-test-no-docker:
 	python -m xonsh make.xsh full-test-no-docker
 
 
 # Host a local webpage for exploring test coverage.
-#
+# 
 # The test coverage shown is in the ./test-reports/ folder. This folder
 # is created/overwritten each time pytest is run with the '--cov' argument.
-#
+# 
 # The 'full-test' and 'unit-test' targets both include '--cov'.
 serve-coverage-report:
 	python -m xonsh make.xsh serve-coverage-report
@@ -181,17 +199,17 @@ clean:
 # Run code quality checks against the codebase.
 # Automatically fix code formatting and other things! 🚀 🎉
 # The included code checks are:
-#
+# 
 # - black (code formatter)
 # - pylint (code syntax and style checker)
 # - isort (sorts imports)
 # - radon (measures code complexity)
-#
+# 
 # Automatic fixes applied in this target are:
-#
+# 
 # - black will autoformat the codebase
 # - isort will autosort import statements
-#
+# 
 # Any other issues must found by the tools must be fixed by hand
 # or else the build (CI) will fail.
 lint:
@@ -199,7 +217,7 @@ lint:
 
 
 # Exactly the same as 'lint' except no fixes will be applied.
-#
+# 
 # This is the target run in CI. If you didn't run 'lint' to format the
 # code and also resolve any other code quality issues discovered by
 # 'lint' or 'lint-report' locally... the build will fail!! 🔥 💥 😟
