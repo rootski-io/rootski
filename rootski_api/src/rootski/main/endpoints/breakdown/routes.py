@@ -3,19 +3,11 @@ from typing import Dict, List, Union
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from loguru import logger as LOGGER
 from rootski.main import deps
+from rootski.main.endpoints.breakdown import errors as api_error
 from rootski.main.endpoints.breakdown.docs import ExampleResponse, make_apidocs_responses_obj
-from rootski.main.endpoints.breakdown.errors import (
-    BREAKDOWN_NOT_FOUND,
-    MORPHEME_IDS_NOT_FOUND_MSG,
-    PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
-    WORD_ID_NOT_FOUND,
-    BadBreakdownError,
-    BreakdownNotFoundError,
-    MorphemeNotFoundError,
-    UserBreakdownNotFoundError,
-    WordNotFoundError,
-)
+from rootski.main.endpoints.breakdown.errors import WORD_ID_NOT_FOUND
 from rootski.schemas.core import Services
+from rootski.services.database.dynamo import errors as dynamo_error
 from rootski.services.database.dynamo import models as dynamo
 from rootski.services.database.dynamo.actions import breakdown_actions
 from rootski.services.database.dynamo.actions import word as word_actions
@@ -45,7 +37,7 @@ router = APIRouter()
             [
                 ExampleResponse(
                     title="Breakdown not found",
-                    body={"detail": BREAKDOWN_NOT_FOUND.format(word_id=8)},
+                    body={"detail": api_error.BREAKDOWN_NOT_FOUND.format(word_id=8)},
                 )
             ]
         )
@@ -74,14 +66,14 @@ def get_breakdown(
     dynamo_db = app_services.dynamo
     NOT_FOUND_ERROR = HTTPException(
         status_code=HTTP_404_NOT_FOUND,
-        detail=BREAKDOWN_NOT_FOUND.format(word_id=word_id),
+        detail=api_error.BREAKDOWN_NOT_FOUND.format(word_id=word_id),
     )
 
     try:
         breakdown: dynamo.Breakdown = breakdown_actions.get_official_breakdown_by_word_id(
             word_id=word_id, db=dynamo_db
         )
-    except BreakdownNotFoundError as err:
+    except dynamo_error.BreakdownNotFoundError as err:
         LOGGER.debug(err)
         raise NOT_FOUND_ERROR
     LOGGER.debug(breakdown)
@@ -120,7 +112,7 @@ def get_breakdown(
             ids_to_morpheme_families=is_to_morpheme_families,
             user_email=user.email,
         )
-    except UserBreakdownNotFoundError as err:
+    except dynamo_error.UserBreakdownNotFoundError as err:
         LOGGER.debug(err)
 
     # (3) return a breakdown submitted by another user
@@ -145,7 +137,7 @@ def get_breakdown(
                 ids_to_morpheme_families=is_to_morpheme_families,
                 user_email=user.email,
             )
-    except BreakdownNotFoundError as err:
+    except dynamo_error.BreakdownNotFoundError as err:
         LOGGER.debug(err)
 
     # (4) return a breakdown inferenced by the AI
@@ -174,7 +166,7 @@ def get_breakdown(
                 ),
                 ExampleResponse(
                     title="Morpheme not found",
-                    body={"detail": MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids="{1, 2, 3}")},
+                    body={"detail": api_error.MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids="{1, 2, 3}")},
                 ),
             ]
         ),
@@ -183,7 +175,7 @@ def get_breakdown(
                 ExampleResponse(
                     title="Invalid breakdown",
                     body={
-                        "detail": PARTS_DONT_SUM_TO_WHOLE_WORD_MSG.format(
+                        "detail": api_error.PARTS_DONT_SUM_TO_WHOLE_WORD_MSG.format(
                             submitted_breakdown="при-каз-ывать", word="приказать"
                         )
                     },
@@ -218,14 +210,14 @@ def submit_breakdown(
             user_submitted_breakdown=payload,
             db=dynamo_db,
         )
-    except MorphemeNotFoundError as e:
+    except dynamo_error.MorphemeNotFoundError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=str(e))
 
     try:
         LOGGER.debug("Getting word")
         word_obj: dynamo.Word = word_actions.get_word_by_id(word_id=payload.word_id, db=dynamo_db)
         breakdown_word: str = word_obj.data["word"]["word"]
-    except WordNotFoundError as e:
+    except dynamo_error.WordNotFoundError as e:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=str(e))
 
     try:
@@ -237,7 +229,7 @@ def submit_breakdown(
             word=breakdown_word,
             is_admin=user.is_admin,
         )
-    except BadBreakdownError as e:
+    except api_error.BadBreakdownError as e:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=str(e))
 
     LOGGER.debug("Recreating the word from the breakdown items")
@@ -248,20 +240,14 @@ def submit_breakdown(
         )
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST,
-            detail=PARTS_DONT_SUM_TO_WHOLE_WORD_MSG.format(
+            detail=api_error.PARTS_DONT_SUM_TO_WHOLE_WORD_MSG.format(
                 submitted_breakdown=incorrect_word, word=breakdown_word
             ),
         )
     LOGGER.debug(user_breakdown)
 
-    # TODO: Delete step 2 or fix this
-    # LOGGER.debug("Starting step 2")
-    # if not user.is_admin:
-    #     user_breakdown.pk = user.email
-    #     user_breakdown = user_breakdown.not_official_breakdown_sk(word_id=user_breakdown.word_id)
-
-    # (3) upsert the user's breakdown to dynamo
-    LOGGER.debug("Starting step 3")
+    # (2) upsert the user's breakdown to dynamo
+    LOGGER.debug("Starting step 2")
     breakdown_actions.upsert_breakdown(breakdown=user_breakdown, is_official=user.is_admin, db=dynamo_db)
 
     return schemas.SubmitBreakdownResponse(
