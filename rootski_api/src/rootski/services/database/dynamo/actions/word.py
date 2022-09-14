@@ -1,6 +1,6 @@
-from rootski.main.endpoints.breakdown.errors import WORD_ID_NOT_FOUND, WordNotFoundError
 from rootski.services.database.dynamo.actions.dynamo import get_item_from_dynamo_response, get_item_status_code
 from rootski.services.database.dynamo.db_service import DBService
+from rootski.services.database.dynamo.errors import WORD_ID_NOT_FOUND, WordNotFoundError
 from rootski.services.database.dynamo.models import word
 
 

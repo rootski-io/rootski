@@ -6,17 +6,18 @@ the ``test__auth`` service is sufficient.
 from typing import Tuple, Union
 
 import pytest
-from rootski.main.endpoints.breakdown.errors import (
-    MORPHEME_IDS_NOT_FOUND_MSG,
-    PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
-    WORD_ID_NOT_FOUND,
-    BreakdownNotFoundError,
-)
 from rootski.services.database.dynamo.actions.breakdown_actions import (
     get_official_breakdown_by_word_id,
     get_user_submitted_breakdown_by_user_email_and_word_id,
 )
 from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
+from rootski.services.database.dynamo.errors import (
+    MORPHEME_IDS_NOT_FOUND_MSG,
+    PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
+    WORD_ID_NOT_FOUND,
+    BreakdownNotFoundError,
+    UserBreakdownNotFoundError,
+)
 from rootski.services.database.dynamo.models.breakdown import Breakdown
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
@@ -62,9 +63,6 @@ def make_submit_breakdown_request(
 #################
 
 
-# TODO: (1) run get_breakdown on an breakdown that doesn't exist: assert it does not exist
-# (2) submit the breakdown we just tried to get: assert correct output, response
-# (3) then get the breakdown we just submitted based on is_admin: verified it was gotten-ied
 @pytest.mark.parametrize(
     ["disable_auth", "act_as_admin"],
     [
@@ -91,7 +89,15 @@ def test__submit_breakdown__success(
         get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
         raise Exception(f"Breakdown with word id {word_id} was found in Dynamo when it should not yet exist.")
     except BreakdownNotFoundError:
-        pass
+        try:
+            get_user_submitted_breakdown_by_user_email_and_word_id(
+                user_email=user_email, word_id=word_id, db=dynamo_db_service
+            )
+            raise Exception(
+                f"User breakdown with word id {word_id} was found in Dynamo when it should not yet exist."
+            )
+        except UserBreakdownNotFoundError:
+            pass
 
     # Upload the breakdown to Dynamo
     USER_SUBMISSION: dict = EXAMPLE_SUCCESSFUL_BREAKDOWN_SUBMISSION
@@ -104,9 +110,9 @@ def test__submit_breakdown__success(
     assert response.breakdown_id == -1  # this field is deprecated and should be -1
     assert response.word_id == int(word_id)
     assert response.is_verified == act_as_admin
+
     # Read the data from the updated database
     if act_as_admin is True:
-
         official_breakdown: Breakdown = get_official_breakdown_by_word_id(word_id=word_id, db=dynamo_db_service)
         assert official_breakdown.word_id == word_id
         assert official_breakdown.word == "сказать"
@@ -115,7 +121,7 @@ def test__submit_breakdown__success(
         assert official_breakdown.pk == f"WORD#{word_id}"
         assert official_breakdown.sk == f"BREAKDOWN"
     else:
-        user_breakdown = get_user_submitted_breakdown_by_user_email_and_word_id(
+        user_breakdown: Breakdown = get_user_submitted_breakdown_by_user_email_and_word_id(
             db=dynamo_db_service,
             word_id=word_id,
             user_email=user_email,
@@ -215,7 +221,7 @@ def test__submit_breakdown__error_when_morpheme_ids_not_found(
     assert response.status_code == HTTP_404_NOT_FOUND
     assert "detail" in response.json().keys()
     assert (
-        MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=str({"1577", "2139", "218"}))
+        MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=str({"2139", "218", "1577"}))
         == response.json()["detail"]
     )
 

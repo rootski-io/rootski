@@ -1,16 +1,13 @@
 from mypy_boto3_dynamodb.type_defs import PutItemOutputTableTypeDef
-from rootski.errors import RootskiApiError
 from rootski.services.database.dynamo.actions.dynamo import get_item_from_dynamo_response, get_item_status_code
 from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
+from rootski.services.database.dynamo.errors import (
+    USER_ALREADY_REGISTERED_MSG,
+    USER_NOT_FOUND_MSG,
+    UserAlreadyRegisteredError,
+    UserNotFoundError,
+)
 from rootski.services.database.dynamo.models.user import User, make_keys
-
-
-class UserNotFoundError(RootskiApiError):
-    """Error thrown if a User isn't found."""
-
-
-class UserAlreadyRegisteredError(RootskiApiError):
-    """Error thrown if a User is already registered."""
 
 
 def upsert_user(email: str, is_admin: bool, db: DynamoDBService) -> None:
@@ -25,9 +22,7 @@ def get_user(email: str, db: DynamoDBService) -> User:
     keys = make_keys(email=email)
     get_user_response = dynamo_db.get_item(Key=keys)
     if get_item_status_code(item_output=get_user_response) == 404 or "Item" not in get_user_response.keys():
-        raise UserNotFoundError(
-            f"User with email {email} was not found in Dynamo table named {dynamo_table_name}."
-        )
+        raise UserNotFoundError(USER_NOT_FOUND_MSG.format(email=email, dynamo_table_name=dynamo_table_name))
 
     user_dict = get_item_from_dynamo_response(get_user_response)
     user = User.from_dict(user_dict=user_dict)
@@ -51,7 +46,7 @@ def register_user(email: str, is_admin: bool, db: DynamoDBService) -> User:
     user_in_db = get_user(email=email, db=db)
 
     if user_in_db is not None:
-        raise UserAlreadyRegisteredError(f'User with email "{email}" is already registered.')
+        raise UserAlreadyRegisteredError(USER_ALREADY_REGISTERED_MSG.format(email=email))
 
     # add the user to the database
     upsert_user(email=email, is_admin=is_admin, db=db)
