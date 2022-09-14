@@ -98,6 +98,10 @@ def test__get_breakdown_submitted_by_user_email_and_word_id(dynamo_db_service: D
     assert breakdown.submitted_by_user_email != "another_user@gmail.com"
 
 
+# TODO: This test passes based on the order of insertion into the seed database.
+# To pass, make sure EXAMPLE_OFFICIAL_BREAKDOWN_BY_USER_W_NULL_AND_NON_NULL_BREAKDOWN_ITEMS_IN_DB
+#   is inserted after EXAMPLE_BREAKDOWN_W_NULL_AND_NON_NULL_BREAKDOWN_ITEMS_IN_DB
+# Data modeling and this dynamo action need to be re-written.
 def test__get_official_breakdown_submitted_by_another_user(dynamo_db_service: DBService):
     seed_data(rootski_dynamo_table=dynamo_db_service.rootski_table)
     word_id = "7"
@@ -113,7 +117,6 @@ def test__get_official_breakdown_submitted_by_another_user(dynamo_db_service: DB
     assert breakdown.submitted_by_user_email != user_email
     assert breakdown.submitted_by_user_email != "anonymous"
     assert breakdown.submitted_by_user_email != "null"
-    assert False
 
 
 def test__get_morpheme_families(dynamo_db_service: DBService):

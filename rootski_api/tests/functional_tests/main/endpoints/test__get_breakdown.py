@@ -36,6 +36,8 @@ def test__get_breakdown(dynamo_client: TestClient, dynamo_db_service: DynamoDBSe
     assert response["is_inference"] == EXAMPLE_BREAKDOWN["is_inference"]
 
 
+# TODO: This test passes based on the order of insertion into the seed database.
+# Data modeling and the dynamo action need to be re-written.
 @pytest.mark.parametrize(["disable_auth", "act_as_admin"], [(True, False)])
 def test__get_breakdown_submitted_by_another_user(
     dynamo_client: TestClient, dynamo_db_service: DynamoDBService
@@ -57,4 +59,3 @@ def test__get_breakdown_submitted_by_another_user(
     assert response["is_verified"] == EXAMPLE_BREAKDOWN["is_verified"]
     assert response["is_inference"] == EXAMPLE_BREAKDOWN["is_inference"]
     assert response["submitted_by_current_user"] == False
-    assert False

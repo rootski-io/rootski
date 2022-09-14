@@ -6,13 +6,13 @@ the ``test__auth`` service is sufficient.
 from typing import Tuple, Union
 
 import pytest
+from rootski.main.endpoints.breakdown.errors import MorphemeNotFoundError
 from rootski.services.database.dynamo.actions.breakdown_actions import (
     get_official_breakdown_by_word_id,
     get_user_submitted_breakdown_by_user_email_and_word_id,
 )
 from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
 from rootski.services.database.dynamo.errors import (
-    MORPHEME_IDS_NOT_FOUND_MSG,
     PARTS_DONT_SUM_TO_WHOLE_WORD_MSG,
     WORD_ID_NOT_FOUND,
     BreakdownNotFoundError,
@@ -218,12 +218,10 @@ def test__submit_breakdown__error_when_morpheme_ids_not_found(
         user_submission=USER_SUBMISSION, dynamo_client=dynamo_client, should_succeed=False
     )
 
+    morpheme_ids = ["2139", "218", "1577"]
     assert response.status_code == HTTP_404_NOT_FOUND
     assert "detail" in response.json().keys()
-    assert (
-        MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=str({"2139", "218", "1577"}))
-        == response.json()["detail"]
-    )
+    assert MorphemeNotFoundError.make_error_message(morpheme_ids=morpheme_ids) == response.json()["detail"]
 
 
 @pytest.mark.parametrize(
