@@ -9,7 +9,14 @@ from textwrap import dedent
 from glob import glob
 from copy import deepcopy
 
-from make_utils.utils_without_dependencies import print_import_error_help_message, get_localhost
+# TODO: for some reason "pip install "
+THIS_DIR = Path(__file__).parent
+MAKE_UTILS_DIR = (THIS_DIR / "../make_utils/src").resolve().absolute()
+
+from rich import print
+sys.path.insert(0, str(MAKE_UTILS_DIR))
+
+from make_utils.utils_without_dependencies import print_import_error_help_message
 
 try:
     from rich import print
@@ -36,13 +43,38 @@ traceback.install()
 THIS_DIR = Path(__file__).parent
 
 
-CUSTOM_MAKE_TEXT = dedent(f"""
+CUSTOM_MAKE_TEXT = dedent("""
 # install dependencies for running other makefile targets;
 # also install the rootski_api project
 install:
 \tpython -m pip install xonsh colorama pre-commit
 \tpython -m pip install -e ../make_utils
 \tpython -m pip install -e .[dev]
+
+# run all tests in parallel, generate coverage report
+# TODO: running tests in parallel causes flakiness. We've disabled parallel tests.
+# This is probably due to tests colliding over the same fixture. We may need to look
+# into changing all fixture scopes to "function".
+test:
+\tAWS_DEFAULT_PROFILE=rootski \\
+\tAWS_DEFAULT_REGION=us-west-2 \\
+\tpy.test tests \\
+\t\t--ignore "tests/smoke_tests" \\
+\t\t--cov src/ \\
+\t\t--cov-report term-missing \\
+\t\t--cov-report html \\
+\t\t--cov-report xml \\
+\t\t--junitxml ./test-reports/junit.xml
+
+test-ci:
+\tAWS_DEFAULT_REGION=us-west-2 \\
+\tpy.test tests \\
+\t\t--ignore "tests/smoke_tests" \\
+\t\t--cov src/ \\
+\t\t--cov-report term-missing \\
+\t\t--cov-report html \\
+\t\t--cov-report xml \\
+\t\t--junitxml ./test-reports/junit.xml
 """)
 
 

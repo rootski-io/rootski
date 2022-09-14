@@ -18,4 +18,5 @@ load_dotenv(dotenv_path=DOT_ENV_FPATH, override=False)
 # There should be single entry for each fixture (python) file in tests/fixtures
 pytest_plugins = [
     "fixtures.general_fixtures",
+    "fixtures.rootski_dynamo_table",
 ]

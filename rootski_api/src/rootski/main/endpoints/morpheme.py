@@ -1,19 +1,8 @@
 from pathlib import Path
 
 from fastapi.routing import APIRouter
-from loguru import logger
-from sqlalchemy.orm.session import Session
-from starlette.requests import Request
+from rootski.main.endpoints.breakdown.docs import ExampleResponse, make_apidocs_responses_obj
 from starlette.responses import FileResponse
-
-from rootski.config.config import Config
-from rootski.main.endpoints.breakdown.docs import (
-    ExampleResponse,
-    make_apidocs_responses_obj,
-)
-from rootski.schemas.core import Services
-from rootski.services.database.database import DBService
-from rootski.services.database.make_morphemes_json import make_morphemes_json
 
 router = APIRouter()
 
@@ -52,7 +41,7 @@ router = APIRouter()
         )
     },
 )
-async def get_morphemes_json(request: Request, force: bool = False):
+async def get_morphemes_json():  # request: Request, force: bool = False
     """
     Get the morphemes.json file. This is used on the frontend as
     an index of morphemes. This endpoint allows the frontend to fetch
@@ -67,14 +56,7 @@ async def get_morphemes_json(request: Request, force: bool = False):
     Query parameters:
         force (boolean): forces regeneration of the morphemes.json file
     """
-    app_config: Config = request.app.state.config
 
-    morphemes_json_fpath = app_config.static_morphemes_json_fpath
-    if force or not Path.exists(morphemes_json_fpath):
-        logger.info(f"Generating morphemes.json from scratch. force was {force}")
-        app_services: Services = request.app.state.services
-        db_service: DBService = app_services.db
-        session: Session = db_service.get_sync_session()
-        make_morphemes_json(session=session, morphemes_json_fpath=morphemes_json_fpath)
-
-    return FileResponse(morphemes_json_fpath, media_type="application/json")
+    THIS_DIR = Path(__file__).parent.parent.parent
+    morpheme_json_fpath = THIS_DIR / "resources/morphemes.json"
+    return FileResponse(morpheme_json_fpath, media_type="application/json")

@@ -3,13 +3,8 @@ from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
 from pydantic import BaseModel, EmailStr, Field, constr, root_validator
-
 from rootski.errors import BadBreakdownItemError
-from rootski.schemas.morpheme import (
-    MORPHEME_TYPE_ENUM,
-    MORPHEME_WORD_POS_ENUM,
-    Morpheme,
-)
+from rootski.schemas.morpheme import MORPHEME_TYPE_ENUM, MORPHEME_WORD_POS_ENUM, Morpheme
 from rootski.services.database import models as orm
 
 
@@ -192,7 +187,9 @@ class BreakdownItem(BreakdownItemCommon):
 
 
 class BreakdownItemInDb(BreakdownItemCommon):
-    breakdown_id: Optional[int] = None
+    # If this is a null_breakdown, expect breakdown_id to be none.
+    # formerly, breakdown_id: Optional[int] = None, when using SQLAlchemy
+    breakdown_id: str = "deprecated"
 
     class Config:
         orm_mode = True
@@ -279,8 +276,8 @@ class BreakdownUpsert(BaseModel):
 
 class SubmitBreakdownResponse(BaseModel):
     word_id: int
-    breakdown_id: int
     is_verified: bool
+    breakdown_id: int = Field(-1, description="Always `-1` since this field is deprecated.")
 
 
 ############################

@@ -173,7 +173,7 @@ run:
 	python -m xonsh make.xsh run
 
 
-# Wipe and seed the dev database running locally.
+# Seed the dev database running locally by running "alembic" migrations.
 seed-dev-db:
 	python -m xonsh make.xsh seed-dev-db
 

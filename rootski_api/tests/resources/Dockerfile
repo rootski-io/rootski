@@ -11,4 +11,4 @@ RUN git init \
     && git config --global user.name "Banana man" \
     && git add version.txt \
     && git commit -m "initial commit"
-RUN make install
+RUN pip install -e .[dev]

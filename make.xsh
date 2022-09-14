@@ -11,14 +11,18 @@ import json
 from textwrap import dedent
 from glob import glob
 
+THIS_DIR = Path(__file__).parent
+MAKE_UTILS_DIR = THIS_DIR / "make_utils/src"
+sys.path.insert(0, str(MAKE_UTILS_DIR))
+
 from make_utils.utils_without_dependencies import print_import_error_help_message, get_localhost
 
 try:
+    import configparser
     import bcrypt
     from rich import print
     from rich.panel import Panel
     from rich import traceback
-    import configparser
 except ModuleNotFoundError as e:
     print_import_error_help_message(e)
     sys.exit(1)

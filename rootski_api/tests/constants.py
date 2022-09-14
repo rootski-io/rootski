@@ -10,6 +10,9 @@ provided via environment variables. Those can go in the tests/resources/docker-c
 file or in the makefile.
 """
 
+ROOTSKI_DYNAMO_TABLE_NAME = "TEST_DYNAMO_TABLE"
+
+
 TEST_USER = {
     "email": "banana-man@rootski.io",
     "password": "Eric Is Banana Man",
