@@ -2,6 +2,8 @@
 # --- Error Messages --- #
 ##########################
 
+from typing import List
+
 MORPHEME_FAMILY_IDS_NOT_FOUND_MSG = "One of your morpheme family IDs {not_found_ids} was not found in Dynamo."
 MORPHEME_IDS_NOT_FOUND_MSG = "One of your morpheme IDs {not_found_ids} was not found in Dynamo."
 PARTS_DONT_SUM_TO_WHOLE_WORD_MSG = 'Breakdown "{submitted_breakdown}" does not sum to the word "{word}"'
@@ -18,6 +20,8 @@ USER_ALREADY_REGISTERED_MSG = 'User with email "{email}" is already registered.'
 # --- Errors --- #
 ##################
 
+# TODO: Add factory methods for each of the errors, and replace the formatted error messages in the code base.
+
 
 class BreakdownNotFoundError(Exception):
     """Error thrown if a Breakdown isn't found."""
@@ -33,6 +37,11 @@ class WordNotFoundError(Exception):
 
 class MorphemeNotFoundError(Exception):
     """Raised when a morpheme is not found in the database"""
+
+    @staticmethod
+    def make_error_message(morpheme_ids: List[str]):
+        morpheme_ids.sort()
+        return MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=morpheme_ids)
 
 
 class MorphemeFamilyNotFoundError(Exception):

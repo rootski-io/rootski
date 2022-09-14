@@ -193,7 +193,7 @@ def get_morphemes(morpheme_ids: List[str], db: DBService) -> Dict[str, Morpheme]
             or len(get_item_response["Items"]) == 0
         ):
             raise MorphemeNotFoundError(
-                MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=set(unique_morpheme_ids))
+                MorphemeNotFoundError.make_error_message(morpheme_ids=unique_morpheme_ids)
             )
         item: List[dict] = get_items_from_dynamo_query_response(get_item_response)
         items.append(item[0])

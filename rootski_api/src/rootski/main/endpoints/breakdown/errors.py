@@ -1,3 +1,5 @@
+from typing import List
+
 from rootski.errors import RootskiApiError
 
 ##########################
@@ -17,6 +19,8 @@ USER_BREAKDOWN_NOT_FOUND = (
 # --- Errors --- #
 ##################
 
+# TODO: Add factory methods for each of the errors, and replace the formatted error messages in the code base.
+
 
 class BreakdownNotFoundError(RootskiApiError):
     """Error thrown if a Breakdown isn't found."""
@@ -32,6 +36,11 @@ class WordNotFoundError(RootskiApiError):
 
 class MorphemeNotFoundError(RootskiApiError):
     """Raised when a morpheme is not found in the database"""
+
+    @staticmethod
+    def make_error_message(morpheme_ids: List[str]):
+        morpheme_ids.sort()
+        return MORPHEME_IDS_NOT_FOUND_MSG.format(not_found_ids=morpheme_ids)
 
 
 class MorphemeFamilyNotFoundError(RootskiApiError):

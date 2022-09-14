@@ -690,8 +690,8 @@ EXAMPLE_USER_SUBMISSION_MISSING_WORD = {
 
 EXAMPLE_DATA = [
     # Offical Beakdown Examples based on real data
-    EXAMPLE_OFFICIAL_BREAKDOWN_BY_USER_W_NULL_AND_NON_NULL_BREAKDOWN_ITEMS_IN_DB,
     EXAMPLE_BREAKDOWN_W_NULL_AND_NON_NULL_BREAKDOWN_ITEMS_IN_DB,  # inferenced example
+    EXAMPLE_OFFICIAL_BREAKDOWN_BY_USER_W_NULL_AND_NON_NULL_BREAKDOWN_ITEMS_IN_DB,
     EXAMPLE_BREAKDOWN_W_ALL_NULL_BREAKDOWN_ITEMS,  # inferenced example with all null breakdown items
     EXAMPLE_BREAKDOWN_W_NO_NULL_BREAKDOWN_ITEMS,  # inferenced example with no null breakdown items
     EXAMPLE_BREAKDOWN_W_MORPHEME_FAMILIES_IN_DB,  # inferenced example with duplicate breakdown_items
