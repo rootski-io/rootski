@@ -14,13 +14,11 @@ from typing import Optional
 from fastapi import FastAPI
 from rootski.config.config import Config
 from rootski.main.endpoints.breakdown.routes import router as breakdown_router
-from rootski.main.endpoints.graphql import router as graphql_router
 from rootski.main.endpoints.morpheme import router as morpheme_router
 from rootski.main.endpoints.search import router as search_router
 from rootski.main.endpoints.word import router as word_router
 from rootski.schemas.core import Services
 from rootski.services.auth import AuthService
-from rootski.services.database import DBService
 from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
 from rootski.services.logger import LoggingService
 from starlette.middleware.cors import CORSMiddleware
@@ -37,7 +35,6 @@ def create_app(
     app.state.config: Config = config
     app.state.services = Services(
         auth=AuthService.from_config(config=config),
-        db=DBService.from_config(config=config),
         logger=LoggingService.from_config(config=config),
         dynamo=DynamoDBService.from_config(config=config),
     )
@@ -49,13 +46,11 @@ def create_app(
 
         logging_service: LoggingService = services.logger
         auth_service: AuthService = services.auth
-        db_service: DBService = services.db
         dynamo_service: DynamoDBService = services.dynamo
 
         # logging should be initialized first since it alters a global logger variable
         logging_service.init()
         auth_service.init()
-        db_service.init()
         dynamo_service.init()
 
         # # ensure that the static assets dir exists (for morphemes.json)
@@ -66,7 +61,6 @@ def create_app(
     app.include_router(search_router, tags=["Words"])
     app.include_router(word_router, tags=["Words"])
     app.include_router(morpheme_router, tags=["Morphemes"])
-    app.include_router(graphql_router, tags=["GraphQL"])
 
     # add authorized CORS origins (add these origins to response headers to
     # enable frontends at these origins to receive requests from this API)
