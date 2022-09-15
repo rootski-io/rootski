@@ -14,7 +14,8 @@ from rootski.config.config import ANON_USER
 from rootski.gql.context import RootskiGraphQLContext
 from rootski.schemas import Services
 from rootski.services.database import DBService
-from rootski.services.database.dynamo.actions.user import UserNotFoundError, get_user, register_user
+from rootski.services.database.dynamo.errors import UserNotFoundError
+from rootski.services.database.dynamo.actions.user import get_user, register_user
 from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
 from rootski.services.database.dynamo.models2schemas.user import dynamo_to_pydantic__user
 from sqlalchemy.ext.asyncio import AsyncSession
