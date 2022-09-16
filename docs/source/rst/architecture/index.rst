@@ -41,7 +41,7 @@ rootski is architected...
 
 - |flag| with awesome practices!
 - |users| to scale to thousands of concurrent users
-- |dollar| to be cheap to run (~$20-30/mo)
+- |dollar| to be cheap to run (~$3-6/mo)
 - |secure| to be secure (data is backed up and secured, contributors and scripts
   have minimum-required access, network access and credentials are gated)
 - |ghost| to be ephemeral: any piece of the architecture can be destroyed at any time
