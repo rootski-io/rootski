@@ -32,7 +32,12 @@ The function get_morpheme_family_ids_of_non_null_breakdown_items() is used to fi
 from typing import Dict, List, Union
 
 from boto3.dynamodb.conditions import Key
-from mypy_boto3_dynamodb.type_defs import KeysAndAttributesServiceResourceTypeDef
+from mypy_boto3_dynamodb.type_defs import (
+    GetItemOutputTableTypeDef,
+    KeysAndAttributesServiceResourceTypeDef,
+    PutItemOutputTableTypeDef,
+    QueryOutputTableTypeDef,
+)
 from rootski.schemas import breakdown as schemas
 from rootski.services.database.dynamo.actions.dynamo import (
     batch_get_item_status_code,
@@ -45,7 +50,6 @@ from rootski.services.database.dynamo.db_service import DBService
 from rootski.services.database.dynamo.errors import (
     BREAKDOWN_NOT_FOUND,
     MORPHEME_FAMILY_IDS_NOT_FOUND_MSG,
-    MORPHEME_IDS_NOT_FOUND_MSG,
     USER_BREAKDOWN_NOT_FOUND,
     BreakdownNotFoundError,
     MorphemeFamilyNotFoundError,
@@ -69,7 +73,7 @@ def get_official_breakdown_by_word_id(word_id: str, db: DBService) -> Breakdown:
     table = db.rootski_table
     breakdown_dynamo_keys: dict = make_keys__breakdown(word_id=word_id)
 
-    get_item_response = table.get_item(Key=breakdown_dynamo_keys)
+    get_item_response: GetItemOutputTableTypeDef = table.get_item(Key=breakdown_dynamo_keys)
     if get_item_status_code(item_output=get_item_response) == 404 or "Item" not in get_item_response.keys():
         raise BreakdownNotFoundError(BREAKDOWN_NOT_FOUND.format(word_id=word_id))
     item = get_item_from_dynamo_response(get_item_response)
@@ -106,12 +110,12 @@ def get_official_breakdown_submitted_by_another_user(word_id: str, db: DBService
     """Query a breakdown from Dynamo from another user."""
     table = db.rootski_table
 
-    get_items_response = table.query(
+    query_response: QueryOutputTableTypeDef = table.query(
         IndexName="gsi2",
         KeyConditionExpression=Key("gsi2pk").eq(f"WORD#{word_id}") & Key("gsi2sk").begins_with("USER#"),
     )
 
-    items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
+    items: List[dict] = get_items_from_dynamo_query_response(query_response)
     if len(items) == 0:
         raise BreakdownNotFoundError(f"No word with ID {word_id} was found in Dynamo.")
 
@@ -182,20 +186,20 @@ def get_morphemes(morpheme_ids: List[str], db: DBService) -> Dict[str, Morpheme]
 
     items: List[dict] = []
     for morpheme_keys in unique_morpheme_keys__to_fetch:
-        get_item_response = table.query(
+        query_response: QueryOutputTableTypeDef = table.query(
             IndexName="gsi1",
             KeyConditionExpression=Key("gsi1pk").eq(morpheme_keys["gsi1pk"])
             & Key("gsi1sk").eq(morpheme_keys["gsi1sk"]),
         )
         if (
-            get_item_status_code(item_output=get_item_response) != 200
-            or "Items" not in get_item_response.keys()
-            or len(get_item_response["Items"]) == 0
+            get_item_status_code(item_output=query_response) != 200
+            or "Items" not in query_response.keys()
+            or len(query_response["Items"]) == 0
         ):
             raise MorphemeNotFoundError(
                 MorphemeNotFoundError.make_error_message(morpheme_ids=unique_morpheme_ids)
             )
-        item: List[dict] = get_items_from_dynamo_query_response(get_item_response)
+        item: List[dict] = get_items_from_dynamo_query_response(query_response)
         items.append(item[0])
 
     morpheme_data = make_id_morpheme_map(morpheme_data_objs=items)
@@ -206,7 +210,7 @@ def get_morphemes(morpheme_ids: List[str], db: DBService) -> Dict[str, Morpheme]
 def upsert_breakdown(breakdown: Breakdown, is_official: bool, db: DBService) -> None:
     table = db.rootski_table
     breakdown_data: dict = breakdown.to_item(is_official=is_official)
-    table.put_item(Item=breakdown_data)
+    response: PutItemOutputTableTypeDef = table.put_item(Item=breakdown_data)
 
 
 ####################
@@ -262,7 +266,7 @@ def see_whether_breakdowns_are_overwritten(db: DBService):
     table = db.rootski_table
     get_items_response = table.query(
         IndexName="gsi2",
-        KeyConditionExpression=Key("gsi2pk").eq(f"WORD#7") & Key("gsi2sk").eq("USER#email@gmail.com"),
+        KeyConditionExpression=Key("gsi2pk").eq("WORD#7") & Key("gsi2sk").eq("USER#email@gmail.com"),
     )
 
     items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
@@ -270,7 +274,7 @@ def see_whether_breakdowns_are_overwritten(db: DBService):
 
     get_items_response = table.query(
         IndexName="gsi1",
-        KeyConditionExpression=Key("gsi1pk").eq(f"USER#anonymous") & Key("gsi1sk").eq("WORD#7"),
+        KeyConditionExpression=Key("gsi1pk").eq("USER#anonymous") & Key("gsi1sk").eq("WORD#7"),
     )
     items: List[dict] = get_items_from_dynamo_query_response(get_items_response)
     print(items)

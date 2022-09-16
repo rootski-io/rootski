@@ -32,16 +32,6 @@ BASE_SAMPLE_CONFIG_VALUES = {
     ],
 }
 
-# config values used when tests are not meant to connect to a running database
-DUMMY_DB_CONFIG_VALUES = {
-    # by default these should be the tests/resources/docker-compose.yml values
-    "postgres_user": "dummy-user",
-    "postgres_password": "dummy-pass",
-    "postgres_host": "dummy-host",
-    "postgres_port": 12345,
-    "postgres_db": "dummy_db",
-}
-
 # config values used when tests are not meant to authenticate with a real cognito user pool
 DUMMY_COGNITO_CONFIG_VALUES = {
     "cognito_aws_region": "us-west-1",
@@ -50,7 +40,7 @@ DUMMY_COGNITO_CONFIG_VALUES = {
 
 # complete set of config values that can be used to instantiate a Config object
 # for tests that do not depend on any external infrastructure
-DUMMY_CONFIG_VALUES = dict(**BASE_SAMPLE_CONFIG_VALUES, **DUMMY_DB_CONFIG_VALUES, **DUMMY_COGNITO_CONFIG_VALUES)
+DUMMY_CONFIG_VALUES = dict(**BASE_SAMPLE_CONFIG_VALUES, **DUMMY_COGNITO_CONFIG_VALUES)
 
 # config for real database tests: there are dummy values for all infrastructure
 # but the database; the real database config values should come from environment

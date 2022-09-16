@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: FastAPI",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "env": {
+                "ROOTSKI__LOG_LEVEL": "DEBUG",
+                "ROOTSKI__HOST": "0.0.0.0",
+                "ROOTSKI__PORT": "3333",
+                "ROOTSKI__COGNITO_USER_POOL_ID": "us-west-2_NMATFlcVJ",
+                "ROOTSKI__COGNITO_WEB_CLIENT_ID": "35ufe1nk2tasug2gmbl5l9mra3",
+                "ROOTSKI__EXTRA_ALLOWED_CORS_ORIGINS": "[\"http://localhost:3333\", \"http://localhost:3000\"]",
+                "ROOTSKI__COGNITO_AWS_REGION": "us-west-2",
+            },
+            "args": [
+                "rootski.main.main:create_default_app",
+                "--factory",
+            ],
+            "jinja": true,
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "purpose": [
+                "debug-test"
+            ]
+        }
+    ]
+}

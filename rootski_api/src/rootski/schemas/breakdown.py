@@ -1,11 +1,9 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
-from loguru import logger
 from pydantic import BaseModel, EmailStr, Field, constr, root_validator
 from rootski.errors import BadBreakdownItemError
 from rootski.schemas.morpheme import MORPHEME_TYPE_ENUM, MORPHEME_WORD_POS_ENUM, Morpheme
-from rootski.services.database import models as orm
 
 
 class NullMorphemeBreakdownItem(BaseModel):
@@ -73,9 +71,6 @@ class BreakdownItemCommon(BaseModel):
     morpheme_id: Optional[int]
     type: Optional[MORPHEME_TYPE_ENUM]
 
-    class Config:
-        orm_mode = True
-
     @staticmethod
     def from_null_morpheme_breakdown_item(item: NullMorphemeBreakdownItem):
         return BreakdownItem(type=None, morpheme=item.morpheme, position=item.position)
@@ -130,52 +125,6 @@ class BreakdownItem(BreakdownItemCommon):
                     )
         return values
 
-    @staticmethod
-    def from_orm_breakdown_item(b_item: orm.BreakdownItem):
-        # fetch a few fields that are not directly on the SQL tables, but required by the pydantic schema
-
-        # morpheme fields
-        morpheme: Optional[orm.Morpheme] = b_item.morpheme_
-        if morpheme:
-            word_pos: Optional[MORPHEME_WORD_POS_ENUM] = morpheme.word_pos
-            family_id: int = morpheme.family_id
-            type: str = morpheme.type
-            level: int = morpheme.family.level
-            family: str = morpheme.family.family
-
-            # family meanings
-            orm_meaning: orm.MorphemeFamilyMeaning
-            family_meanings: List[str] = [
-                orm_meaning.meaning
-                for orm_meaning in b_item.morpheme_.family.meanings
-                if orm_meaning.meaning is not None
-            ]
-
-            # create a BreakdownItem from the BreakdownItemInDb, overwriting any of the fields we just fetched
-            b_item_db = BreakdownItemInDb.from_orm(b_item)
-            logger.info("Breakdown Item")
-            logger.info(b_item_db.dict())
-            b_item_kwargs = {
-                **b_item_db.dict(),
-                **dict(
-                    word_pos=word_pos,
-                    family_id=family_id,
-                    level=level,
-                    type=type,
-                    family=family,
-                    family_meanings=family_meanings,
-                ),
-            }
-            print("b_item_kwargs", b_item_kwargs)
-            logger.info(b_item_kwargs)
-            return BreakdownItem(**b_item_kwargs)
-
-        else:
-            # for null morphemes, we only care about the position and the morpheme text
-            to_return = BreakdownItem.from_orm(b_item)
-            to_return.morpheme_id = None
-            return to_return
-
     def to_null_or_morpheme_breakdown_item(
         self,
     ) -> Union[NullMorphemeBreakdownItem, MorphemeBreakdownItemInResponse]:
@@ -191,21 +140,6 @@ class BreakdownItemInDb(BreakdownItemCommon):
     # formerly, breakdown_id: Optional[int] = None, when using SQLAlchemy
     breakdown_id: str = "deprecated"
 
-    class Config:
-        orm_mode = True
-
-    def to_orm(self, breakdown_id: Optional[int] = None) -> orm.BreakdownItem:
-        """Returns an orm representation of the breakdown item.
-
-        :param breakdown_id:
-        """
-        return orm.BreakdownItem(
-            breakdown_id=breakdown_id,
-            morpheme_id=self.morpheme_id,
-            position=self.position,
-            type=self.type,
-            morpheme=self.morpheme,
-        )
 
 
 class BreakdownCommon(BaseModel):
@@ -217,36 +151,18 @@ class BreakdownCommon(BaseModel):
     date_verified: Optional[datetime]
     breakdown_items: List[BreakdownItemCommon]
 
-    class Config:
-        orm_mode = True
 
 
 class Breakdown(BreakdownCommon):
     breakdown_items: List[BreakdownItem]
     submitted_by_current_user: bool = False
 
-    @staticmethod
-    def from_orm_breakdown(orm_breakdown: orm.Breakdown):
-        """Initialize a breakdown object from an orm.Breakdown object with the proper intermediate steps."""
-        # fetch some data not present in the Breakdown db table, but required by the pydantic schema
-        breakdown_common = BreakdownCommon.from_orm(orm_breakdown)
-        breakdown_items = [
-            BreakdownItem.from_orm_breakdown_item(b_item) for b_item in orm_breakdown.breakdown_items
-        ]
-
-        # create a Breakdown schema overwriting the orm_breakdown with the ones we just fetched
-        breakdown_kwargs = {**breakdown_common.dict(), **dict(breakdown_items=breakdown_items)}
-        print("breakdown kwargs", breakdown_kwargs)
-        return Breakdown(**breakdown_kwargs)
 
 
 class BreakdownInDB(BreakdownCommon):
     submitted_by_user_email: Optional[EmailStr]
     verified_by_user_email: Optional[EmailStr]
     id: Optional[int] = None
-
-    class Config:
-        orm_mode = True
 
 
 ##################################

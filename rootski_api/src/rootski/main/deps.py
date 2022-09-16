@@ -4,21 +4,17 @@ Dependencies for the endpoints.
 The goal is to create all dependencies using a Config class
 so that the app can be configured differently for testing and production.
 """
-from typing import Generator, Optional
+from typing import Optional
 
 import rootski.services.database.dynamo.models as dynamo_models
 from fastapi import Depends, HTTPException, Request, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from loguru import logger
 from rootski.config.config import ANON_USER
-from rootski.gql.context import RootskiGraphQLContext
 from rootski.schemas import Services
-from rootski.services.database import DBService
 from rootski.services.database.dynamo.actions.user import UserNotFoundError, get_user, register_user
 from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
 from rootski.services.database.dynamo.models2schemas.user import dynamo_to_pydantic__user
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from rootski import schemas
 
@@ -49,20 +45,6 @@ async def get_authorized_user_email_or_anon(request: Request, token: str = Depen
     if not token or token.strip() == "":
         return ANON_USER
     return app_services.auth.get_token_email(token)
-
-
-def get_session(request: Request) -> Generator[Session, None, None]:
-    """Initiate a DB session that will be closed when a request finishes."""
-    db_service: DBService = request.app.state.services.db
-    with db_service.get_sync_session() as session:
-        yield session
-
-
-async def get_async_session(request: Request) -> Generator[AsyncSession, None, None]:
-    """Initiate a DB session that will be closed when a request finishes."""
-    db_service: DBService = request.app.state.services.db
-    async with db_service.get_async_session() as session:
-        yield session
 
 
 async def get_current_user(
@@ -97,14 +79,14 @@ async def get_current_user(
     return current_user
 
 
-def get_graphql_context(
-    request: Request,
-    db: Session = Depends(get_async_session),
-    user: schemas.User = Depends(get_current_user),
-) -> RootskiGraphQLContext:
-    """Prepare the context object used by GraphQL resolvers."""
-    return RootskiGraphQLContext(
-        request=request,
-        session=db,
-        user=user,
-    )
+# def get_graphql_context(
+#     request: Request,
+#     db: Session = Depends(get_async_session),
+#     user: schemas.User = Depends(get_current_user),
+# ) -> RootskiGraphQLContext:
+#     """Prepare the context object used by GraphQL resolvers."""
+#     return RootskiGraphQLContext(
+#         request=request,
+#         session=db,
+#         user=user,
+#     )

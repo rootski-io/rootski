@@ -1,3 +1,4 @@
+from loguru import logger as LOGGER
 from mypy_boto3_dynamodb.type_defs import PutItemOutputTableTypeDef
 from rootski.services.database.dynamo.actions.dynamo import get_item_from_dynamo_response, get_item_status_code
 from rootski.services.database.dynamo.db_service import DBService as DynamoDBService
@@ -13,6 +14,7 @@ from rootski.services.database.dynamo.models.user import User, make_keys
 def upsert_user(email: str, is_admin: bool, db: DynamoDBService) -> None:
     user_to_upsert = User(email=email, is_admin=is_admin)
     response: PutItemOutputTableTypeDef = db.rootski_table.put_item(Item=user_to_upsert.to_item())
+    return User(email=email, is_admin=is_admin)
 
 
 def get_user(email: str, db: DynamoDBService) -> User:
@@ -43,12 +45,15 @@ def register_user(email: str, is_admin: bool, db: DynamoDBService) -> User:
     """
     # query database for the current user
     # user_in_db: Optional[orm.User] = session.query(orm.User).filter_by(email=email).first()
-    user_in_db = get_user(email=email, db=db)
-
-    if user_in_db is not None:
+    try:
+        user_in_db = get_user(email=email, db=db)
+    except UserNotFoundError:
+        LOGGER.info(f"User not found for {email}, will register.")
+    else:
         raise UserAlreadyRegisteredError(USER_ALREADY_REGISTERED_MSG.format(email=email))
 
     # add the user to the database
-    upsert_user(email=email, is_admin=is_admin, db=db)
+    LOGGER.info(f"Registering user {email} in dynamo database.")
+    user_in_db: User = upsert_user(email=email, is_admin=is_admin, db=db)
 
     return user_in_db

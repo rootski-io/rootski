@@ -181,21 +181,7 @@ class Config(BaseSettings):
 
     extra_allowed_cors_origins: List[AnyHttpUrl] = []
 
-    postgres_user: str
-    postgres_password: str
-    postgres_host: str
-    postgres_port: str
-    postgres_db: str
-
     dynamo_table_name: str = DEFAULT_DYNAMO_TABLE_NAME
-
-    @property
-    def sync_sqlalchemy_database_uri(self) -> str:
-        return f"postgresql+psycopg2://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
-
-    @property
-    def async_sqlalchemy_database_uri(self) -> str:
-        return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
 
     @property
     def static_morphemes_json_fpath(self) -> Path:

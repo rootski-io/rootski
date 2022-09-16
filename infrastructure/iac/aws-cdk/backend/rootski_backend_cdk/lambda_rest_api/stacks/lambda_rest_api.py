@@ -155,6 +155,7 @@ class RootskiLambdaRestApiStack(cdk.Stack):
                         "mkdir -p /asset-output"
                         + "&& pip install -r ./aws-lambda/requirements.txt -t /asset-output"
                         + "&& pip install . -t /asset-output"
+                        + "&& cp -r ./src/rootski/resources /asset-output/rootski/resources/"  # TODO: Check that this works
                         + "&& cp aws-lambda/index.py /asset-output"
                         + "&& rm -rf /asset-output/boto3 /asset-output/botocore",
                     ],
@@ -167,6 +168,32 @@ class RootskiLambdaRestApiStack(cdk.Stack):
                 "ROOTSKI__STATIC_ASSETS_DIR": "/tmp",
                 "ROOTSKI__OBJECT_CACHE_BUCKET_NAME": morphemes_json_bucket.bucket_name,
             },
+        )
+
+        # allow lambda to access the Dynamodb rootski-dynamodb-table
+        fast_api_function.role.attach_inline_policy(
+            policy=iam.Policy(
+                self,
+                id="Allow-Lambda-Full-Access-To-DynamoDB",
+                statements=[
+                    iam.PolicyStatement(
+                        effect=iam.Effect.ALLOW,
+                        resources=[
+                            "arn:aws:dynamodb:{region}:{account}:table/rootski*".format(
+                                region=cdk.Stack.of(self).region,
+                                account=cdk.Stack.of(self).account,
+                            )
+                        ],
+                        actions=[
+                            "dynamodb:GetItem",
+                            "dynamodb:Query",
+                            "dynamodb:BatchGetItem",
+                            "dynamodb:PutItem",
+                            "dynamodb:CreateBackup",
+                        ],
+                    )
+                ],
+            )
         )
 
         morphemes_json_bucket.grant_read_write(fast_api_function)

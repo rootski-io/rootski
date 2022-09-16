@@ -12,9 +12,3 @@ extra_allowed_cors_origins:
   - http://localhost:3000
 
 log_level: INFO
-
-postgres_host: localhost
-postgres_port: 5432
-postgres_user: rootski
-postgres_password: pass
-postgres_db: rootski_db
