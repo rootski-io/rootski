@@ -2,8 +2,6 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel, constr
 
-from rootski.services.database import models as orm
-
 # morpheme types
 MORPHEME_TYPE_PREFIX = "prefix"
 MORPHEME_TYPE_ROOT = "root"
@@ -98,29 +96,3 @@ class CompleteMorpheme(Morpheme):
     level: int
     # comma separated string of other morpheme variants in the family
     family: str
-
-    @classmethod
-    def from_orm_morpheme(cls, morpheme: orm.Morpheme):
-
-        # collect fields that are not directly on the orm.Morpheme object
-        # (this may trigger SQL queries against the database) if
-        # the morpheme object has not eager-loaded its joining tables
-        level: int = morpheme.family.level
-        family: str = morpheme.family.family
-        orm_meaning: orm.MorphemeFamilyMeaning
-        family_meanings: List[str] = [
-            orm_meaning.meaning for orm_meaning in morpheme.family.meanings if orm_meaning.meaning is not None
-        ]
-
-        return CompleteMorpheme(
-            # fields directly on the morpheme object
-            morpheme_id=morpheme.morpheme_id,
-            morpheme=morpheme.morpheme,
-            type=morpheme.type,
-            word_pos=morpheme.word_pos,
-            family_id=morpheme.family_id,
-            # fields collected from other tables
-            level=level,
-            family=family,
-            meanings=family_meanings,
-        )
