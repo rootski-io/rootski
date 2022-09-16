@@ -9,6 +9,8 @@ Architecture & Tech Stack
 
    frontend/index
 
+   database/index
+
 .. drawio-image:: ./rootski-architecture.drawio
     :format: svg
     :target: /_images/rootski-architecture.svg
