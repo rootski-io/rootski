@@ -107,6 +107,20 @@ Completed a lot of the rootski onboarding and chat with us in our [Slack workspa
 - [Yashwanth (Yash) Kumar](https://www.linkedin.com/in/yashpkumar/) - Finishing up the Georgia Tech online masters in CS.
 - [Ben Doyle](https://www.linkedin.com/in/benjamin-doyle/) - Mixed work experience in NLP, full-stack development, and data analytics. Finishing undergrad at BYU in December 2022.
 
+</br>
+
+### Postgres/SQLAlchemy vs DynamoDB/boto3
+
+We've received several thank you messages from engineers who have used this codebase as a reference
+for designing their own production-ready FastAPI REST APIs. You are welcome to as well :)
+
+Rootski now uses DynamoDB as the backend database, but it once used PostgreSQL and SQLAlchemy.
+You can use [this git hash (a24b7ba)](https://github.com/rootski-io/rootski/tree/a24b7ba20e1c301c0a3b1127661ff7973d5440bc) to go back in time to see the original SQL-based implementation.
+
+If you come from a SQL background as we did and want to learn DynamoDB, comparing the old SQL implementation
+with the new Dynamo implementation may be helpful for you.
+
+See the [docs.rootski.io](https://docs.rootski.io) for documentation of the original and new database schemas.
 
 </br></br></br></br></br>
 
