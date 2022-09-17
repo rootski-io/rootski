@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?=
+SPHINXOPTS    ?= -j=auto
 SPHINXBUILD   ?= sphinx-build
 
 #
@@ -58,9 +58,9 @@ docs-docker-ci:
 	mkdir -p $(BUILDDIR)/doctrees
 	docker-compose run --rm sphinx docs-ci
 
-# build docs, but fail with warnings
+# build docs, but fail with warnings; TODO re-enable failure for warnings
 docs-ci:
-	@$(SPHINXBUILD) -W "$(SOURCEDIR)" "$(BUILDDIR)"
+	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)"
 
 # use the docker image to
 serve-docker:
