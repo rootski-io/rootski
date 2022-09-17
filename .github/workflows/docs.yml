@@ -76,6 +76,7 @@ jobs:
           cd ./docs/
 
           # invalidate the S3 cache to prepare to publish the new site
+          echo "Invalidating the CloudFront cache for docs.rootski.io"
           pip install boto3
           python aws_invalidate_stack.py \
               --s3-static-site-stack-name docs-s3-static-site--stack--cdk \
@@ -93,7 +94,7 @@ jobs:
               echo "[rootski] cleaning up review version of site from when PR was opened"
               aws s3 rm s3://docs.rootski.io --recursive --exclude "*" --include "/review/${RECENT_MERGED_BRANCH_NAME}*"
               echo "[rootski] publishing the site to the production location S3"
-              aws s3 sync ./build/html/ "s3://docs.rootski.io/review/${RECENT_MERGED_BRANCH_NAME}/" --acl public-read
+              aws s3 sync ./build/html/ "s3://docs.rootski.io/" --acl public-read
               # save the URL of the published docs for future steps
               echo "DOCS_URL=https://docs.rootski.io/" >> $GITHUB_ENV
           fi
