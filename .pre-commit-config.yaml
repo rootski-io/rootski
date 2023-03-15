@@ -143,7 +143,7 @@ repos:
           args:
             - --isort
             # executes flake8 and pydocstyle (where pydocstyle is a flake8 plugin)
-            - -L flake8 --config=./linting/.flake8
+            - -L flake8 --config=./linting/.flake8 --ignore ./rootski_model/model/legacy_data.py
             - -L pylint --rcfile=./linting/.pylintrc
             # line length for black
             - -l 112

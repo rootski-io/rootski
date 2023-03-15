@@ -1,10 +1,12 @@
 import torch
-from data import PADDING_TOKEN, MorphemeDataset
 from inference import breakdown_russian_word
 from model import Transformer
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+from tqdm import tqdm
+
+from data import *
 
 # Training hyperparameters
 NUM_EPOCHS = 100
@@ -35,8 +37,10 @@ def train(
         train_dataset (MorphemeDataset):
         val_dataset   (MorphemeDataset):
         num_epochs              (int, optional): Defaults to NUM_EPOCHS.
-        batches_per_train_epoch (int, optional): Defaults to BATCHES_PER_TRAINING_EPOCH.
-        batches_per_val_epoch   (int, optional): Defaults to BATCHES_PER_VALIDATION_EPOCH.
+        batches_per_train_epoch (int, optional): Defaults to 
+            BATCHES_PER_TRAINING_EPOCH.
+        batches_per_val_epoch   (int, optional): Defaults to 
+            BATCHES_PER_VALIDATION_EPOCH.
         max_batch_size    (int, optional): Defaults to BATCH_SIZE.
         learning_rate             (float): Defaults to LEARNING_RATE
         device            (str, optional): Defaults to "cpu".
@@ -78,70 +82,91 @@ def train(
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # prepare the loss function
-    pad_idx = train_dataset.trg_vocab.vocab.stoi[PADDING_TOKEN]
-    criterion = nn.CrossEntropyLoss(ignore_index=pad_idx)
+    pad_idx = train_dataset.trg_vocab([PADDING_TOKEN])
+    criterion = nn.CrossEntropyLoss(ignore_index=pad_idx[0])
 
     # prepare to log training/validation metrics
     writer = SummaryWriter(log_dir="runs")
 
     train_losses = []
     val_losses = []
+    with tqdm(total=num_epochs) as progress:
+        for epoch in range(num_epochs):
+            avg_train_loss = do_training_epoch(
+                model, optimizer, criterion, train_iterator,
+                device=device, num_batches=batches_per_train_epoch
+            )
+            avg_val_loss = do_validation_epoch(
+                model, criterion, val_iterator,
+                device=device, num_batches=batches_per_val_epoch
+            )
 
-    for epoch in range(num_epochs):
-        avg_train_loss = do_training_epoch(
-            model, optimizer, criterion, train_iterator, device=device, num_batches=batches_per_train_epoch
-        )
-        avg_val_loss = do_validation_epoch(
-            model, criterion, val_iterator, device=device, num_batches=batches_per_val_epoch
-        )
+            model.save_model_checkpoint(
+                train_dataset.src_vocab, 
+                train_dataset.trg_vocab, 
+                path="large_model_checkpoint.pt"
+            )
 
-        model.save_model_checkpoint(
-            train_dataset.src_vocab, train_dataset.trg_vocab, path="model_checkpoint.pt"
-        )
+            train_losses.append(avg_train_loss)
+            val_losses.append(avg_val_loss)
 
-        train_losses.append(avg_train_loss)
-        val_losses.append(avg_val_loss)
+            writer.add_scalar("Loss/train", avg_train_loss, epoch)
+            writer.add_scalar("Loss/validation", avg_val_loss, epoch)
 
-        print(
-            f"=> Epoch: {epoch + 1} -- Avg. Training Loss {avg_train_loss:.3f}"
-            f" Avg. Validation Loss {avg_val_loss:.3f}"
-        )
-        writer.add_scalar("Loss/train", avg_train_loss, epoch)
-        writer.add_scalar("Loss/validation", avg_val_loss, epoch)
+            word = "приказать"
+            breakdown = breakdown_russian_word(
+                word, model, train_dataset.src_vocab, train_dataset.trg_vocab
+            )
+            descr = f"Epoch: {epoch+1} -- Avg Train Loss {avg_train_loss:.3f}"
+            # descr += ",".join(breakdown)
+            progress.set_description(descr)
+            progress.update()
 
-        word = "приказать"
-        breakdown = breakdown_russian_word(word, model, train_dataset.src_vocab, train_dataset.trg_vocab)
-        print(",".join(breakdown))
-
-        writer.add_text("word", " ".join(breakdown), global_step=epoch)
-        writer.add_text("breakdown", " ".join(breakdown), global_step=epoch)
+            writer.add_text("word", " ".join(breakdown), global_step=epoch)
+            writer.add_text("breakdown", " ".join(breakdown), global_step=epoch)
 
     import matplotlib.pyplot as plt
 
-    plt.plot(train_losses, label="Train")
+    plt.plot(train_losses, label="Train",lw=.5)
     plt.title("Loss")
     # plt.show()
     plt.xlabel("epoch")
     plt.ylabel("loss")
 
-    plt.plot(val_losses, label="Validation")
-    plt.savefig("my-losses.png")
+    plt.plot(val_losses, label="Validation",lw=.5)
+    plt.savefig("large-model-losses.png")
+
+    model.save_model_checkpoint(
+        train_dataset.src_vocab, 
+        train_dataset.trg_vocab, 
+        path="large_model.pt"
+    )
 
 
-def do_training_epoch(model, optimizer, criterion, train_dataloader_iterator, num_batches, device="cpu"):
-    """Perform a single training epoch--in this case, inputting the entire training dataset
-    into the model one time. Gradient descent is performed on the weights during this epoch.
+def do_training_epoch(
+    model,
+    optimizer,
+    criterion,
+    train_dataloader_iterator,
+    num_batches,
+    device="cpu"
+    ):
+    """Perform a single training epoch--in this case, inputting the entire 
+    training dataset into the model one time. Gradient descent is 
+    performed on the weights during this epoch.
 
     Args:
-        model (Transformer): Wrapper around nn.Transformer with sine/cosine positional encoding
-        optimizer (torch.optim.Optimizer): Some optimizer initialized with access to all of the
-            model parameters that we want to iterate on with gradient descent
+        model (Transformer): nn.Transformer with sine/cosine positional encoding
+        optimizer (torch.optim.Optimizer): Some optimizer initialized with 
+            access to all of the model parameters that we want to 
+            iterate on with gradient descent
         criterion (function): A loss function for multi-class classification.
-            KL divergence for label smoothing and Cross Entropy Loss are standard.
-        train_dataloader (torch.data.DataLoader): A DataLoader with the batch_sampler parameter
-            overriden so that all the target sequences in the batches are of equal length
-        device (str, optional): "cpu" or "cuda" (used for running computations on a GPU).
-            Defaults to "cpu".
+            KL divergence for label smoothing and Cross Entropy Loss standard.
+        train_dataloader (torch.data.DataLoader): A DataLoader with the 
+            batch_sampler parameter overriden so that all the target sequences
+            in the batches are of equal length
+        device (str, optional): "cpu" or "cuda" (used for running computations 
+            on a GPU). Defaults to "cpu".
 
     Returns:
         float: Average loss per training example for the epoch
@@ -155,9 +180,11 @@ def do_training_epoch(model, optimizer, criterion, train_dataloader_iterator, nu
         src, trg = batch  # (N, s), (N, t) s ≤ S, t ≤ T
         N, s = src.shape
         # N, t = trg.shape
-        src.to(device), trg.to(device)  # send the batch tensors to GPU if desired
+        # send the batch tensors to GPU if desired
+        src, trg = src.to(device), trg.to(device)  
 
-        optimizer.zero_grad()  # clean up any gradients from previous training steps
+        # clean up any gradients from previous training steps
+        optimizer.zero_grad()  
         # input_trg           = trg[:, :-1]  # <start> h e l l o
         # expected_output_trg = trg[:, 1:]   # h e l l o <end>
         # output_trg = model(src, input_trg) # (N, t - 1, Target Vocab Size)
@@ -171,7 +198,9 @@ def do_training_epoch(model, optimizer, criterion, train_dataloader_iterator, nu
         # expected_output = expected_output_trg.reshape(-1)
         # expected_output = expected_output_trg.reshape(N * (t - 1))
 
-        loss = criterion(output_trg.reshape(-1, trg_vocab_size), trg[:, 1:].reshape(-1))
+        loss = criterion(
+            output_trg.reshape(-1, trg_vocab_size), trg[:, 1:].reshape(-1)
+        )
         # loss = criterion(output, expected_output)
         loss.backward()  # compute the gradient for all weights using back prop
 
@@ -187,19 +216,22 @@ def do_training_epoch(model, optimizer, criterion, train_dataloader_iterator, nu
     return epoch_loss  # / total_samples
 
 
-def do_validation_epoch(model, criterion, val_dataloader_iterator, num_batches, device="cpu"):
-    """Perform a single training epoch--in this case, inputting the entire training dataset
-    into the model one time. Gradient descent is NOT performed on the model weights
-    during this epoch.
+def do_validation_epoch(model, criterion, val_dataloader_iterator,
+    num_batches, device="cpu"):
+    """Perform a single training epoch--in this case, inputting the entire
+    training dataset into the model one time. Gradient descent is NOT performed
+    on the model weights during this epoch.
 
     Args:
-        model (Transformer): Wrapper around nn.Transformer with sine/cosine positional encoding
+        model (Transformer): Wrapper around nn.Transformer with sine/cosine 
+            positional encoding
         criterion (function): A loss function for multi-class classification.
-            KL divergence for label smoothing and Cross Entropy Loss are standard.
-        val_dataloader (MorphemeSampler): A DataLoader with the batch_sampler parameter
-            overriden so that all the target sequences in the batches are of equal length
-        device (str, optional): "cpu" or "cuda" (used for running computations on a GPU).
-            Defaults to "cpu".
+            KL divergence for label smoothing and Cross Entropy Loss standard.
+        val_dataloader (MorphemeSampler): A DataLoader with the batch_sampler
+            parameter overriden so that all the target sequences in the batches
+            are of equal length
+        device (str, optional): "cpu" or "cuda" (used for running computations
+            on a GPU). Defaults to "cpu".
 
     Returns:
         float: Average loss per validation example for the epoch
@@ -214,12 +246,15 @@ def do_validation_epoch(model, criterion, val_dataloader_iterator, num_batches, 
             src, trg = batch  # (N, s), (N, t) s ≤ S, t ≤ T
             N, s = src.shape
             N, t = trg.shape
-            src.to(device), trg.to(device)  # send the batch tensors to GPU if desired
+            # send the batch tensors to GPU if desired
+            src, trg = src.to(device), trg.to(device)  
 
             # input_trg           = trg[:, :-1]  # <start> h e l l o
             # expected_output_trg = trg[:, 1:]   # h e l l o <end>
-            # output_trg = model(src, input_trg) # output: (N, t - 1, Target Vocab Size)
-            output_trg = model(src, trg[:, :-1])  # output: (N, t - 1, Target Vocab Size)
+            # output: (N, t - 1, Target Vocab Size)
+            # output_trg = model(src, input_trg)
+            # output: (N, t - 1, Target Vocab Size)
+            output_trg = model(src, trg[:, :-1])  
 
             # reshape the output to be 2-d and the expected ouput to be 1-d
             # trg_vocab_size = output_trg.size(2)
@@ -228,8 +263,9 @@ def do_validation_epoch(model, criterion, val_dataloader_iterator, num_batches, 
             # expected_output = expected_output_trg.reshape(N * (t - 1))
 
             # loss = criterion(output, expected_output)
-            loss = criterion(output_trg.reshape(-1, trg_vocab_size), trg[:, 1:].reshape(-1))
-
+            loss = criterion(
+                output_trg.reshape(-1, trg_vocab_size), trg[:, 1:].reshape(-1)
+            )
             # update epoch metrics
             epoch_loss += loss.item()
             total_samples += N
@@ -241,26 +277,27 @@ def do_validation_epoch(model, criterion, val_dataloader_iterator, num_batches, 
 if __name__ == "__main__":
 
     import torch
-    from data import TESTING_DATA_PATH, TRAINING_DATA_PATH, MorphemeDataset
     from torch import nn
     from torch.utils.data import DataLoader
     from train import train
 
+    DEVICE = "cuda" if torch.cuda.is_available else "cpu"
+
     # initialize the train/val datasets
-    train_data = MorphemeDataset(data_file_path=TRAINING_DATA_PATH)
+    train_data = MorphemeDataset(file_path=TRAINING_DATA_PATH)
     val_data = MorphemeDataset(
-        data_file_path=TESTING_DATA_PATH,
+        file_path=TESTING_DATA_PATH,
         src_vocab_override=train_data.src_vocab,
         trg_vocab_override=train_data.trg_vocab,
     )
 
     # initialize the model
-    SRC_VOCAB_SIZE = len(train_data.src_vocab.vocab)
-    TRG_VOCAB_SIZE = len(train_data.trg_vocab.vocab)
-    SRC_PAD_TOKEN = train_data.src_vocab.pad_token
-    SRC_PAD_INDEX = train_data.src_vocab.vocab.stoi[SRC_PAD_TOKEN]
-    TRG_PAD_TOKEN = train_data.trg_vocab.pad_token
-    TRG_PAD_INDEX = train_data.trg_vocab.vocab.stoi[TRG_PAD_TOKEN]
+    SRC_VOCAB_SIZE = len(train_data.src_vocab)
+    TRG_VOCAB_SIZE = len(train_data.trg_vocab)
+    SRC_PAD_TOKEN = PADDING_TOKEN
+    SRC_PAD_INDEX = train_data.src_vocab([PADDING_TOKEN])
+    TRG_PAD_TOKEN = PADDING_TOKEN
+    TRG_PAD_INDEX = train_data.trg_vocab([PADDING_TOKEN])
 
     print("SRC_VOCAB_SIZE", SRC_VOCAB_SIZE)
     print("TRG_VOCAB_SIZE", TRG_VOCAB_SIZE)
@@ -268,24 +305,40 @@ if __name__ == "__main__":
     print("SRC_PAD_INDEX", SRC_PAD_INDEX)
     print("TRG_PAD_TOKEN", TRG_PAD_TOKEN)
     print("TRG_PAD_INDEX", TRG_PAD_INDEX)
-    print("SRC VOCAB", ",".join(train_data.src_vocab.vocab.stoi.keys()))
-    print("TRG VOCAB", ",".join(train_data.trg_vocab.vocab.stoi.keys()))
+    print("SRC VOCAB", ",".join(train_data.src_vocab.get_stoi().keys()))
+    print("TRG VOCAB", ",".join(train_data.trg_vocab.get_stoi().keys()))
 
     model = Transformer(
         src_pad_idx=SRC_PAD_INDEX,
         trg_pad_idx=TRG_PAD_INDEX,
         src_vocab_size=SRC_VOCAB_SIZE,
         trg_vocab_size=TRG_VOCAB_SIZE,
-    )
+        d_model=16,
+        num_heads=8,
+        num_encoder_layers=32,
+        num_decoder_layers=32,
+        dim_feedforward=2048,
+    ).to(DEVICE)
     # model, src_vocab, trg_vocab = Transformer.load_model_checkpoint()
 
-    # model, src_vocab, trg_vocab = Transformer.load_model_checkpoint("./model_checkpoint.pt")
     train(
         model,
         train_data,
         val_data,
-        num_epochs=100,
+        num_epochs=500,
         batches_per_train_epoch=1,
         batches_per_val_epoch=1,
-        max_batch_size=2048 // 2,
+        max_batch_size=256 // 2,
+        device=DEVICE,
     )
+
+    model, src_vocab, trg_vocab = Transformer.load_model_checkpoint(
+        "./large_model.pt"
+    )
+    model = model.to(DEVICE)
+    word = "приказать"
+    breakdown = breakdown_russian_word(
+        word, model, src_vocab, trg_vocab
+    )
+    print(word)
+    print(breakdown)
